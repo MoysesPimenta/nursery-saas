@@ -1,0 +1,19 @@
+name: Terraform Apply
+on:
+  push:
+    branches: [main]
+    paths: ['infra/**']
+
+jobs:
+  apply:
+    name: Terraform Apply (Dev)
+    runs-on: ubuntu-latest
+    environment: dev
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform init
+      - run: terraform apply -var-file=environments/dev.tfvars -auto-approve

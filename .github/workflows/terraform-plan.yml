@@ -1,0 +1,19 @@
+name: Terraform Plan
+on:
+  pull_request:
+    paths: ['infra/**']
+
+jobs:
+  plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform init -backend=false
+      - run: terraform validate
+      - run: terraform plan -var-file=environments/dev.tfvars -no-color
+        continue-on-error: true

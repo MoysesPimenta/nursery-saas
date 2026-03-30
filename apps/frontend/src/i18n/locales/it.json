@@ -1,0 +1,31 @@
+{
+  "common": {
+    "appName": "Nursery-SaaS",
+    "dashboard": "Pannello",
+    "children": "Bambini",
+    "employees": "Dipendenti",
+    "visits": "Visite",
+    "admin": "Amministratore",
+    "parentPortal": "Portale Genitori",
+    "settings": "Impostazioni",
+    "profile": "Profilo",
+    "logout": "Esci"
+  },
+  "auth": {
+    "signIn": "Accedi",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Password dimenticata?",
+    "resetPassword": "Reimposta password",
+    "mfa": "Autenticazione a due fattori",
+    "verifyCode": "Verifica codice"
+  },
+  "dashboard": {
+    "welcome": "Benvenuto!",
+    "overview": "Ecco una panoramica della tua asilo.",
+    "totalChildren": "Numero totale di bambini",
+    "staffMembers": "Numero di personale",
+    "todaysVisits": "Visite odierne",
+    "growthRate": "Tasso di crescita"
+  }
+}

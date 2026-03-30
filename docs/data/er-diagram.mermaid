@@ -1,0 +1,228 @@
+erDiagram
+    TENANTS ||--o{ USERS : "has"
+    TENANTS ||--o{ CHILDREN : "manages"
+    TENANTS ||--o{ EMPLOYEES : "employs"
+    TENANTS ||--o{ DEPARTMENTS : "has"
+    TENANTS ||--o{ CLASSES : "manages"
+    TENANTS ||--o{ CUSTOM_FIELDS : "creates"
+    TENANTS ||--o{ AUDIT_LOGS : "generates"
+
+    USERS ||--o{ ROLES : "has"
+    USERS ||--o{ USER_ROLES : "assigned"
+    ROLES ||--o{ PERMISSIONS : "has"
+
+    CHILDREN ||--o{ CHILD_ALLERGIES : "has"
+    CHILDREN ||--o{ CHILD_MEDICATIONS : "takes"
+    CHILDREN ||--o{ AUTHORIZATIONS : "needs"
+    CHILDREN ||--o{ VISITS : "attends"
+    CHILDREN ||--o{ CUSTOM_FIELD_VALUES : "has"
+
+    EMPLOYEES ||--o{ EMPLOYEE_ALLERGIES : "has"
+    EMPLOYEES ||--o{ EMPLOYEE_MEDICATIONS : "takes"
+    EMPLOYEES ||--o{ CLASSES : "teaches"
+    EMPLOYEES ||--o{ DEPARTMENTS : "works_in"
+
+    CLASSES ||--o{ VISITS : "has"
+    CLASSES ||--o{ DEPARTMENTS : "belongs_to"
+
+    MEDICATIONS ||--o{ CHILD_MEDICATIONS : "is_used_by"
+    MEDICATIONS ||--o{ EMPLOYEE_MEDICATIONS : "is_used_by"
+
+    ALLERGIES ||--o{ CHILD_ALLERGIES : "affects"
+    ALLERGIES ||--o{ EMPLOYEE_ALLERGIES : "affects"
+
+    VISITS ||--o{ AUTHORIZATIONS : "requires"
+    VISITS ||--o{ AUDIT_LOGS : "creates"
+
+    CUSTOM_FIELDS ||--o{ CUSTOM_FIELD_VALUES : "defines"
+
+    TENANTS : string id PK
+    TENANTS : string name
+    TENANTS : string slug
+    TENANTS : text description
+    TENANTS : jsonb settings
+    TENANTS : string status
+    TENANTS : timestamp created_at
+    TENANTS : timestamp updated_at
+
+    USERS : string id PK
+    USERS : string tenant_id FK
+    USERS : string email
+    USERS : string phone
+    USERS : string first_name
+    USERS : string last_name
+    USERS : string avatar_url
+    USERS : string status
+    USERS : timestamp last_login
+    USERS : boolean mfa_enabled
+    USERS : timestamp created_at
+    USERS : timestamp updated_at
+
+    ROLES : string id PK
+    ROLES : string tenant_id FK
+    ROLES : string name
+    ROLES : text description
+    ROLES : integer priority
+    ROLES : timestamp created_at
+
+    PERMISSIONS : string id PK
+    PERMISSIONS : string name
+    PERMISSIONS : text description
+    PERMISSIONS : string resource
+    PERMISSIONS : string action
+
+    USER_ROLES : string id PK
+    USER_ROLES : string user_id FK
+    USER_ROLES : string role_id FK
+    USER_ROLES : timestamp assigned_at
+
+    CHILDREN : string id PK
+    CHILDREN : string tenant_id FK
+    CHILDREN : string first_name
+    CHILDREN : string last_name
+    CHILDREN : date birthdate
+    CHILDREN : string gender
+    CHILDREN : text notes
+    CHILDREN : string status
+    CHILDREN : string photo_url
+    CHILDREN : timestamp created_at
+    CHILDREN : timestamp updated_at
+
+    CHILD_ALLERGIES : string id PK
+    CHILD_ALLERGIES : string child_id FK
+    CHILD_ALLERGIES : string allergy_id FK
+    CHILD_ALLERGIES : text severity
+    CHILD_ALLERGIES : text reaction
+    CHILD_ALLERGIES : timestamp created_at
+
+    CHILD_MEDICATIONS : string id PK
+    CHILD_MEDICATIONS : string child_id FK
+    CHILD_MEDICATIONS : string medication_id FK
+    CHILD_MEDICATIONS : string dosage
+    CHILD_MEDICATIONS : string frequency
+    CHILD_MEDICATIONS : text instructions
+    CHILD_MEDICATIONS : date start_date
+    CHILD_MEDICATIONS : date end_date
+    CHILD_MEDICATIONS : timestamp created_at
+
+    EMPLOYEES : string id PK
+    EMPLOYEES : string tenant_id FK
+    EMPLOYEES : string user_id FK
+    EMPLOYEES : string first_name
+    EMPLOYEES : string last_name
+    EMPLOYEES : string position
+    EMPLOYEES : string email
+    EMPLOYEES : string phone
+    EMPLOYEES : date hire_date
+    EMPLOYEES : string employment_status
+    EMPLOYEES : string background_check_status
+    EMPLOYEES : date background_check_date
+    EMPLOYEES : string photo_url
+    EMPLOYEES : timestamp created_at
+    EMPLOYEES : timestamp updated_at
+
+    EMPLOYEE_ALLERGIES : string id PK
+    EMPLOYEE_ALLERGIES : string employee_id FK
+    EMPLOYEE_ALLERGIES : string allergy_id FK
+    EMPLOYEE_ALLERGIES : text severity
+    EMPLOYEE_ALLERGIES : text reaction
+    EMPLOYEE_ALLERGIES : timestamp created_at
+
+    EMPLOYEE_MEDICATIONS : string id PK
+    EMPLOYEE_MEDICATIONS : string employee_id FK
+    EMPLOYEE_MEDICATIONS : string medication_id FK
+    EMPLOYEE_MEDICATIONS : string dosage
+    EMPLOYEE_MEDICATIONS : string frequency
+    EMPLOYEE_MEDICATIONS : text instructions
+    EMPLOYEE_MEDICATIONS : date start_date
+    EMPLOYEE_MEDICATIONS : date end_date
+    EMPLOYEE_MEDICATIONS : timestamp created_at
+
+    DEPARTMENTS : string id PK
+    DEPARTMENTS : string tenant_id FK
+    DEPARTMENTS : string name
+    DEPARTMENTS : text description
+    DEPARTMENTS : string manager_id FK
+    DEPARTMENTS : timestamp created_at
+
+    CLASSES : string id PK
+    CLASSES : string tenant_id FK
+    CLASSES : string department_id FK
+    CLASSES : string name
+    CLASSES : string age_group
+    CLASSES : integer capacity
+    CLASSES : text description
+    CLASSES : string status
+    CLASSES : timestamp created_at
+    CLASSES : timestamp updated_at
+
+    MEDICATIONS : string id PK
+    MEDICATIONS : string tenant_id FK
+    MEDICATIONS : string name
+    MEDICATIONS : text description
+    MEDICATIONS : string manufacturer
+    MEDICATIONS : timestamp created_at
+
+    ALLERGIES : string id PK
+    ALLERGIES : string tenant_id FK
+    ALLERGIES : string name
+    ALLERGIES : text description
+    ALLERGIES : text common_reactions
+    ALLERGIES : timestamp created_at
+
+    VISITS : string id PK
+    VISITS : string tenant_id FK
+    VISITS : string child_id FK
+    VISITS : string class_id FK
+    VISITS : timestamp check_in_time
+    VISITS : timestamp check_out_time
+    VISITS : string checked_in_by FK
+    VISITS : string checked_out_by FK
+    VISITS : text notes
+    VISITS : timestamp created_at
+    VISITS : timestamp updated_at
+
+    AUTHORIZATIONS : string id PK
+    AUTHORIZATIONS : string tenant_id FK
+    AUTHORIZATIONS : string child_id FK
+    AUTHORIZATIONS : string authorized_user_id FK
+    AUTHORIZATIONS : string relationship
+    AUTHORIZATIONS : string phone
+    AUTHORIZATIONS : text address
+    AUTHORIZATIONS : boolean can_pickup
+    AUTHORIZATIONS : boolean can_view_info
+    AUTHORIZATIONS : boolean can_edit_info
+    AUTHORIZATIONS : boolean is_emergency_contact
+    AUTHORIZATIONS : string status
+    AUTHORIZATIONS : timestamp created_at
+    AUTHORIZATIONS : timestamp updated_at
+
+    CUSTOM_FIELDS : string id PK
+    CUSTOM_FIELDS : string tenant_id FK
+    CUSTOM_FIELDS : string entity_type
+    CUSTOM_FIELDS : string field_name
+    CUSTOM_FIELDS : string field_type
+    CUSTOM_FIELDS : jsonb field_config
+    CUSTOM_FIELDS : boolean required
+    CUSTOM_FIELDS : integer display_order
+    CUSTOM_FIELDS : timestamp created_at
+
+    CUSTOM_FIELD_VALUES : string id PK
+    CUSTOM_FIELD_VALUES : string custom_field_id FK
+    CUSTOM_FIELD_VALUES : string entity_id
+    CUSTOM_FIELD_VALUES : text value
+    CUSTOM_FIELD_VALUES : timestamp created_at
+    CUSTOM_FIELD_VALUES : timestamp updated_at
+
+    AUDIT_LOGS : string id PK
+    AUDIT_LOGS : string tenant_id FK
+    AUDIT_LOGS : string user_id FK
+    AUDIT_LOGS : string action
+    AUDIT_LOGS : string resource_type
+    AUDIT_LOGS : string resource_id
+    AUDIT_LOGS : jsonb changes
+    AUDIT_LOGS : string ip_address
+    AUDIT_LOGS : string user_agent
+    AUDIT_LOGS : string status
+    AUDIT_LOGS : text notes
+    AUDIT_LOGS : timestamp created_at

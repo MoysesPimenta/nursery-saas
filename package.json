@@ -1,0 +1,25 @@
+{
+  "name": "nursery-saas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Multi-tenant Nursery Health-Care Management SaaS for schools",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:db": "npm run test:db --workspace=apps/backend",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "author": "Nursery-SaaS",
+  "license": "MIT"
+}

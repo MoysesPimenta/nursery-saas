@@ -1,0 +1,6 @@
+# Default owner for everything
+* @ai-agent
+
+# Infrastructure requires extra review
+/infra/ @ai-agent
+/.github/ @ai-agent

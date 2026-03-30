@@ -1,0 +1,31 @@
+{
+  "common": {
+    "appName": "Nursery-SaaS",
+    "dashboard": "Tableau de bord",
+    "children": "Enfants",
+    "employees": "Employés",
+    "visits": "Visites",
+    "admin": "Administrateur",
+    "parentPortal": "Portail parents",
+    "settings": "Paramètres",
+    "profile": "Profil",
+    "logout": "Déconnexion"
+  },
+  "auth": {
+    "signIn": "Connexion",
+    "email": "Email",
+    "password": "Mot de passe",
+    "forgotPassword": "Mot de passe oublié?",
+    "resetPassword": "Réinitialiser le mot de passe",
+    "mfa": "Authentification à deux facteurs",
+    "verifyCode": "Vérifier le code"
+  },
+  "dashboard": {
+    "welcome": "Bienvenue!",
+    "overview": "Voici un aperçu de votre crèche.",
+    "totalChildren": "Nombre total d'enfants",
+    "staffMembers": "Nombre de personnel",
+    "todaysVisits": "Visites d'aujourd'hui",
+    "growthRate": "Taux de croissance"
+  }
+}

@@ -1,0 +1,33 @@
+# Supabase Configuration
+
+[project]
+project_id = "local"
+account_id = "local"
+db_url = "postgresql://postgres:postgres@localhost:5432/postgres"
+
+[api]
+enabled = true
+
+[db]
+vector_enabled = false
+seed_sql_path = "seed.sql"
+
+[auth]
+enable_signup = true
+enable_email_confirmations = false
+enable_sms_confirmations = false
+
+[storage]
+enabled = true
+file_size_limit = 52428800
+
+[functions]
+enabled = true
+import_map = "functions/import_map.json"
+verify_jwt = true
+
+[realtime]
+enabled = false
+
+[edge_runtime]
+enabled = false

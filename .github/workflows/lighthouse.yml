@@ -1,0 +1,21 @@
+name: Lighthouse CI
+on:
+  pull_request:
+    paths: ['apps/frontend/**']
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build --workspace=apps/frontend
+      - name: Lighthouse
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          configPath: apps/frontend/lighthouserc.json
+          uploadArtifacts: true

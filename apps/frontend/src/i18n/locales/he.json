@@ -1,0 +1,31 @@
+{
+  "common": {
+    "appName": "Nursery-SaaS",
+    "dashboard": "לוח בקרה",
+    "children": "ילדים",
+    "employees": "עובדים",
+    "visits": "ביקורים",
+    "admin": "מנהל",
+    "parentPortal": "פורטל הורים",
+    "settings": "הגדרות",
+    "profile": "פרופיל",
+    "logout": "התנתקות"
+  },
+  "auth": {
+    "signIn": "התחברות",
+    "email": "דוא״ל",
+    "password": "סיסמה",
+    "forgotPassword": "שכחת סיסמה?",
+    "resetPassword": "אפס סיסמה",
+    "mfa": "אימות דו-גורמי",
+    "verifyCode": "אמת קוד"
+  },
+  "dashboard": {
+    "welcome": "ברוכים הבאים!",
+    "overview": "הנה סקירה כללית של גן הילדים שלך.",
+    "totalChildren": "סה״כ ילדים",
+    "staffMembers": "מספר הצוות",
+    "todaysVisits": "ביקורים היום",
+    "growthRate": "קצב גדילה"
+  }
+}

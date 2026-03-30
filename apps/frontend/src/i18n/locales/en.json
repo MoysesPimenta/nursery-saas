@@ -1,0 +1,31 @@
+{
+  "common": {
+    "appName": "Nursery-SaaS",
+    "dashboard": "Dashboard",
+    "children": "Children",
+    "employees": "Employees",
+    "visits": "Visits",
+    "admin": "Admin",
+    "parentPortal": "Parent Portal",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "resetPassword": "Reset Password",
+    "mfa": "Two-Factor Authentication",
+    "verifyCode": "Verify Code"
+  },
+  "dashboard": {
+    "welcome": "Welcome back!",
+    "overview": "Here's an overview of your nursery.",
+    "totalChildren": "Total Children",
+    "staffMembers": "Staff Members",
+    "todaysVisits": "Today's Visits",
+    "growthRate": "Growth Rate"
+  }
+}
