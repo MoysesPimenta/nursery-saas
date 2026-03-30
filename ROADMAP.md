@@ -2,9 +2,9 @@
 
 > **Purpose**: This is the single source of truth for the AI assistant building this project. It captures what has been done, what remains, architectural decisions, file locations, known issues, and strategic notes. **This file MUST be read at the start of every session and updated after every significant change.**
 
-> **Last Updated**: 2026-03-30 (Session 2)
-> **Current Phase**: Phases 0-8 implemented. Core app functional. Ready for quality gates (P11) and compliance (P12).
-> **Total Files**: 228
+> **Last Updated**: 2026-03-30 (Session 3)
+> **Current Phase**: Phases 0-9 implemented. Git initialized. Vercel configs ready. Ready for deployment + quality gates (P11).
+> **Total Files**: 218 (tracked in git)
 > **Project Root**: `/sessions/relaxed-compassionate-hopper/mnt/MyNurse/`
 
 ---
@@ -916,6 +916,34 @@ Humans may veto merges, request re-runs, or inject domain corrections at any tim
 5. Internationalize new pages (replace hardcoded strings with translation keys)
 6. Deploy to Vercel
 7. Begin Phase 11 (Quality gates, performance, accessibility)
+
+### Session 3 — 2026-03-30 (Deployment Preparation)
+**What was done**:
+- Fixed 13+ build-breaking issues: tsconfig strict settings, missing devDependencies, next.config.js simplification, .eslintrc.json cleanup, .gitignore fix (re-included package-lock.json for Vercel)
+- Generated `packages/shared/src/database.types.ts` from live Supabase schema
+- Created vercel.json configs for monorepo deployment (per-app, using `cd ../.. && npm install` pattern)
+- Removed conflicting root vercel.json
+- Initialized git repository: `git init` on main branch
+- Initial commit: 218 files, 23,759 lines of code
+- Second commit: Vercel config cleanup
+
+**Deployment Configuration**:
+- **Supabase**: Project `nursery-saas` (ID: rcbbwninexczkzccfwiz), region sa-east-1, ACTIVE_HEALTHY
+- **Supabase URL**: https://rcbbwninexczkzccfwiz.supabase.co
+- **Supabase Anon Key**: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (in .env.local files)
+- **Vercel Team**: moysespimentas-projects (team_uwBF9qKyybtAJ4Usk6Y2dJfe)
+- **Git**: Initialized on `main` branch, 2 commits, ready to push to GitHub
+- **Monorepo Strategy**: Two Vercel projects from same repo, each with rootDirectory pointing to its app folder
+
+**What was NOT done**:
+- npm install (npm registry blocked in sandbox)
+- Builds not verified locally
+- SUPABASE_SERVICE_ROLE_KEY still needed (get from Supabase dashboard > Settings > API)
+- GitHub repo not created (needs user's local machine or GitHub CLI auth)
+- Vercel projects not created (Vercel CLI not available in sandbox)
+- No tests written
+
+**To go live, Moyses needs to follow the DEPLOY.md guide in the project root.**
 
 ---
 
