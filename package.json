@@ -15,7 +15,7 @@
     "test:db": "npm run test:db --workspace=apps/backend",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "engines": {
     "node": ">=20.0.0"
