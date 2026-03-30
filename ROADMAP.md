@@ -938,12 +938,19 @@ Humans may veto merges, request re-runs, or inject domain corrections at any tim
 **What was NOT done**:
 - npm install (npm registry blocked in sandbox)
 - Builds not verified locally
-- SUPABASE_SERVICE_ROLE_KEY still needed (get from Supabase dashboard > Settings > API)
-- GitHub repo not created (needs user's local machine or GitHub CLI auth)
-- Vercel projects not created (Vercel CLI not available in sandbox)
 - No tests written
+- User still needs to `git push -u origin main` to trigger first deploy
 
-**To go live, Moyses needs to follow the DEPLOY.md guide in the project root.**
+**Deployment Status (ALL DONE)**:
+- GitHub repo: https://github.com/MoysesPimenta/nursery-saas (empty, awaiting push)
+- Vercel frontend: `nursery-saas-frontend` (prj_AbxzGlodWxGRHoVBndHTTKdqT4QT) — rootDir=apps/frontend, sourceFilesOutsideRootDirectory=true
+- Vercel backend: `nursery-saas-backend` (prj_JF3B89U8VFvMGtrhL0ERT3rx6cYJ) — rootDir=apps/backend, sourceFilesOutsideRootDirectory=true
+- Vercel frontend env vars: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, NEXT_PUBLIC_API_URL
+- Vercel backend env vars: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY (sensitive), MFA_ISSUER, RATE_LIMIT_PER_USER, RATE_LIMIT_PER_TENANT
+- Supabase auth: site_url=https://nursery-saas-frontend.vercel.app, redirects=vercel+localhost
+- Auto-deploy: Both Vercel projects connected to same GitHub repo → every push to main deploys both
+
+**To go live, Moyses just needs to run: `git push -u origin main`**
 
 ---
 
