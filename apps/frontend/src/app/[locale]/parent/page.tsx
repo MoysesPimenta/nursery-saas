@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ChildCard } from '@/components/child-card';
 import { motion } from 'framer-motion';
 import { Users, AlertCircle, Loader } from 'lucide-react';
-import { Child, Allergy } from '@repo/shared';
+import { Child, Allergy } from '@nursery-saas/shared';
 import { apiGet } from '@/lib/api';
 import { useParams } from 'next/navigation';
 

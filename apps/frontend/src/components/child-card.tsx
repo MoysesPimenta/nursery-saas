@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/ui/avatar';
 import { AllergyBadge } from '@/components/allergy-badge';
 import { cn } from '@/lib/utils';
-import { Child, Allergy } from '@repo/shared';
+import { Child, Allergy } from '@nursery-saas/shared';
 import { ChevronRight } from 'lucide-react';
 
 interface ChildCardProps {

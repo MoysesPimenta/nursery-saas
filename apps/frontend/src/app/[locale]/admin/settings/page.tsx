@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { motion } from 'framer-motion';
 import { AlertCircle, Loader, CheckCircle, Upload } from 'lucide-react';
-import { Tenant } from '@repo/shared';
+import { Tenant } from '@nursery-saas/shared';
 import { apiGet, apiPatch } from '@/lib/api';
 
 const containerVariants = {

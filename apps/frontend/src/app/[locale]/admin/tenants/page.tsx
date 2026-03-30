@@ -23,7 +23,7 @@ import {
   AlertCircle,
   Loader,
 } from 'lucide-react';
-import { Tenant } from '@repo/shared';
+import { Tenant } from '@nursery-saas/shared';
 import { apiGet, apiPost, apiPatch } from '@/lib/api';
 
 const containerVariants = {

@@ -13,7 +13,7 @@ import { MedicationList } from '@/components/medication-list';
 import { AllergyBadge } from '@/components/allergy-badge';
 import { motion } from 'framer-motion';
 import { ArrowLeft, AlertCircle, Loader } from 'lucide-react';
-import { Child, Visit, Allergy } from '@repo/shared';
+import { Child, Visit, Allergy } from '@nursery-saas/shared';
 import { apiGet } from '@/lib/api';
 
 interface ChildMedication {

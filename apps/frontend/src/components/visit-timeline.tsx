@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { ChevronDown } from 'lucide-react';
-import { Visit, VisitType, Disposition } from '@repo/shared';
+import { Visit, VisitType, Disposition } from '@nursery-saas/shared';
 
 interface VisitTimelineProps {
   visits: Visit[];

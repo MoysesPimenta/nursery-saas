@@ -23,7 +23,7 @@ import {
   AlertCircle,
   Loader,
 } from 'lucide-react';
-import { User, SystemRole } from '@repo/shared';
+import { User, SystemRole } from '@nursery-saas/shared';
 import { apiGet, apiPost, apiPatch } from '@/lib/api';
 
 const containerVariants = {
