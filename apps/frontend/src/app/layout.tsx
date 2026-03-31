@@ -4,7 +4,9 @@ export const metadata: Metadata = {
   title: 'Nursery-SaaS',
   description: 'Modern nursery management platform',
   manifest: '/manifest.json',
-  themeColor: '#22c55e',
+  other: {
+    'theme-color': '#22c55e',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',

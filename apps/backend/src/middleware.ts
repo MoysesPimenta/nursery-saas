@@ -45,6 +45,23 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Handle CORS preflight requests
+  if (request.method === 'OPTIONS') {
+    const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000,https://nursery-saas-frontend.vercel.app').split(',');
+    const requestOrigin = request.headers.get('origin') || '';
+    const corsOrigin = allowedOrigins.includes(requestOrigin) ? requestOrigin : allowedOrigins[0];
+    return new NextResponse(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': corsOrigin,
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Max-Age': '86400',
+      },
+    });
+  }
+
   // Get client IP
   const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
   const userId = extractUserIdFromRequest(request);
@@ -107,8 +124,11 @@ export function middleware(request: NextRequest) {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 
-  // Add CORS headers (adjust origin as needed)
-  response.headers.set('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || 'http://localhost:3000');
+  // Add CORS headers
+  const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000,https://nursery-saas-frontend.vercel.app').split(',');
+  const requestOrigin = request.headers.get('origin') || '';
+  const corsOrigin = allowedOrigins.includes(requestOrigin) ? requestOrigin : allowedOrigins[0];
+  response.headers.set('Access-Control-Allow-Origin', corsOrigin);
   response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
   response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   response.headers.set('Access-Control-Allow-Credentials', 'true');
@@ -184,15 +204,8 @@ function cleanupRateLimiter() {
   }
 }
 
-// Run cleanup every 5 minutes
-if (typeof global !== 'undefined') {
-  const CLEANUP_INTERVAL = 5 * 60 * 1000;
-  if (!(global as any).__rateLimitCleanupInterval) {
-    (global as any).__rateLimitCleanupInterval = setInterval(() => {
-      cleanupRateLimiter();
-    }, CLEANUP_INTERVAL);
-  }
-}
+// Note: In-memory rate limiting resets on each serverless cold start.
+// For production, migrate to Redis or Vercel KV.
 
 /**
  * Configure which routes should use middleware

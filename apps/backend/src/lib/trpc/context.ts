@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getSupabaseClientWithAuth } from '@/lib/supabase/server';
-import { verifyJWT } from '@/lib/auth/verify-token';
+import { decodeJWTPayload } from '@/lib/auth/verify-token';
 
 /**
  * tRPC context creation
@@ -16,9 +16,9 @@ export async function createTRPCContext(opts: {
 
   if (token) {
     try {
-      const payload = await verifyJWT(token);
-      userId = payload.sub;
-      tenantId = payload.tenant_id;
+      const payload = decodeJWTPayload(token);
+      userId = payload?.sub || null;
+      tenantId = (payload as any)?.tenant_id || null;
     } catch (error) {
       console.error('JWT verification failed:', error);
     }
