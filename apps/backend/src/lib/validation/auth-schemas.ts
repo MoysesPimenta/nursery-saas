@@ -7,12 +7,10 @@ import { z } from 'zod';
 // Email validation
 const emailSchema = z.string().email().toLowerCase();
 
-// Password validation (minimum 8 chars, at least one number and special char)
+// Password validation (minimum 6 chars)
 const passwordSchema = z
   .string()
-  .min(8, 'Password must be at least 8 characters')
-  .regex(/[0-9]/, 'Password must contain at least one number')
-  .regex(/[!@#$%^&*]/, 'Password must contain at least one special character (!@#$%^&*)');
+  .min(6, 'Password must be at least 6 characters');
 
 // Tenant slug validation
 const tenantSlugSchema = z
@@ -28,9 +26,8 @@ const tenantSlugSchema = z
 export const signupRequestSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
-  fullName: z.string().min(2, 'Full name must be at least 2 characters').max(255),
-  tenantSlug: tenantSlugSchema,
-  tenantName: z.string().min(1).max(255).optional(),
+  firstName: z.string().min(1, 'First name is required').max(255),
+  lastName: z.string().min(1, 'Last name is required').max(255),
 });
 
 export type SignupRequest = z.infer<typeof signupRequestSchema>;
@@ -41,18 +38,12 @@ export type SignupRequest = z.infer<typeof signupRequestSchema>;
 export const signupResponseSchema = z.object({
   user: z.object({
     id: z.string().uuid(),
-    email: emailSchema,
+    email: z.string(),
     fullName: z.string(),
     tenantId: z.string().uuid(),
     roles: z.array(z.string()),
-    createdAt: z.string().datetime(),
   }),
-  session: z.object({
-    accessToken: z.string(),
-    refreshToken: z.string(),
-    expiresIn: z.number(),
-    expiresAt: z.number(),
-  }),
+  message: z.string(),
 });
 
 export type SignupResponse = z.infer<typeof signupResponseSchema>;

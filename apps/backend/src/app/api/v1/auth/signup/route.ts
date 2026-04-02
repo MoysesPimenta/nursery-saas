@@ -1,27 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { signupRequestSchema, errorResponseSchema } from '@/lib/validation/auth-schemas';
+import { signupRequestSchema } from '@/lib/validation/auth-schemas';
 import { handleSignup } from '@/lib/auth/signup-handler';
-import { getSupabaseServerClient } from '@/lib/supabase/server';
 
-/**
- * POST /api/v1/auth/signup
- * Register a new user and create their tenant
- *
- * Request body:
- * {
- *   email: string
- *   password: string (min 8 chars, 1 number, 1 special char)
- *   fullName: string
- *   tenantSlug: string (lowercase, alphanumeric + hyphens)
- *   tenantName?: string (optional, defaults to tenantSlug)
- * }
- *
- * Response:
- * {
- *   user: { id, email, fullName, tenantId, roles, createdAt }
- *   session: { accessToken, refreshToken, expiresIn, expiresAt }
- * }
- */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body = await request.json();
@@ -40,36 +20,27 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const payload = parseResult.data;
-
-    // Handle signup (create auth user, tenant, user profile, assign role)
-    // Let Supabase handle duplicate email errors
-    const response = await handleSignup(payload);
-
-    return NextResponse.json(response, { status: 201 });
+    const result = await handleSignup(parseResult.data);
+    return NextResponse.json(result, { status: 201 });
   } catch (error) {
-    console.error('Signup endpoint error:', error);
+    console.error('Signup error:', error);
+    const message = error instanceof Error ? error.message : 'Signup failed';
 
-    const message = error instanceof Error ? error.message : 'Unknown error';
+    // Check for duplicate email
+    if (message.includes('already been registered') || message.includes('already exists')) {
+      return NextResponse.json(
+        { error: 'An account with this email already exists', code: 'EMAIL_EXISTS' },
+        { status: 409 }
+      );
+    }
 
-    // Don't leak information about whether email exists
-    // Return generic success message regardless
-
-    // Return generic message for all errors to prevent email enumeration
     return NextResponse.json(
-      {
-        message: 'If this email is not registered, an account has been created. Please check your email for confirmation.',
-        code: 'SIGNUP_PROCESSING',
-      },
-      { status: 201 }
+      { error: message, code: 'SIGNUP_FAILED' },
+      { status: 500 }
     );
   }
 }
 
-/**
- * OPTIONS /api/v1/auth/signup
- * Handle CORS preflight requests
- */
 export async function OPTIONS(): Promise<NextResponse> {
   return NextResponse.json({}, { status: 200 });
 }

@@ -19,7 +19,7 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const params = useParams();
-  const { signUp, session } = useAuth();
+  const { session } = useAuth();
 
   useEffect(() => {
     if (session) {
@@ -44,8 +44,21 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      await signUp(email, password, firstName, lastName);
-      router.push(`/${params.locale}/auth/login`);
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const res = await fetch(`${API_URL}/api/v1/auth/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, firstName, lastName }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Signup failed');
+      }
+
+      // Account created and auto-confirmed, redirect to login
+      router.push(`/${params.locale}/auth/login?registered=true`);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Sign up failed';
       setError(message);
