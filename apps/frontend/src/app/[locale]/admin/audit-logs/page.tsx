@@ -74,7 +74,7 @@ export default function AuditLogsPage() {
         return (
           <div className="text-sm">
             <div className="font-medium">{date.toLocaleDateString()}</div>
-            <div className="text-slate-600 dark:text-slate-400">{date.toLocaleTimeString()}</div>
+            <div className="text-muted-foreground">{date.toLocaleTimeString()}</div>
           </div>
         );
       },
@@ -99,7 +99,7 @@ export default function AuditLogsPage() {
         <span
           className={`px-2 py-1 rounded-full text-xs font-medium ${
             entityTypeColors[value] ||
-            'bg-slate-100 text-slate-900 dark:bg-slate-900 dark:text-slate-50'
+            'bg-muted text-foreground'
           }`}
         >
           {value.charAt(0).toUpperCase() + value.slice(1)}
@@ -111,7 +111,7 @@ export default function AuditLogsPage() {
       key: 'entityId' as const,
       label: 'Entity ID',
       render: (value: string) => (
-        <code className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
+        <code className="text-xs bg-muted px-2 py-1 rounded">
           {value.substring(0, 12)}...
         </code>
       ),
@@ -144,8 +144,8 @@ export default function AuditLogsPage() {
       transition={{ duration: 0.3 }}
     >
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Audit Logs</h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-1">
+        <h1 className="text-2xl font-bold tracking-tight">Audit Logs</h1>
+        <p className="text-muted-foreground mt-1">
           View all system events and user actions
         </p>
       </div>
@@ -159,11 +159,11 @@ export default function AuditLogsPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* User Search */}
             <div>
-              <label className="text-sm font-medium text-slate-900 dark:text-slate-50">
+              <label className="text-sm font-medium text-foreground">
                 User Name
               </label>
               <div className="mt-1 relative">
-                <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Search by user..."
                   value={search}
@@ -178,7 +178,7 @@ export default function AuditLogsPage() {
 
             {/* Entity Type */}
             <div>
-              <label className="text-sm font-medium text-slate-900 dark:text-slate-50">
+              <label className="text-sm font-medium text-foreground">
                 Entity Type
               </label>
               <select
@@ -187,7 +187,7 @@ export default function AuditLogsPage() {
                   setEntityType(e.target.value);
                   setPage(0);
                 }}
-                className="w-full mt-1 px-3 py-2 border border-slate-200 rounded-md text-sm bg-white dark:border-slate-800 dark:bg-slate-950"
+                className="w-full mt-1 px-3 py-2 border border-border rounded-md text-sm bg-background"
               >
                 <option value="">All Types</option>
                 <option value="child">Child</option>
@@ -236,7 +236,7 @@ export default function AuditLogsPage() {
           {/* Expanded Details */}
           {expandedId && (
             <motion.div
-              className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800"
+              className="mt-6 pt-6 border-t border-border"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
             >
@@ -246,18 +246,18 @@ export default function AuditLogsPage() {
                   <div key={log.id} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                        <p className="text-xs font-semibold text-muted-foreground">
                           User ID
                         </p>
-                        <p className="font-mono text-sm text-slate-900 dark:text-slate-50">
+                        <p className="font-mono text-sm text-foreground">
                           {log.userId}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                        <p className="text-xs font-semibold text-muted-foreground">
                           IP Address
                         </p>
-                        <p className="font-mono text-sm text-slate-900 dark:text-slate-50">
+                        <p className="font-mono text-sm text-foreground">
                           {log.ipAddress || 'N/A'}
                         </p>
                       </div>
@@ -265,23 +265,23 @@ export default function AuditLogsPage() {
 
                     {log.changesBefore && (
                       <div>
-                        <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">
+                        <p className="text-xs font-semibold text-muted-foreground mb-2">
                           Changes
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">
+                            <p className="text-xs text-muted-foreground mb-1">
                               Before
                             </p>
-                            <pre className="text-xs bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-2 overflow-auto">
+                            <pre className="text-xs bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl p-2 overflow-auto">
                               {JSON.stringify(log.changesBefore, null, 2)}
                             </pre>
                           </div>
                           <div>
-                            <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">
+                            <p className="text-xs text-muted-foreground mb-1">
                               After
                             </p>
-                            <pre className="text-xs bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded p-2 overflow-auto">
+                            <pre className="text-xs bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl p-2 overflow-auto">
                               {JSON.stringify(log.changesAfter, null, 2)}
                             </pre>
                           </div>

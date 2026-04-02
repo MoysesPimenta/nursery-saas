@@ -57,12 +57,12 @@ export default function MFAPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-slate-950 dark:to-slate-900 p-4">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-muted/30">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex items-center gap-2 mb-4">
-            <ShieldAlert className="w-5 h-5 text-primary-600" />
-            <h1 className="text-2xl font-bold text-primary-600">Two-Factor Auth</h1>
+            <ShieldAlert className="w-5 h-5 text-primary" />
+            <h1 className="text-2xl font-bold text-primary">Two-Factor Auth</h1>
           </div>
           <CardTitle className="text-2xl">Verify Your Identity</CardTitle>
           <CardDescription>
@@ -72,7 +72,7 @@ export default function MFAPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-200 px-4 py-3 rounded text-sm">
+              <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-xl px-4 py-3 text-sm">
                 {error}
               </div>
             )}
@@ -82,7 +82,7 @@ export default function MFAPage() {
                 type="text"
                 placeholder="000000"
                 maxLength={6}
-                className="text-center text-2xl tracking-widest font-mono"
+                className="h-11 text-center text-2xl tracking-widest font-mono"
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
                 required
@@ -94,13 +94,13 @@ export default function MFAPage() {
               type="submit"
               className="w-full"
               disabled={loading || code.length !== 6}
-              variant="primary"
+              loading={loading}
             >
               {loading ? 'Verifying...' : 'Verify'}
             </Button>
 
             <div className="text-center text-sm">
-              <a href={`/${locale}/auth/login`} className="text-primary-600 hover:underline">
+              <a href={`/${locale}/auth/login`} className="text-primary font-medium hover:underline">
                 Back to login
               </a>
             </div>

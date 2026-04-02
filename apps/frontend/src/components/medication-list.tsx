@@ -39,7 +39,7 @@ function isExpired(endDate?: string): boolean {
 export function MedicationList({ medications, className }: MedicationListProps) {
   if (!medications || medications.length === 0) {
     return (
-      <div className={cn('py-8 text-center text-slate-600 dark:text-slate-400', className)}>
+      <div className={cn('py-8 text-center text-muted-foreground', className)}>
         No medications recorded.
       </div>
     );
@@ -52,17 +52,17 @@ export function MedicationList({ medications, className }: MedicationListProps) 
     <div className={cn('space-y-6', className)}>
       {activeMeds.length > 0 && (
         <div className="space-y-3">
-          <h3 className="font-semibold text-slate-900 dark:text-slate-50">
+          <h3 className="font-semibold text-foreground">
             Current Medications
           </h3>
           {activeMeds.map((med) => (
             <Card key={med.id} className="p-4">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h4 className="font-medium text-slate-900 dark:text-slate-50">
+                  <h4 className="font-medium text-foreground">
                     {med.medicationName}
                   </h4>
-                  <div className="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-400">
+                  <div className="mt-2 space-y-1 text-sm text-muted-foreground">
                     <div>
                       <span className="font-medium">Dosage:</span> {med.dosage}
                     </div>
@@ -82,7 +82,7 @@ export function MedicationList({ medications, className }: MedicationListProps) 
                     </div>
                   </div>
                   {med.notes && (
-                    <div className="mt-3 p-2 bg-slate-50 dark:bg-slate-900 rounded text-sm">
+                    <div className="mt-3 p-2 bg-muted rounded text-sm">
                       {med.notes}
                     </div>
                   )}
@@ -96,17 +96,17 @@ export function MedicationList({ medications, className }: MedicationListProps) 
 
       {expiredMeds.length > 0 && (
         <div className="space-y-3">
-          <h3 className="font-semibold text-slate-900 dark:text-slate-50">
+          <h3 className="font-semibold text-foreground">
             Previous Medications
           </h3>
           {expiredMeds.map((med) => (
             <Card key={med.id} className="p-4 opacity-75">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h4 className="font-medium text-slate-900 dark:text-slate-50">
+                  <h4 className="font-medium text-foreground">
                     {med.medicationName}
                   </h4>
-                  <div className="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-400">
+                  <div className="mt-2 space-y-1 text-sm text-muted-foreground">
                     <div>
                       <span className="font-medium">Dosage:</span> {med.dosage}
                     </div>

@@ -66,22 +66,22 @@ export function MedicationAdminForm({
 
   return (
     <div className="space-y-4 border-t pt-4">
-      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+      <h3 className="text-lg font-semibold text-foreground">
         Medication Administration
       </h3>
 
       {/* Add Medication Section */}
       {!readOnly && (
-        <div className="border border-slate-200 dark:border-slate-800 rounded-lg p-4 bg-slate-50 dark:bg-slate-900/50">
+        <div className="border border-border rounded-lg p-4 bg-muted/30">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-3">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
+              <label className="text-xs font-medium text-muted-foreground">
                 Medication *
               </label>
               <select
                 value={selectedMedId}
                 onChange={(e) => setSelectedMedId(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-md text-sm bg-white dark:border-slate-700 dark:bg-slate-950"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-white dark:border-slate-700 dark:bg-slate-950"
               >
                 <option value="">Select medication...</option>
                 {availableMedications.map((med) => (
@@ -93,7 +93,7 @@ export function MedicationAdminForm({
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
+              <label className="text-xs font-medium text-muted-foreground">
                 Dosage *
               </label>
               <Input
@@ -106,7 +106,7 @@ export function MedicationAdminForm({
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
+              <label className="text-xs font-medium text-muted-foreground">
                 Time *
               </label>
               <Input
@@ -118,7 +118,7 @@ export function MedicationAdminForm({
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
+              <label className="text-xs font-medium text-muted-foreground">
                 Notes
               </label>
               <Input
@@ -134,7 +134,7 @@ export function MedicationAdminForm({
           <Button
             type="button"
             onClick={handleAddMedication}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+            className="w-full"
             variant="default"
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -149,13 +149,13 @@ export function MedicationAdminForm({
           {medications.map((med) => (
             <div
               key={med.id}
-              className="flex items-center justify-between gap-3 p-3 border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-950"
+              className="flex items-center justify-between gap-3 p-3 border border-border rounded-lg bg-white dark:bg-slate-950"
             >
               <div className="flex-1 min-w-0">
-                <div className="font-medium text-slate-900 dark:text-slate-50">
+                <div className="font-medium text-foreground">
                   {med.medicationName}
                 </div>
-                <div className="text-sm text-slate-600 dark:text-slate-400">
+                <div className="text-sm text-muted-foreground">
                   {med.dosage} at {med.time}
                   {med.notes && ` - ${med.notes}`}
                 </div>
@@ -172,7 +172,7 @@ export function MedicationAdminForm({
           ))}
         </div>
       ) : (
-        <div className="p-4 text-center text-slate-600 dark:text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-lg">
+        <div className="p-4 text-center text-muted-foreground border border-dashed border-border rounded-lg">
           No medications administered yet
         </div>
       )}

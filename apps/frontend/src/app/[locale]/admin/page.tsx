@@ -2,8 +2,9 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { StatCard } from '@/components/ui/stat-card';
 import { motion } from 'framer-motion';
-import { BarChart3, Users, Building2, AlertTriangle, FileText, Settings, LogOut } from 'lucide-react';
+import { BarChart3, Users, Building2, FileText, Settings, ArrowRight, Shield, Activity, CheckCircle2 } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 import { useApiQuery } from '@/lib/hooks/use-api';
 
@@ -14,17 +15,13 @@ interface AdminStats {
   visitsThisMonth: number;
 }
 
-const containerVariants = {
+const container = {
   hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 },
-  },
+  show: { opacity: 1, transition: { staggerChildren: 0.08 } },
 };
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
+const item = {
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0 },
 };
 
 export default function AdminPage() {
@@ -32,7 +29,6 @@ export default function AdminPage() {
   const params = useParams();
   const locale = params.locale as string;
 
-  // Fetch admin dashboard stats
   const { data: statsData } = useApiQuery<{ data: AdminStats }>('/api/v1/dashboard');
   const stats = statsData?.data || {
     totalUsers: 0,
@@ -41,190 +37,108 @@ export default function AdminPage() {
     visitsThisMonth: 0,
   };
 
-  const adminStats = [
-    {
-      title: 'Total Users',
-      value: stats.totalUsers,
-      icon: Users,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100 dark:bg-green-900',
-    },
-    {
-      title: 'Active Children',
-      value: stats.activeChildren,
-      icon: Building2,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100 dark:bg-blue-900',
-    },
-    {
-      title: 'Active Employees',
-      value: stats.activeEmployees,
-      icon: Users,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100 dark:bg-purple-900',
-    },
-    {
-      title: 'Visits This Month',
-      value: stats.visitsThisMonth,
-      icon: BarChart3,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100 dark:bg-orange-900',
-    },
-  ];
-
   const quickLinks = [
     {
       icon: Users,
       label: 'User Management',
+      description: 'Manage users, roles, and permissions',
       href: `/${locale}/admin/users`,
-      color: 'text-blue-600 dark:text-blue-400',
+      gradient: 'from-indigo-500 to-purple-500',
     },
     {
       icon: Settings,
       label: 'Tenant Settings',
+      description: 'Configure branding and features',
       href: `/${locale}/admin/tenants`,
-      color: 'text-purple-600 dark:text-purple-400',
+      gradient: 'from-violet-500 to-pink-500',
     },
     {
       icon: FileText,
       label: 'Audit Logs',
+      description: 'View system activity and changes',
       href: `/${locale}/admin/audit-logs`,
-      color: 'text-green-600 dark:text-green-400',
+      gradient: 'from-blue-500 to-cyan-500',
     },
   ];
 
-  return (
-    <motion.div
-      className="space-y-6"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Admin Console</h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-2">
-          System administration and monitoring dashboard
-        </p>
-      </div>
+  const systemStatus = [
+    { label: 'API Health', status: 'operational' },
+    { label: 'Database', status: 'operational' },
+    { label: 'Storage', status: 'operational' },
+    { label: 'Auth Service', status: 'operational' },
+  ];
 
-      {/* Stats Cards */}
-      <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-        variants={containerVariants}
-      >
-        {adminStats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <motion.div key={index} variants={itemVariants}>
-              <Card>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-medium">
-                      {stat.title}
-                    </CardTitle>
-                    <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                      <Icon className={`w-4 h-4 ${stat.color}`} />
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          );
-        })}
+  return (
+    <motion.div className="space-y-6" variants={container} initial="hidden" animate="show">
+      <motion.div variants={item}>
+        <div className="flex items-center gap-3 mb-1">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
+            <Shield className="w-4 h-4 text-white" />
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight">Admin Console</h1>
+        </div>
+        <p className="text-muted-foreground ml-11">System administration and monitoring</p>
       </motion.div>
 
-      {/* Quick Links */}
-      <motion.div variants={itemVariants}>
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Access</CardTitle>
-            <CardDescription>Common administration tasks</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {quickLinks.map((link, idx) => {
-                const Icon = link.icon;
-                return (
-                  <Button
-                    key={idx}
-                    variant="outline"
-                    onClick={() => router.push(link.href)}
-                    className="h-24 flex flex-col items-center justify-center gap-2"
-                  >
-                    <Icon className={`w-6 h-6 ${link.color}`} />
-                    <span className="text-sm text-center">{link.label}</span>
-                  </Button>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+      {/* Stats */}
+      <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard title="Total Users" value={stats.totalUsers} icon={<Users className="w-5 h-5" />} />
+        <StatCard title="Active Children" value={stats.activeChildren} icon={<Building2 className="w-5 h-5" />} />
+        <StatCard title="Active Employees" value={stats.activeEmployees} icon={<Users className="w-5 h-5" />} />
+        <StatCard title="Visits This Month" value={stats.visitsThisMonth} icon={<BarChart3 className="w-5 h-5" />} />
+      </motion.div>
+
+      {/* Quick Access */}
+      <motion.div variants={item}>
+        <h2 className="text-lg font-semibold mb-3">Quick Access</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {quickLinks.map((link) => {
+            const Icon = link.icon;
+            return (
+              <Card
+                key={link.label}
+                className="cursor-pointer group"
+                onClick={() => router.push(link.href)}
+              >
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${link.gradient} flex items-center justify-center text-white shadow-sm mb-3`}>
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <h3 className="font-semibold">{link.label}</h3>
+                      <p className="text-sm text-muted-foreground mt-1">{link.description}</p>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       </motion.div>
 
       {/* System Status */}
-      <motion.div variants={itemVariants}>
+      <motion.div variants={item}>
         <Card>
           <CardHeader>
-            <CardTitle>System Status</CardTitle>
-            <CardDescription>
-              Overview of system health and performance
-            </CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-indigo-600" />
+              System Status
+            </CardTitle>
+            <CardDescription>All systems operational</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">API Health</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full" />
-                  <span className="text-sm font-medium text-green-600 dark:text-green-400">
-                    Healthy
-                  </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {systemStatus.map((s) => (
+                <div key={s.label} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/30">
+                  <span className="text-sm font-medium">{s.label}</span>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">Operational</span>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Database</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full" />
-                  <span className="text-sm font-medium text-green-600 dark:text-green-400">
-                    Healthy
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Storage</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full" />
-                  <span className="text-sm font-medium text-green-600 dark:text-green-400">
-                    Healthy
-                  </span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Recent Activity */}
-      <motion.div variants={itemVariants}>
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              Latest system events and user actions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm text-slate-600 dark:text-slate-400">
-              <p className="mb-4">No recent critical events. System operating normally.</p>
-              <Button
-                variant="outline"
-                onClick={() => router.push(`/${locale}/admin/audit-logs`)}
-              >
-                View All Logs
-              </Button>
+              ))}
             </div>
           </CardContent>
         </Card>

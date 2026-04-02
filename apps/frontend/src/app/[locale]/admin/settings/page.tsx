@@ -119,7 +119,7 @@ export default function TenantSettingsPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <Loader className="w-8 h-8 animate-spin text-green-600" />
+        <Loader className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -134,10 +134,10 @@ export default function TenantSettingsPage() {
       {/* Header */}
       <motion.div variants={itemVariants}>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight">
             Tenant Settings
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-2">
+          <p className="text-muted-foreground mt-2">
             Manage your school's branding and configuration.
           </p>
         </div>
@@ -208,7 +208,7 @@ export default function TenantSettingsPage() {
                     }))
                   }
                 />
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-2">
+                <p className="text-xs text-muted-foreground mt-2">
                   This color will be used for buttons, links, and highlights throughout the app.
                 </p>
               </div>
@@ -218,7 +218,7 @@ export default function TenantSettingsPage() {
                   School Logo
                 </label>
                 <div className="flex items-center gap-4">
-                  <div className="w-24 h-24 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+                  <div className="w-24 h-24 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center bg-muted">
                     {settings.logoUrl ? (
                       <img
                         src={settings.logoUrl}
@@ -226,7 +226,7 @@ export default function TenantSettingsPage() {
                         className="w-full h-full object-contain"
                       />
                     ) : (
-                      <Upload className="w-6 h-6 text-slate-400" />
+                      <Upload className="w-6 h-6 text-muted-foreground" />
                     )}
                   </div>
                   <div className="flex-1">
@@ -238,7 +238,7 @@ export default function TenantSettingsPage() {
                     >
                       Upload Logo
                     </Button>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">
+                    <p className="text-xs text-muted-foreground">
                       PNG, JPG up to 5MB. Recommended: 200x200px
                     </p>
                   </div>
@@ -262,43 +262,43 @@ export default function TenantSettingsPage() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <p className="text-sm text-muted-foreground mb-1">
                         Current Plan
                       </p>
-                      <p className="text-lg font-semibold text-slate-900 dark:text-slate-50 capitalize">
+                      <p className="text-lg font-semibold text-foreground capitalize">
                         {tenant.subscriptionTier}
                       </p>
                     </div>
 
                     <div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <p className="text-sm text-muted-foreground mb-1">
                         Max Children
                       </p>
-                      <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                      <p className="text-lg font-semibold text-foreground">
                         {tenant.maxChildren}
                       </p>
                     </div>
 
                     <div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <p className="text-sm text-muted-foreground mb-1">
                         Max Employees
                       </p>
-                      <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                      <p className="text-lg font-semibold text-foreground">
                         {tenant.maxEmployees}
                       </p>
                     </div>
 
                     <div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <p className="text-sm text-muted-foreground mb-1">
                         Storage Limit
                       </p>
-                      <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                      <p className="text-lg font-semibold text-foreground">
                         {(tenant.maxStorageMb / 1024).toFixed(1)} GB
                       </p>
                     </div>
                   </div>
 
-                  <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+                  <div className="border-t border-border pt-4">
                     <Button variant="secondary" disabled>
                       View Billing
                     </Button>
@@ -320,58 +320,58 @@ export default function TenantSettingsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div>
-                    <h4 className="font-medium text-slate-900 dark:text-slate-50">
+                    <h4 className="font-medium text-foreground">
                       Health Records
                     </h4>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Store and manage child health records
                     </p>
                   </div>
-                  <div className="text-sm font-medium text-green-600">
+                  <div className="text-sm font-medium text-primary">
                     Enabled
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div>
-                    <h4 className="font-medium text-slate-900 dark:text-slate-50">
+                    <h4 className="font-medium text-foreground">
                       Medication Tracking
                     </h4>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Track medications and allergies
                     </p>
                   </div>
-                  <div className="text-sm font-medium text-green-600">
+                  <div className="text-sm font-medium text-primary">
                     Enabled
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div>
-                    <h4 className="font-medium text-slate-900 dark:text-slate-50">
+                    <h4 className="font-medium text-foreground">
                       Parent Portal
                     </h4>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Allow parents to view child health information
                     </p>
                   </div>
-                  <div className="text-sm font-medium text-green-600">
+                  <div className="text-sm font-medium text-primary">
                     Enabled
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div>
-                    <h4 className="font-medium text-slate-900 dark:text-slate-50">
+                    <h4 className="font-medium text-foreground">
                       Advanced Analytics
                     </h4>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Access health trends and reporting
                     </p>
                   </div>
-                  <div className="text-sm font-medium text-slate-500">
+                  <div className="text-sm font-medium text-muted-foreground">
                     {tenant?.subscriptionTier === 'enterprise'
                       ? 'Enabled'
                       : 'Upgrade to Professional+'}

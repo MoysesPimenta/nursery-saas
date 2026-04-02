@@ -159,10 +159,10 @@ export default function UserManagementPage() {
       <motion.div variants={itemVariants}>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight">
               User Management
             </h1>
-            <p className="text-slate-600 dark:text-slate-400 mt-2">
+            <p className="text-muted-foreground mt-2">
               Manage users, roles, and access permissions.
             </p>
           </div>
@@ -228,7 +228,7 @@ export default function UserManagementPage() {
                         role: e.target.value as SystemRole,
                       }))
                     }
-                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   >
                     {ROLES.map((role) => (
                       <option key={role.value} value={role.value}>
@@ -288,7 +288,7 @@ export default function UserManagementPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="relative">
-              <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Search by name or email..."
                 className="pl-10"
@@ -335,10 +335,10 @@ export default function UserManagementPage() {
         <motion.div variants={itemVariants}>
           <Card>
             <CardContent className="pt-6">
-              <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+              <div className="text-sm text-muted-foreground mb-1">
                 Total Users
               </div>
-              <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+              <div className="text-2xl font-bold text-foreground">
                 {users.length}
               </div>
             </CardContent>
@@ -348,10 +348,10 @@ export default function UserManagementPage() {
         <motion.div variants={itemVariants}>
           <Card>
             <CardContent className="pt-6">
-              <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+              <div className="text-sm text-muted-foreground mb-1">
                 Active Users
               </div>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-primary">
                 {activeUsers}
               </div>
             </CardContent>
@@ -371,10 +371,10 @@ export default function UserManagementPage() {
           <CardContent>
             {loading ? (
               <div className="flex justify-center py-12">
-                <Loader className="w-8 h-8 animate-spin text-green-600" />
+                <Loader className="w-8 h-8 animate-spin text-primary" />
               </div>
             ) : filteredUsers.length === 0 ? (
-              <div className="text-center py-12 text-slate-600 dark:text-slate-400">
+              <div className="text-center py-12 text-muted-foreground">
                 {searchTerm
                   ? 'No users match your search.'
                   : 'No users created yet. Invite your first user to get started.'}
@@ -383,7 +383,7 @@ export default function UserManagementPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-slate-200 dark:border-slate-700">
+                    <tr className="border-b border-border">
                       <th className="text-left py-3 px-4 font-semibold">
                         Name
                       </th>
@@ -408,14 +408,14 @@ export default function UserManagementPage() {
                     {filteredUsers.map((user) => (
                       <tr
                         key={user.id}
-                        className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors"
+                        className="border-b border-border hover:bg-muted transition-colors"
                       >
                         <td className="py-3 px-4">
-                          <div className="font-medium text-slate-900 dark:text-slate-50">
+                          <div className="font-medium text-foreground">
                             {user.fullName}
                           </div>
                         </td>
-                        <td className="py-3 px-4 text-slate-600 dark:text-slate-400">
+                        <td className="py-3 px-4 text-muted-foreground">
                           {user.email}
                         </td>
                         <td className="py-3 px-4">
@@ -432,7 +432,7 @@ export default function UserManagementPage() {
                             {user.isActive ? 'Active' : 'Inactive'}
                           </Badge>
                         </td>
-                        <td className="py-3 px-4 text-slate-600 dark:text-slate-400">
+                        <td className="py-3 px-4 text-muted-foreground">
                           {formatDate(user.lastLoginAt)}
                         </td>
                         <td className="py-3 px-4">

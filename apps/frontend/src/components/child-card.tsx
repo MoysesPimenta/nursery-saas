@@ -79,21 +79,21 @@ export function ChildCard({
               alt={`${child.firstName} ${child.lastName}`}
             />
             <div className="flex-1">
-              <h3 className="font-semibold text-lg text-slate-900 dark:text-slate-50 group-hover:text-green-600 transition-colors">
+              <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
                 {child.firstName} {child.lastName}
               </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-muted-foreground">
                 Age {age} years • {child.classId || 'Class not assigned'}
               </p>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-green-600 transition-colors" />
+          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-primary transition-colors" />
         </div>
 
         {/* Allergies section */}
         {allergies.length > 0 && (
           <div className="mb-4">
-            <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">
               Allergies ({allergies.length})
             </p>
             <div className="flex flex-wrap gap-1">
@@ -121,13 +121,13 @@ export function ChildCard({
 
         {/* Last visit section */}
         {lastVisitDate && (
-          <div className="text-xs text-slate-600 dark:text-slate-400">
+          <div className="text-xs text-muted-foreground">
             <span className="font-medium">Last visit:</span> {formatDate(lastVisitDate)}
           </div>
         )}
 
         {!lastVisitDate && (
-          <div className="text-xs text-slate-500 dark:text-slate-500 italic">
+          <div className="text-xs text-muted-foreground italic">
             No visits recorded
           </div>
         )}

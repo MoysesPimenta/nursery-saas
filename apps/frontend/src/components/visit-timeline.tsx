@@ -49,7 +49,7 @@ export function VisitTimeline({ visits, className }: VisitTimelineProps) {
 
   if (!visits || visits.length === 0) {
     return (
-      <div className={cn('py-8 text-center text-slate-600 dark:text-slate-400', className)}>
+      <div className={cn('py-8 text-center text-muted-foreground', className)}>
         No visits recorded yet.
       </div>
     );
@@ -60,9 +60,9 @@ export function VisitTimeline({ visits, className }: VisitTimelineProps) {
       {visits.map((visit, index) => (
         <div key={visit.id} className="relative">
           {/* Timeline dot and line */}
-          <div className="absolute left-4 top-0 w-2 h-2 bg-green-500 rounded-full -translate-x-1/2" />
+          <div className="absolute left-4 top-0 w-2 h-2 bg-primary rounded-full -translate-x-1/2" />
           {index < visits.length - 1 && (
-            <div className="absolute left-4 top-6 w-0.5 h-12 bg-slate-200 dark:bg-slate-700 -translate-x-1/2" />
+            <div className="absolute left-4 top-6 w-0.5 h-12 bg-border -translate-x-1/2" />
           )}
 
           {/* Visit card */}
@@ -76,14 +76,14 @@ export function VisitTimeline({ visits, className }: VisitTimelineProps) {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <time className="text-sm font-medium text-slate-900 dark:text-slate-50">
+                    <time className="text-sm font-medium text-foreground">
                       {formatDate(visit.startedAt)}
                     </time>
                     <Badge variant={visit.visitType}>
                       {getVisitTypeLabel(visit.visitType)}
                     </Badge>
                   </div>
-                  <p className="text-sm text-slate-700 dark:text-slate-300">
+                  <p className="text-sm text-foreground">
                     {visit.chiefComplaint || 'No complaint recorded'}
                   </p>
                 </div>
@@ -97,13 +97,13 @@ export function VisitTimeline({ visits, className }: VisitTimelineProps) {
             </div>
 
             {expandedId === visit.id && (
-              <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 space-y-3">
+              <div className="mt-4 pt-4 border-t border-border space-y-3">
                 {visit.assessment && (
                   <div>
-                    <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-1">
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-1">
                       Assessment
                     </h4>
-                    <p className="text-sm text-slate-700 dark:text-slate-300">
+                    <p className="text-sm text-foreground">
                       {visit.assessment}
                     </p>
                   </div>
@@ -111,10 +111,10 @@ export function VisitTimeline({ visits, className }: VisitTimelineProps) {
 
                 {visit.treatment && (
                   <div>
-                    <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-1">
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-1">
                       Treatment
                     </h4>
-                    <p className="text-sm text-slate-700 dark:text-slate-300">
+                    <p className="text-sm text-foreground">
                       {visit.treatment}
                     </p>
                   </div>
@@ -122,13 +122,13 @@ export function VisitTimeline({ visits, className }: VisitTimelineProps) {
 
                 {visit.vitals && (
                   <div>
-                    <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-1">
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-1">
                       Vitals
                     </h4>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       {visit.vitals.temperature && (
                         <div>
-                          <span className="text-slate-600 dark:text-slate-400">
+                          <span className="text-muted-foreground">
                             Temperature:
                           </span>
                           <span className="ml-1 font-medium">
@@ -138,7 +138,7 @@ export function VisitTimeline({ visits, className }: VisitTimelineProps) {
                       )}
                       {visit.vitals.heartRate && (
                         <div>
-                          <span className="text-slate-600 dark:text-slate-400">
+                          <span className="text-muted-foreground">
                             Heart Rate:
                           </span>
                           <span className="ml-1 font-medium">
@@ -148,7 +148,7 @@ export function VisitTimeline({ visits, className }: VisitTimelineProps) {
                       )}
                       {visit.vitals.bloodPressure && (
                         <div>
-                          <span className="text-slate-600 dark:text-slate-400">
+                          <span className="text-muted-foreground">
                             BP:
                           </span>
                           <span className="ml-1 font-medium">
@@ -158,7 +158,7 @@ export function VisitTimeline({ visits, className }: VisitTimelineProps) {
                       )}
                       {visit.vitals.weight && (
                         <div>
-                          <span className="text-slate-600 dark:text-slate-400">
+                          <span className="text-muted-foreground">
                             Weight:
                           </span>
                           <span className="ml-1 font-medium">

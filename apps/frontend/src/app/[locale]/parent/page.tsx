@@ -113,10 +113,10 @@ export default function ParentPortalPage() {
       {/* Header */}
       <motion.div variants={itemVariants}>
         <div className="space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">
             Welcome back, {parentName}!
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-400">
+          <p className="text-lg text-muted-foreground">
             View your child's health information and visit history.
           </p>
         </div>
@@ -142,7 +142,7 @@ export default function ParentPortalPage() {
       {/* Loading state */}
       {loading ? (
         <motion.div variants={itemVariants} className="flex justify-center py-12">
-          <Loader className="w-8 h-8 animate-spin text-green-600" />
+          <Loader className="w-8 h-8 animate-spin text-primary" />
         </motion.div>
       ) : children.length === 0 ? (
         /* Empty state */
@@ -154,10 +154,10 @@ export default function ParentPortalPage() {
                   <Users className="w-12 h-12 text-slate-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg text-slate-900 dark:text-slate-50 mb-1">
+                  <h3 className="font-semibold text-lg text-foreground mb-1">
                     No Children Registered
                   </h3>
-                  <p className="text-slate-600 dark:text-slate-400 max-w-sm mx-auto">
+                  <p className="text-muted-foreground max-w-sm mx-auto">
                     You don't have any children linked to your account yet. Contact your nursery administrator to get started.
                   </p>
                 </div>
@@ -202,7 +202,7 @@ export default function ParentPortalPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-muted-foreground">
                 Click on any child card above to view detailed health information, visit history, medications, and allergies.
               </p>
             </CardContent>

@@ -60,7 +60,7 @@ export function VitalsForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Temperature */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-900 dark:text-slate-50 flex items-center gap-2">
+          <label className="text-sm font-medium text-foreground flex items-center gap-2">
             <Thermometer className="w-4 h-4" />
             Temperature
           </label>
@@ -78,14 +78,14 @@ export function VitalsForm({
               value={vitals.temperatureUnit}
               onChange={(e) => handleChange('temperatureUnit', e.target.value)}
               disabled={readOnly}
-              className="px-3 py-2 border border-slate-200 rounded-md bg-white text-sm dark:border-slate-800 dark:bg-slate-950"
+              className="px-3 py-2 border border-border rounded-md bg-white text-sm dark:border-slate-800 dark:bg-slate-950"
             >
               <option value="C">°C</option>
               <option value="F">°F</option>
             </select>
           </div>
           {vitals.temperature && (
-            <div className="text-xs text-slate-600 dark:text-slate-400">
+            <div className="text-xs text-muted-foreground">
               = {convertTemperature(vitals.temperature, vitals.temperatureUnit === 'C' ? 'F' : 'C')}°
               {vitals.temperatureUnit === 'C' ? 'F' : 'C'}
             </div>
@@ -94,7 +94,7 @@ export function VitalsForm({
 
         {/* Blood Pressure */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-900 dark:text-slate-50">
+          <label className="text-sm font-medium text-foreground">
             Blood Pressure (mmHg)
           </label>
           <div className="flex gap-2">
@@ -106,7 +106,7 @@ export function VitalsForm({
               disabled={readOnly}
               className="flex-1"
             />
-            <span className="flex items-center text-slate-400 dark:text-slate-600">/</span>
+            <span className="flex items-center text-muted-foreground">/</span>
             <Input
               type="number"
               placeholder="Diastolic"
@@ -120,7 +120,7 @@ export function VitalsForm({
 
         {/* Heart Rate */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-900 dark:text-slate-50">
+          <label className="text-sm font-medium text-foreground">
             Heart Rate (bpm)
           </label>
           <Input
@@ -134,7 +134,7 @@ export function VitalsForm({
 
         {/* Weight */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-900 dark:text-slate-50">Weight</label>
+          <label className="text-sm font-medium text-foreground">Weight</label>
           <div className="flex gap-2">
             <Input
               type="number"
@@ -149,7 +149,7 @@ export function VitalsForm({
               value={vitals.weightUnit}
               onChange={(e) => handleChange('weightUnit', e.target.value)}
               disabled={readOnly}
-              className="px-3 py-2 border border-slate-200 rounded-md bg-white text-sm dark:border-slate-800 dark:bg-slate-950"
+              className="px-3 py-2 border border-border rounded-md bg-white text-sm dark:border-slate-800 dark:bg-slate-950"
             >
               <option value="kg">kg</option>
               <option value="lb">lb</option>

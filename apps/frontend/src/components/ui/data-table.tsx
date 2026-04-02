@@ -1,7 +1,7 @@
 import React from 'react';
 import { DataTableSkeleton } from './loading';
 import { cn } from '@/lib/utils';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Inbox } from 'lucide-react';
 import { Button } from './button';
 
 interface Column<T> {
@@ -36,8 +36,6 @@ export function DataTable<T extends Record<string, any>>({
   emptyMessage = 'No data found',
   rowKey = (item, index) => index,
 }: DataTableProps<T>) {
-  const [rowIndex, setRowIndex] = React.useState(0);
-
   const getRowKey = (item: T, index: number) => {
     const key = rowKey(item);
     return typeof key === 'string' ? key : `${key}-${index}`;
@@ -49,8 +47,12 @@ export function DataTable<T extends Record<string, any>>({
 
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center py-12 text-slate-500 dark:text-slate-400">
-        {emptyMessage}
+      <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+        <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-4">
+          <Inbox className="w-6 h-6" />
+        </div>
+        <p className="text-sm font-medium">{emptyMessage}</p>
+        <p className="text-xs text-muted-foreground/60 mt-1">Try adjusting your filters or search terms</p>
       </div>
     );
   }
@@ -59,15 +61,15 @@ export function DataTable<T extends Record<string, any>>({
 
   return (
     <div className="space-y-4">
-      <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg">
+      <div className="overflow-x-auto rounded-xl border border-border/50">
         <table className="w-full">
-          <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-            <tr>
+          <thead>
+            <tr className="border-b border-border/50 bg-muted/30">
               {columns.map((column) => (
                 <th
                   key={String(column.key)}
                   className={cn(
-                    'px-6 py-3 text-left text-sm font-medium text-slate-700 dark:text-slate-300',
+                    'px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground',
                     column.width
                   )}
                 >
@@ -76,20 +78,20 @@ export function DataTable<T extends Record<string, any>>({
               ))}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-border/30">
             {data.map((item, index) => (
               <tr
                 key={getRowKey(item, index)}
                 onClick={() => onRowClick?.(item)}
                 className={cn(
-                  'border-b border-slate-200 dark:border-slate-800',
-                  onRowClick && 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900'
+                  'transition-colors duration-150',
+                  onRowClick && 'cursor-pointer hover:bg-accent/50 active:bg-accent'
                 )}
               >
                 {columns.map((column) => (
                   <td
                     key={String(column.key)}
-                    className={cn('px-6 py-4 text-sm text-slate-900 dark:text-slate-50', column.width)}
+                    className={cn('px-4 py-3.5 text-sm', column.width)}
                   >
                     {column.render
                       ? column.render(item[column.key as keyof T], item)
@@ -103,11 +105,12 @@ export function DataTable<T extends Record<string, any>>({
       </div>
 
       {pagination && totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            Page {pagination.page + 1} of {totalPages}
+        <div className="flex items-center justify-between pt-2">
+          <p className="text-sm text-muted-foreground">
+            Showing page <span className="font-medium text-foreground">{pagination.page + 1}</span> of{' '}
+            <span className="font-medium text-foreground">{totalPages}</span>
           </p>
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             <Button
               variant="outline"
               size="sm"

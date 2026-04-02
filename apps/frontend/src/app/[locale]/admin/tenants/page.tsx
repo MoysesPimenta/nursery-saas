@@ -175,10 +175,10 @@ export default function TenantManagementPage() {
       <motion.div variants={itemVariants}>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight">
               Tenant Management
             </h1>
-            <p className="text-slate-600 dark:text-slate-400 mt-2">
+            <p className="text-muted-foreground mt-2">
               Manage all registered nursery tenants and their subscriptions.
             </p>
           </div>
@@ -218,7 +218,7 @@ export default function TenantManagementPage() {
                     placeholder="bright-kids-academy"
                     value={formData.slug}
                     readOnly
-                    className="bg-slate-50 dark:bg-slate-900"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -234,7 +234,7 @@ export default function TenantManagementPage() {
                         subscriptionTier: e.target.value as any,
                       }))
                     }
-                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   >
                     <option value="free">Free - $0/mo</option>
                     <option value="starter">
@@ -334,7 +334,7 @@ export default function TenantManagementPage() {
           </CardHeader>
           <CardContent>
             <div className="relative">
-              <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Search by tenant name or slug..."
                 className="pl-10"
@@ -354,10 +354,10 @@ export default function TenantManagementPage() {
         <motion.div variants={itemVariants}>
           <Card>
             <CardContent className="pt-6">
-              <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+              <div className="text-sm text-muted-foreground mb-1">
                 Active Tenants
               </div>
-              <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+              <div className="text-2xl font-bold text-foreground">
                 {tenants.filter((t) => t.isActive).length}
               </div>
             </CardContent>
@@ -367,10 +367,10 @@ export default function TenantManagementPage() {
         <motion.div variants={itemVariants}>
           <Card>
             <CardContent className="pt-6">
-              <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+              <div className="text-sm text-muted-foreground mb-1">
                 Monthly Revenue
               </div>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-primary">
                 ${totalRevenue.toLocaleString()}
               </div>
             </CardContent>
@@ -380,7 +380,7 @@ export default function TenantManagementPage() {
         <motion.div variants={itemVariants}>
           <Card>
             <CardContent className="pt-6">
-              <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+              <div className="text-sm text-muted-foreground mb-1">
                 Expiring Soon
               </div>
               <div className="text-2xl font-bold text-orange-600">
@@ -403,10 +403,10 @@ export default function TenantManagementPage() {
           <CardContent>
             {loading ? (
               <div className="flex justify-center py-12">
-                <Loader className="w-8 h-8 animate-spin text-green-600" />
+                <Loader className="w-8 h-8 animate-spin text-primary" />
               </div>
             ) : filteredTenants.length === 0 ? (
-              <div className="text-center py-12 text-slate-600 dark:text-slate-400">
+              <div className="text-center py-12 text-muted-foreground">
                 {searchTerm
                   ? 'No tenants match your search.'
                   : 'No tenants created yet. Create your first tenant to get started.'}
@@ -415,7 +415,7 @@ export default function TenantManagementPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-slate-200 dark:border-slate-700">
+                    <tr className="border-b border-border">
                       <th className="text-left py-3 px-4 font-semibold">
                         School Name
                       </th>
@@ -443,14 +443,14 @@ export default function TenantManagementPage() {
                     {filteredTenants.map((tenant) => (
                       <tr
                         key={tenant.id}
-                        className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors"
+                        className="border-b border-border hover:bg-muted transition-colors"
                       >
                         <td className="py-3 px-4">
-                          <div className="font-medium text-slate-900 dark:text-slate-50">
+                          <div className="font-medium text-foreground">
                             {tenant.name}
                           </div>
                         </td>
-                        <td className="py-3 px-4 text-slate-600 dark:text-slate-400">
+                        <td className="py-3 px-4 text-muted-foreground">
                           {tenant.slug}
                         </td>
                         <td className="py-3 px-4">
@@ -472,7 +472,7 @@ export default function TenantManagementPage() {
                             {tenant.isActive ? 'Active' : 'Inactive'}
                           </Badge>
                         </td>
-                        <td className="py-3 px-4 text-slate-600 dark:text-slate-400">
+                        <td className="py-3 px-4 text-muted-foreground">
                           {formatDate(tenant.createdAt)}
                         </td>
                         <td className="py-3 px-4">

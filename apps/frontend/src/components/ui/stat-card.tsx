@@ -1,5 +1,6 @@
+'use client';
+
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './card';
 import { cn } from '@/lib/utils';
 
 interface StatCardProps {
@@ -7,8 +8,8 @@ interface StatCardProps {
   value: string | number;
   icon?: React.ReactNode;
   trend?: string;
+  trendUp?: boolean;
   color?: string;
-  bgColor?: string;
   className?: string;
 }
 
@@ -17,22 +18,33 @@ export function StatCard({
   value,
   icon,
   trend,
-  color = 'text-blue-600',
-  bgColor = 'bg-blue-100 dark:bg-blue-900',
+  trendUp = true,
   className,
 }: StatCardProps) {
   return (
-    <Card className={cn('hover:shadow-lg transition-shadow', className)}>
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium">{title}</CardTitle>
-          {icon && <div className={cn(`p-2 rounded-lg ${bgColor}`)}>{icon}</div>}
+    <div
+      className={cn(
+        'group relative overflow-hidden rounded-xl border border-border/50 bg-card p-5 shadow-card transition-all duration-300 hover:shadow-card-hover',
+        className
+      )}
+    >
+      <div className="flex items-start justify-between">
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <p className="text-2xl font-bold tracking-tight">{value}</p>
+          {trend && (
+            <p className={cn('text-xs font-medium', trendUp ? 'text-emerald-600' : 'text-red-500')}>
+              {trend}
+            </p>
+          )}
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        {trend && <p className={cn('text-xs mt-1', color)}>{trend}</p>}
-      </CardContent>
-    </Card>
+        {icon && (
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
+            {icon}
+          </div>
+        )}
+      </div>
+      <div className="absolute -bottom-1 -right-1 h-24 w-24 rounded-full bg-primary/5 transition-transform duration-500 group-hover:scale-150" />
+    </div>
   );
 }

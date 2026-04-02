@@ -102,7 +102,7 @@ export default function VisitDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="text-slate-600 dark:text-slate-400">Loading visit details...</div>
+        <div className="text-muted-foreground">Loading visit details...</div>
       </div>
     );
   }
@@ -120,7 +120,7 @@ export default function VisitDetailPage() {
         </Button>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-center text-slate-600 dark:text-slate-400">Visit not found</p>
+            <p className="text-center text-muted-foreground">Visit not found</p>
           </CardContent>
         </Card>
       </div>
@@ -175,7 +175,7 @@ export default function VisitDetailPage() {
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
-            <h1 className="text-3xl font-bold tracking-tight">{visit.childName}</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{visit.childName}</h1>
           </div>
           <div className="flex gap-2 ml-10 flex-wrap">
             <Badge variant={visitTypeConfig[visit.visitType]?.color || 'default'}>
@@ -208,7 +208,7 @@ export default function VisitDetailPage() {
             <Button
               onClick={handleEndVisit}
               disabled={isEnding || isEndingVisit}
-              className="bg-blue-600 hover:bg-blue-700 gap-2"
+              className="gap-2"
             >
               <Clock className="w-4 h-4" />
               {isEnding || isEndingVisit ? 'Ending...' : 'End Visit'}
@@ -222,30 +222,30 @@ export default function VisitDetailPage() {
         <CardContent className="pt-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <p className="text-xs text-slate-600 dark:text-slate-400">Visit ID</p>
+              <p className="text-xs text-muted-foreground">Visit ID</p>
               <p className="font-mono text-sm font-medium">{visit.id}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-600 dark:text-slate-400">Date</p>
+              <p className="text-xs text-muted-foreground">Date</p>
               <p className="text-sm font-medium">
                 {new Date(visit.startTime).toLocaleDateString()}
               </p>
             </div>
             <div>
-              <p className="text-xs text-slate-600 dark:text-slate-400">Start Time</p>
+              <p className="text-xs text-muted-foreground">Start Time</p>
               <p className="text-sm font-medium">
                 {new Date(visit.startTime).toLocaleTimeString()}
               </p>
             </div>
             {visit.endTime && (
               <div>
-                <p className="text-xs text-slate-600 dark:text-slate-400">Duration</p>
+                <p className="text-xs text-muted-foreground">Duration</p>
                 <p className="text-sm font-medium">{duration} minutes</p>
               </div>
             )}
             {!visit.endTime && (
               <div>
-                <p className="text-xs text-slate-600 dark:text-slate-400">Status</p>
+                <p className="text-xs text-muted-foreground">Status</p>
                 <Badge variant="warning">Ongoing</Badge>
               </div>
             )}
@@ -259,7 +259,7 @@ export default function VisitDetailPage() {
           <CardTitle>Chief Complaint</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-slate-900 dark:text-slate-50">{visit.chiefComplaint}</p>
+          <p className="text-foreground">{visit.chiefComplaint}</p>
         </CardContent>
       </Card>
 
@@ -273,7 +273,7 @@ export default function VisitDetailPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {visit.vitals.temperature && (
                 <div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">Temperature</p>
+                  <p className="text-xs text-muted-foreground">Temperature</p>
                   <p className="text-sm font-medium">
                     {visit.vitals.temperature}°{visit.vitals.temperatureUnit}
                   </p>
@@ -281,7 +281,7 @@ export default function VisitDetailPage() {
               )}
               {visit.vitals.systolicBP && (
                 <div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">Blood Pressure</p>
+                  <p className="text-xs text-muted-foreground">Blood Pressure</p>
                   <p className="text-sm font-medium">
                     {visit.vitals.systolicBP}/{visit.vitals.diastolicBP} mmHg
                   </p>
@@ -289,13 +289,13 @@ export default function VisitDetailPage() {
               )}
               {visit.vitals.heartRate && (
                 <div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">Heart Rate</p>
+                  <p className="text-xs text-muted-foreground">Heart Rate</p>
                   <p className="text-sm font-medium">{visit.vitals.heartRate} bpm</p>
                 </div>
               )}
               {visit.vitals.weight && (
                 <div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">Weight</p>
+                  <p className="text-xs text-muted-foreground">Weight</p>
                   <p className="text-sm font-medium">
                     {visit.vitals.weight} {visit.vitals.weightUnit}
                   </p>
@@ -313,7 +313,7 @@ export default function VisitDetailPage() {
             <CardTitle>Assessment</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-slate-900 dark:text-slate-50 whitespace-pre-wrap">
+            <p className="text-foreground whitespace-pre-wrap">
               {visit.assessment}
             </p>
           </CardContent>
@@ -324,7 +324,7 @@ export default function VisitDetailPage() {
             <CardTitle>Treatment</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-slate-900 dark:text-slate-50 whitespace-pre-wrap">
+            <p className="text-foreground whitespace-pre-wrap">
               {visit.treatment}
             </p>
           </CardContent>
@@ -342,16 +342,16 @@ export default function VisitDetailPage() {
               {visit.medications.map((med, idx) => (
                 <div
                   key={idx}
-                  className="border border-slate-200 dark:border-slate-800 rounded-lg p-3"
+                  className="border border-border rounded-lg p-3"
                 >
-                  <div className="font-medium text-slate-900 dark:text-slate-50">
+                  <div className="font-medium text-foreground">
                     {med.medicationName}
                   </div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">
+                  <div className="text-sm text-muted-foreground">
                     {med.dosage} at {med.time}
                   </div>
                   {med.notes && (
-                    <div className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                    <div className="text-xs text-muted-foreground mt-1">
                       {med.notes}
                     </div>
                   )}
@@ -369,14 +369,14 @@ export default function VisitDetailPage() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
-            <p className="text-xs text-slate-600 dark:text-slate-400">Disposition</p>
+            <p className="text-xs text-muted-foreground">Disposition</p>
             <Badge variant={dispositionConfig[visit.disposition]?.color || 'default'}>
               {dispositionConfig[visit.disposition]?.label}
             </Badge>
           </div>
           {visit.notifyParent && (
-            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-              <p className="text-sm text-blue-900 dark:text-blue-50">
+            <div className="p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl">
+              <p className="text-sm text-blue-900 dark:text-blue-100">
                 Parent notification has been sent about this visit.
               </p>
             </div>

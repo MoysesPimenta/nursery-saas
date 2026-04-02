@@ -1,58 +1,33 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-
 import { cn } from '@/lib/utils';
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 dark:focus:ring-slate-300',
+  'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors',
   {
     variants: {
       variant: {
-        default:
-          'border border-slate-200 bg-slate-100 text-slate-900 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-50',
-        secondary:
-          'border border-slate-200 bg-slate-50 text-slate-900 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:hover:bg-slate-800',
-        destructive:
-          'border border-red-200 bg-red-100 text-red-900 dark:border-red-800 dark:bg-red-900 dark:text-red-50',
-        outline: 'text-slate-950 dark:text-slate-50',
-        success:
-          'border border-green-200 bg-green-100 text-green-900 dark:border-green-800 dark:bg-green-900 dark:text-green-50',
-        warning:
-          'border border-yellow-200 bg-yellow-100 text-yellow-900 dark:border-yellow-800 dark:bg-yellow-900 dark:text-yellow-50',
-        info:
-          'border border-blue-200 bg-blue-100 text-blue-900 dark:border-blue-800 dark:bg-blue-900 dark:text-blue-50',
-        purple:
-          'border border-purple-200 bg-purple-100 text-purple-900 dark:border-purple-800 dark:bg-purple-900 dark:text-purple-50',
-        // Visit type variants
-        authorization:
-          'border border-blue-200 bg-blue-100 text-blue-900 dark:border-blue-800 dark:bg-blue-900 dark:text-blue-50',
-        walk_in:
-          'border border-gray-200 bg-gray-100 text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-50',
-        scheduled:
-          'border border-purple-200 bg-purple-100 text-purple-900 dark:border-purple-800 dark:bg-purple-900 dark:text-purple-50',
-        emergency:
-          'border border-red-200 bg-red-100 text-red-900 dark:border-red-800 dark:bg-red-900 dark:text-red-50',
-        // Priority variants
-        normal:
-          'border border-slate-200 bg-slate-100 text-slate-900 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-50',
-        urgent:
-          'border border-red-300 bg-red-200 text-red-900 font-bold dark:border-red-700 dark:bg-red-800 dark:text-red-50 animate-pulse',
-        // Disposition variants
-        returned_to_class:
-          'border border-green-200 bg-green-100 text-green-900 dark:border-green-800 dark:bg-green-900 dark:text-green-50',
-        sent_home:
-          'border border-blue-200 bg-blue-100 text-blue-900 dark:border-blue-800 dark:bg-blue-900 dark:text-blue-50',
-        referred:
-          'border border-yellow-200 bg-yellow-100 text-yellow-900 dark:border-yellow-800 dark:bg-yellow-900 dark:text-yellow-50',
-        hospitalized:
-          'border border-red-300 bg-red-200 text-red-900 dark:border-red-700 dark:bg-red-800 dark:text-red-50',
-        // Status variants
-        accepted:
-          'border border-green-200 bg-green-100 text-green-900 dark:border-green-800 dark:bg-green-900 dark:text-green-50',
-        rejected:
-          'border border-red-200 bg-red-100 text-red-900 dark:border-red-800 dark:bg-red-900 dark:text-red-50',
-        pending:
-          'border border-yellow-200 bg-yellow-100 text-yellow-900 dark:border-yellow-800 dark:bg-yellow-900 dark:text-yellow-50',
+        default: 'bg-primary/10 text-primary border border-primary/20',
+        secondary: 'bg-secondary text-secondary-foreground border border-border',
+        destructive: 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-800',
+        outline: 'border border-border text-foreground',
+        success: 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800',
+        warning: 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800',
+        info: 'bg-sky-50 text-sky-700 border border-sky-200 dark:bg-sky-950 dark:text-sky-400 dark:border-sky-800',
+        purple: 'bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950 dark:text-purple-400 dark:border-purple-800',
+        authorization: 'bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950 dark:text-indigo-400 dark:border-indigo-800',
+        walk_in: 'bg-slate-50 text-slate-700 border border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-700',
+        scheduled: 'bg-violet-50 text-violet-700 border border-violet-200 dark:bg-violet-950 dark:text-violet-400 dark:border-violet-800',
+        emergency: 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-800',
+        normal: 'bg-slate-50 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700',
+        urgent: 'bg-red-100 text-red-800 border border-red-300 font-semibold dark:bg-red-900 dark:text-red-300 dark:border-red-700 animate-pulse',
+        returned_to_class: 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800',
+        sent_home: 'bg-sky-50 text-sky-700 border border-sky-200 dark:bg-sky-950 dark:text-sky-400 dark:border-sky-800',
+        referred: 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800',
+        hospitalized: 'bg-red-100 text-red-800 border border-red-300 dark:bg-red-900 dark:text-red-300 dark:border-red-700',
+        accepted: 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800',
+        rejected: 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-800',
+        pending: 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800',
       },
     },
     defaultVariants: {
@@ -66,9 +41,7 @@ export interface BadgeProps
     VariantProps<typeof badgeVariants> {}
 
 function Badge({ className, variant, ...props }: BadgeProps) {
-  return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
-  );
+  return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
 }
 
 export { Badge, badgeVariants };

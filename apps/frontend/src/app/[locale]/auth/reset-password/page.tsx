@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { KeyRound, Mail } from 'lucide-react';
+import { KeyRound, Mail, Lock, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase/client';
 
@@ -80,37 +80,44 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 dark:from-slate-950 dark:to-slate-900 p-4">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-muted/30">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
+        className="w-full max-w-[420px]"
       >
-        <Card className="w-full max-w-md">
+        <div className="flex items-center gap-2.5 mb-8 justify-center">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
+            <Heart className="w-4 h-4 text-white" />
+          </div>
+          <span className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">MyNurse</span>
+        </div>
+
+        <Card>
           <CardHeader className="space-y-1">
-            <div className="flex items-center gap-2 mb-4">
-              <KeyRound className="w-5 h-5 text-green-500" />
-              <h1 className="text-2xl font-bold text-green-500">Reset Password</h1>
+            <div className="flex items-center gap-2 mb-2">
+              <KeyRound className="w-5 h-5 text-primary" />
+              <CardTitle className="text-xl">
+                {step === 'request' ? 'Reset Password' : 'Set New Password'}
+              </CardTitle>
             </div>
-            <CardTitle className="text-2xl">
-              {step === 'request' ? 'Request Password Reset' : 'Set New Password'}
-            </CardTitle>
             <CardDescription>
               {step === 'request'
-                ? 'Enter your email address to receive a reset code'
-                : 'Enter your new password'}
+                ? 'Enter your email address to receive a reset link'
+                : 'Choose a strong new password for your account'}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {step === 'request' ? (
               <form onSubmit={handleRequestReset} className="space-y-4">
                 {error && (
-                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-200 px-4 py-3 rounded text-sm">
+                  <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl text-sm">
                     {error}
                   </div>
                 )}
                 {message && (
-                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-200 px-4 py-3 rounded text-sm">
+                  <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 px-4 py-3 rounded-xl text-sm">
                     {message}
                   </div>
                 )}
@@ -118,11 +125,11 @@ export default function ResetPasswordPage() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Email</label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                       type="email"
-                      placeholder="your@email.com"
-                      className="pl-10"
+                      placeholder="you@example.com"
+                      className="pl-10 h-11"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
@@ -133,68 +140,78 @@ export default function ResetPasswordPage() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-green-500 hover:bg-green-600"
+                  className="w-full h-11"
                   disabled={loading}
+                  loading={loading}
                 >
-                  {loading ? 'Sending...' : 'Send Reset Code'}
+                  Send Reset Link
                 </Button>
 
-                <div className="text-center text-sm">
-                  <a href={`/${locale}/auth/login`} className="text-green-600 hover:underline">
+                <p className="text-center text-sm text-muted-foreground">
+                  <a href={`/${locale}/auth/login`} className="text-primary font-medium hover:underline">
                     Back to login
                   </a>
-                </div>
+                </p>
               </form>
             ) : (
               <form onSubmit={handleResetPassword} className="space-y-4">
                 {error && (
-                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-200 px-4 py-3 rounded text-sm">
+                  <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl text-sm">
                     {error}
                   </div>
                 )}
                 {message && (
-                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-200 px-4 py-3 rounded text-sm">
+                  <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 px-4 py-3 rounded-xl text-sm">
                     {message}
                   </div>
                 )}
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">New Password</label>
-                  <Input
-                    type="password"
-                    placeholder="••••••••"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    required
-                    disabled={loading}
-                  />
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      type="password"
+                      placeholder="Min. 6 characters"
+                      className="pl-10 h-11"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                      disabled={loading}
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Confirm Password</label>
-                  <Input
-                    type="password"
-                    placeholder="••••••••"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    disabled={loading}
-                  />
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      type="password"
+                      placeholder="Re-enter your password"
+                      className="pl-10 h-11"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      disabled={loading}
+                    />
+                  </div>
                 </div>
 
                 <Button
                   type="submit"
-                  className="w-full bg-green-500 hover:bg-green-600"
+                  className="w-full h-11"
                   disabled={loading}
+                  loading={loading}
                 >
-                  {loading ? 'Resetting...' : 'Reset Password'}
+                  Reset Password
                 </Button>
 
-                <div className="text-center text-sm">
-                  <a href={`/${locale}/auth/login`} className="text-green-600 hover:underline">
+                <p className="text-center text-sm text-muted-foreground">
+                  <a href={`/${locale}/auth/login`} className="text-primary font-medium hover:underline">
                     Back to login
                   </a>
-                </div>
+                </p>
               </form>
             )}
           </CardContent>

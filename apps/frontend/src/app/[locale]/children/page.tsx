@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { useApiQuery } from '@/lib/hooks/use-api';
 import { useRouter, useParams } from 'next/navigation';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, Baby } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Child {
@@ -44,74 +45,86 @@ export default function ChildrenPage() {
     {
       key: 'firstName' as const,
       label: 'Name',
-      render: (value: string, item: Child) => `${item.firstName} ${item.lastName}`,
-      width: '30%',
+      render: (value: string, item: Child) => (
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+            {item.firstName[0]}{item.lastName[0]}
+          </div>
+          <span className="font-medium">{item.firstName} {item.lastName}</span>
+        </div>
+      ),
     },
     {
       key: 'dateOfBirth' as const,
       label: 'Date of Birth',
-      render: (value: string) => new Date(value).toLocaleDateString(),
-      width: '20%',
+      render: (value: string) => (
+        <span className="text-muted-foreground">{new Date(value).toLocaleDateString()}</span>
+      ),
     },
     {
       key: 'className' as const,
       label: 'Class',
-      width: '15%',
+      render: (value: string) => value || <span className="text-muted-foreground/50">—</span>,
     },
     {
       key: 'allergies' as const,
       label: 'Allergies',
-      render: (value: string[] | undefined) => value?.length || 0,
-      width: '15%',
+      render: (value: string[] | undefined) => {
+        const count = value?.length || 0;
+        return count > 0 ? (
+          <Badge variant="warning">{count} alert{count > 1 ? 's' : ''}</Badge>
+        ) : (
+          <span className="text-muted-foreground/50">None</span>
+        );
+      },
     },
     {
       key: 'status' as const,
       label: 'Status',
       render: (value: string) => (
-        <span className={`px-2 py-1 rounded text-xs font-medium ${
-          value === 'active'
-            ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200'
-            : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200'
-        }`}>
+        <Badge variant={value === 'active' ? 'success' : 'secondary'}>
           {value.charAt(0).toUpperCase() + value.slice(1)}
-        </span>
+        </Badge>
       ),
-      width: '15%',
     },
   ];
 
   return (
     <motion.div
       className="space-y-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Children</h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
-            Manage children in your nursery
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">Children</h1>
+          <p className="text-muted-foreground mt-1">Manage children enrolled in your nursery</p>
         </div>
-        <Button
-          onClick={() => router.push(`/${locale}/children/new`)}
-          className="bg-green-500 hover:bg-green-600"
-        >
-          <Plus className="w-4 h-4 mr-2" />
+        <Button onClick={() => router.push(`/${locale}/children/new`)} className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
+          <Plus className="w-4 h-4" />
           Add Child
         </Button>
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Children List</CardTitle>
-          <CardDescription>View and manage all children</CardDescription>
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Baby className="w-4 h-4 text-indigo-600" />
+                All Children
+              </CardTitle>
+              <CardDescription>
+                {response?.pagination?.total || 0} children registered
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+            <div className="relative max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Search by name..."

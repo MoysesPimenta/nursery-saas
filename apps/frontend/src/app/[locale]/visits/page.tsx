@@ -5,11 +5,11 @@ import { useRouter, useParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { DataTable } from '@/components/ui/data-table';
-import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { Badge } from '@/components/ui/badge';
+import { DataTable } from '@/components/ui/data-table';
+import { StatCard } from '@/components/ui/stat-card';
 import { useApiQuery } from '@/lib/hooks/use-api';
-import { Plus, Search, TrendingUp, Calendar } from 'lucide-react';
+import { Plus, Search, Activity, Calendar, AlertTriangle, Stethoscope } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Visit {
@@ -32,18 +32,27 @@ interface VisitsResponse {
   };
 }
 
-const visitTypeConfig = {
-  authorization: { label: 'Authorization', color: 'authorization' as const },
-  walk_in: { label: 'Walk-in', color: 'walk_in' as const },
-  scheduled: { label: 'Scheduled', color: 'scheduled' as const },
-  emergency: { label: 'Emergency', color: 'emergency' as const },
+const visitTypeConfig: Record<string, { label: string; color: any }> = {
+  authorization: { label: 'Authorization', color: 'authorization' },
+  walk_in: { label: 'Walk-in', color: 'walk_in' },
+  scheduled: { label: 'Scheduled', color: 'scheduled' },
+  emergency: { label: 'Emergency', color: 'emergency' },
 };
 
-const dispositionConfig = {
-  returned_to_class: { label: 'Returned to Class', color: 'returned_to_class' as const },
-  sent_home: { label: 'Sent Home', color: 'sent_home' as const },
-  referred: { label: 'Referred', color: 'referred' as const },
-  hospitalized: { label: 'Hospitalized', color: 'hospitalized' as const },
+const dispositionConfig: Record<string, { label: string; color: any }> = {
+  returned_to_class: { label: 'Returned to Class', color: 'returned_to_class' },
+  sent_home: { label: 'Sent Home', color: 'sent_home' },
+  referred: { label: 'Referred', color: 'referred' },
+  hospitalized: { label: 'Hospitalized', color: 'hospitalized' },
+};
+
+const container = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.08 } },
+};
+const item = {
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0 },
 };
 
 export default function VisitsPage() {
@@ -82,251 +91,140 @@ export default function VisitsPage() {
       render: (value: string) => {
         const date = new Date(value);
         return (
-          <div className="text-sm">
-            <div className="font-medium">{date.toLocaleDateString()}</div>
-            <div className="text-slate-600 dark:text-slate-400">{date.toLocaleTimeString()}</div>
+          <div>
+            <div className="font-medium text-sm">{date.toLocaleDateString()}</div>
+            <div className="text-xs text-muted-foreground">{date.toLocaleTimeString()}</div>
           </div>
         );
       },
-      width: '15%',
     },
     {
       key: 'childName' as const,
-      label: 'Child Name',
-      render: (value: string) => <div className="font-medium">{value}</div>,
-      width: '15%',
+      label: 'Child',
+      render: (value: string) => <span className="font-medium">{value}</span>,
     },
     {
       key: 'visitType' as const,
-      label: 'Visit Type',
+      label: 'Type',
       render: (value: string) => (
-        <Badge variant={visitTypeConfig[value as keyof typeof visitTypeConfig]?.color || 'default'}>
-          {visitTypeConfig[value as keyof typeof visitTypeConfig]?.label || value}
+        <Badge variant={visitTypeConfig[value]?.color || 'default'}>
+          {visitTypeConfig[value]?.label || value}
         </Badge>
       ),
-      width: '15%',
     },
     {
       key: 'chiefComplaint' as const,
       label: 'Complaint',
-      render: (value: string) => <div className="text-sm truncate">{value}</div>,
-      width: '25%',
+      render: (value: string) => <div className="text-sm truncate max-w-[200px]">{value}</div>,
     },
     {
       key: 'disposition' as const,
       label: 'Disposition',
       render: (value: string) => (
-        <Badge variant={dispositionConfig[value as keyof typeof dispositionConfig]?.color || 'default'}>
-          {dispositionConfig[value as keyof typeof dispositionConfig]?.label || value}
+        <Badge variant={dispositionConfig[value]?.color || 'default'}>
+          {dispositionConfig[value]?.label || value}
         </Badge>
       ),
-      width: '15%',
     },
     {
       key: 'id' as const,
       label: 'Duration',
-      render: (value: string, item: Visit) => {
-        if (!item.endTime) return <span className="text-slate-500">Ongoing</span>;
+      render: (_: string, item: Visit) => {
+        if (!item.endTime) return <Badge variant="info">Ongoing</Badge>;
         const duration = Math.round(
           (new Date(item.endTime).getTime() - new Date(item.startTime).getTime()) / 60000
         );
-        return <span className="text-sm">{duration} min</span>;
+        return <span className="text-sm text-muted-foreground">{duration} min</span>;
       },
-      width: '10%',
-    },
-  ];
-
-  const statsCards = [
-    {
-      label: 'Total Visits',
-      value: stats.total,
-      icon: TrendingUp,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100 dark:bg-blue-900',
-    },
-    {
-      label: 'From Authorization',
-      value: stats.byType?.authorization || 0,
-      icon: Calendar,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100 dark:bg-blue-900',
-    },
-    {
-      label: 'Walk-in',
-      value: stats.byType?.walk_in || 0,
-      icon: Calendar,
-      color: 'text-gray-600',
-      bgColor: 'bg-gray-100 dark:bg-gray-900',
-    },
-    {
-      label: 'Emergency',
-      value: stats.byType?.emergency || 0,
-      icon: Calendar,
-      color: 'text-red-600',
-      bgColor: 'bg-red-100 dark:bg-red-900',
     },
   ];
 
   return (
-    <motion.div
-      className="space-y-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
+    <motion.div className="space-y-6" variants={container} initial="hidden" animate="show">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <motion.div variants={item} className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Visits</h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
-            Track and manage all child visits
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">Visits</h1>
+          <p className="text-muted-foreground mt-1">Track and manage all child visits</p>
         </div>
-        <Button
-          onClick={() => router.push(`/${locale}/visits/new`)}
-          className="gap-2 bg-green-600 hover:bg-green-700"
-        >
+        <Button onClick={() => router.push(`/${locale}/visits/new`)} className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
           <Plus className="w-4 h-4" />
           New Visit
         </Button>
-      </div>
+      </motion.div>
 
-      {/* Stats Cards */}
-      <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          hidden: { opacity: 0 },
-          visible: {
-            opacity: 1,
-            transition: { staggerChildren: 0.1 },
-          },
-        }}
-      >
-        {statsCards.map((stat, idx) => {
-          const Icon = stat.icon;
-          return (
-            <motion.div
-              key={idx}
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0 },
-              }}
-            >
-              <Card>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-medium">{stat.label}</CardTitle>
-                    <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                      <Icon className={`w-4 h-4 ${stat.color}`} />
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          );
-        })}
+      {/* Stats */}
+      <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard title="Total Visits" value={stats.total} icon={<Activity className="w-5 h-5" />} />
+        <StatCard title="Authorized" value={stats.byType?.authorization || 0} icon={<Calendar className="w-5 h-5" />} />
+        <StatCard title="Walk-ins" value={stats.byType?.walk_in || 0} icon={<Stethoscope className="w-5 h-5" />} />
+        <StatCard title="Emergency" value={stats.byType?.emergency || 0} icon={<AlertTriangle className="w-5 h-5" />} />
       </motion.div>
 
       {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Filters</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Search */}
-            <div>
-              <label className="text-sm font-medium text-slate-900 dark:text-slate-50">
-                Search Child
-              </label>
-              <div className="mt-1 relative">
-                <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+      <motion.div variants={item}>
+        <Card>
+          <CardContent className="pt-5">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search by name..."
+                  placeholder="Search child..."
                   value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setPage(0);
-                  }}
+                  onChange={(e) => { setSearch(e.target.value); setPage(0); }}
                   className="pl-10"
                 />
               </div>
-            </div>
-
-            {/* Visit Type */}
-            <div>
-              <label className="text-sm font-medium text-slate-900 dark:text-slate-50">
-                Visit Type
-              </label>
               <select
                 value={visitType}
-                onChange={(e) => {
-                  setVisitType(e.target.value);
-                  setPage(0);
-                }}
-                className="w-full mt-1 px-3 py-2 border border-slate-200 rounded-md text-sm bg-white dark:border-slate-800 dark:bg-slate-950"
+                onChange={(e) => { setVisitType(e.target.value); setPage(0); }}
+                className="h-10 rounded-lg border border-input bg-background px-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:border-primary/50"
               >
                 <option value="all">All Types</option>
-                <option value="authorization">From Authorization</option>
+                <option value="authorization">Authorization</option>
                 <option value="walk_in">Walk-in</option>
                 <option value="scheduled">Scheduled</option>
                 <option value="emergency">Emergency</option>
               </select>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => { setStartDate(e.target.value); setPage(0); }}
+                className="h-10 rounded-lg border border-input bg-background px-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:border-primary/50"
+              />
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => { setEndDate(e.target.value); setPage(0); }}
+                className="h-10 rounded-lg border border-input bg-background px-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:border-primary/50"
+              />
             </div>
+          </CardContent>
+        </Card>
+      </motion.div>
 
-            {/* Date Range (simplified) */}
-            <div>
-              <label className="text-sm font-medium text-slate-900 dark:text-slate-50">
-                Date Range
-              </label>
-              <div className="mt-1 flex gap-2">
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => {
-                    setStartDate(e.target.value);
-                    setPage(0);
-                  }}
-                  className="px-3 py-2 border border-slate-200 rounded-md text-sm bg-white dark:border-slate-800 dark:bg-slate-950"
-                />
-                <span className="flex items-center text-slate-400 dark:text-slate-600">to</span>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => {
-                    setEndDate(e.target.value);
-                    setPage(0);
-                  }}
-                  className="px-3 py-2 border border-slate-200 rounded-md text-sm bg-white dark:border-slate-800 dark:bg-slate-950"
-                />
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Visits Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Visit Records</CardTitle>
-          <CardDescription>All visits within the selected date range</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={columns}
-            data={visits}
-            loading={loading}
-            emptyMessage="No visits found"
-            onRowClick={(visit) => router.push(`/${locale}/visits/${visit.id}`)}
-            rowKey={(visit) => visit.id}
-          />
-        </CardContent>
-      </Card>
+      {/* Table */}
+      <motion.div variants={item}>
+        <Card>
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2">
+              <Stethoscope className="w-4 h-4 text-indigo-600" />
+              Visit Records
+            </CardTitle>
+            <CardDescription>All visits within the selected date range</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DataTable
+              columns={columns}
+              data={visits}
+              loading={loading}
+              emptyMessage="No visits found"
+              onRowClick={(visit) => router.push(`/${locale}/visits/${visit.id}`)}
+              rowKey={(visit) => visit.id}
+            />
+          </CardContent>
+        </Card>
+      </motion.div>
     </motion.div>
   );
 }

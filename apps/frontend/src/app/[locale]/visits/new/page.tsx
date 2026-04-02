@@ -69,19 +69,19 @@ export default function NewVisitPage() {
         <Card className="mt-8">
           <CardContent className="pt-12 pb-12 text-center">
             <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                <Check className="w-8 h-8 text-green-600 dark:text-green-400" />
+              <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-950/30 rounded-full flex items-center justify-center">
+                <Check className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-2">
+            <h2 className="text-2xl font-bold text-foreground mb-2">
               Visit Created Successfully
             </h2>
-            <p className="text-slate-600 dark:text-slate-400 mb-6">
+            <p className="text-muted-foreground mb-6">
               The visit record has been saved to the system.
             </p>
-            <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg mb-6">
-              <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Visit ID:</p>
-              <p className="font-mono text-sm font-medium text-slate-900 dark:text-slate-50">
+            <div className="p-4 bg-muted rounded-lg mb-6">
+              <p className="text-xs text-muted-foreground mb-1">Visit ID:</p>
+              <p className="font-mono text-sm font-medium text-foreground">
                 {createdVisitId}
               </p>
             </div>
@@ -94,7 +94,6 @@ export default function NewVisitPage() {
               </Button>
               <Button
                 onClick={() => router.push(`/${locale}/visits`)}
-                className="bg-green-600 hover:bg-green-700"
               >
                 Back to Visits
               </Button>
@@ -113,8 +112,8 @@ export default function NewVisitPage() {
       transition={{ duration: 0.3 }}
     >
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Create Visit Record</h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-1">
+        <h1 className="text-2xl font-bold tracking-tight">Create Visit Record</h1>
+        <p className="text-muted-foreground mt-1">
           {authorizationId
             ? 'Create visit from authorization request'
             : 'Log a new child visit'}

@@ -50,7 +50,7 @@ export function AuthorizationCard({
               {childName.charAt(0)}
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 truncate">
+              <h3 className="text-lg font-semibold text-foreground truncate">
                 {childName}
               </h3>
             </div>
@@ -68,12 +68,12 @@ export function AuthorizationCard({
           </div>
 
           {/* Symptoms */}
-          <p className="text-sm text-slate-700 dark:text-slate-300 mb-3 line-clamp-2">
+          <p className="text-sm text-foreground mb-3 line-clamp-2">
             <span className="font-medium">Symptoms:</span> {symptoms}
           </p>
 
           {/* Footer info */}
-          <div className="flex flex-col sm:flex-row gap-3 text-xs text-slate-600 dark:text-slate-400">
+          <div className="flex flex-col sm:flex-row gap-3 text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
               <User className="w-3 h-3" />
               <span>{teacherName}</span>
@@ -90,7 +90,7 @@ export function AuthorizationCard({
           <Button
             onClick={() => onAccept(id)}
             disabled={loading}
-            className="bg-green-600 hover:bg-green-700 text-white h-9 px-4 text-sm font-medium"
+            className="h-9 px-4 text-sm font-medium"
           >
             Accept
           </Button>

@@ -100,8 +100,8 @@ export default function NewChildPage() {
       transition={{ duration: 0.3 }}
     >
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Add New Child</h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-1">
+        <h1 className="text-2xl font-bold tracking-tight">Add New Child</h1>
+        <p className="text-muted-foreground mt-1">
           Create a new child profile in the system
         </p>
       </div>
@@ -259,7 +259,7 @@ export default function NewChildPage() {
               </Button>
 
               {step === 0 ? (
-                <Button onClick={handleNext} className="bg-green-500 hover:bg-green-600">
+                <Button onClick={handleNext}>
                   Next
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
@@ -267,7 +267,6 @@ export default function NewChildPage() {
                 <Button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="bg-green-500 hover:bg-green-600"
                 >
                   {loading ? 'Creating...' : 'Create Child'}
                 </Button>

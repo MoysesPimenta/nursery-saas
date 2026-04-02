@@ -106,7 +106,7 @@ export default function AuthorizationsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Authorization Queue</h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
+          <p className="text-muted-foreground mt-1">
             Manage parent authorization requests for pickup
           </p>
         </div>
@@ -121,7 +121,7 @@ export default function AuthorizationsPage() {
           </Button>
           <Button
             onClick={() => router.push(`/${locale}/authorizations/new`)}
-            className="gap-2 bg-green-600 hover:bg-green-700"
+            className="gap-2"
           >
             <Plus className="w-4 h-4" />
             New Request
@@ -174,7 +174,7 @@ export default function AuthorizationsPage() {
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-center py-8">
-                    <div className="text-slate-600 dark:text-slate-400">Loading...</div>
+                    <div className="text-muted-foreground">Loading...</div>
                   </div>
                 </CardContent>
               </Card>
@@ -183,10 +183,10 @@ export default function AuthorizationsPage() {
                 <CardContent className="pt-6">
                   <div className="flex flex-col items-center justify-center py-8 text-center">
                     <AlertCircle className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-                    <h3 className="font-semibold text-slate-900 dark:text-slate-50 mb-1">
+                    <h3 className="font-semibold text-foreground mb-1">
                       No {tab === 'all' ? 'authorizations' : tab} authorizations
                     </h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                    <p className="text-sm text-muted-foreground">
                       {tab === 'pending' ? 'Check back soon for new requests' : 'Nothing to show here'}
                     </p>
                   </div>
@@ -243,7 +243,7 @@ export default function AuthorizationsPage() {
               <Button
                 onClick={handleReject}
                 disabled={processingId === rejectingId}
-                className="bg-red-600 hover:bg-red-700"
+                variant="destructive"
               >
                 {processingId === rejectingId ? 'Rejecting...' : 'Reject'}
               </Button>

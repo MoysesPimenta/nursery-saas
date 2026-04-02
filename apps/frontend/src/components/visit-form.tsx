@@ -139,11 +139,11 @@ export function VisitForm({
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-slate-900 dark:text-slate-50">
+            <label className="text-sm font-medium text-foreground">
               Child Name
             </label>
             {childName ? (
-              <div className="mt-1 p-2 bg-slate-100 dark:bg-slate-800 rounded-md text-slate-900 dark:text-slate-50">
+              <div className="mt-1 p-2 bg-muted rounded-md text-foreground">
                 {childName}
               </div>
             ) : (
@@ -156,7 +156,7 @@ export function VisitForm({
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-900 dark:text-slate-50">
+            <label className="text-sm font-medium text-foreground">
               Visit Type *
             </label>
             <select
@@ -165,7 +165,7 @@ export function VisitForm({
                 handleFieldChange('visitType', e.target.value)
               }
               disabled={readOnly}
-              className="w-full mt-1 px-3 py-2 border border-slate-200 rounded-md text-sm bg-white dark:border-slate-800 dark:bg-slate-950"
+              className="w-full mt-1 px-3 py-2 border border-border rounded-md text-sm bg-white dark:border-slate-800 dark:bg-slate-950"
             >
               <option value="authorization">From Authorization</option>
               <option value="walk_in">Walk-in</option>
@@ -175,7 +175,7 @@ export function VisitForm({
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-900 dark:text-slate-50">
+            <label className="text-sm font-medium text-foreground">
               Chief Complaint *
             </label>
             <Textarea
@@ -215,7 +215,7 @@ export function VisitForm({
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-slate-900 dark:text-slate-50">
+            <label className="text-sm font-medium text-foreground">
               Assessment *
             </label>
             <Textarea
@@ -232,7 +232,7 @@ export function VisitForm({
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-900 dark:text-slate-50">
+            <label className="text-sm font-medium text-foreground">
               Treatment *
             </label>
             <Textarea
@@ -276,7 +276,7 @@ export function VisitForm({
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-slate-900 dark:text-slate-50">
+            <label className="text-sm font-medium text-foreground">
               Disposition *
             </label>
             <select
@@ -285,7 +285,7 @@ export function VisitForm({
                 handleFieldChange('disposition', e.target.value)
               }
               disabled={readOnly}
-              className="w-full mt-1 px-3 py-2 border border-slate-200 rounded-md text-sm bg-white dark:border-slate-800 dark:bg-slate-950"
+              className="w-full mt-1 px-3 py-2 border border-border rounded-md text-sm bg-white dark:border-slate-800 dark:bg-slate-950"
             >
               <option value="returned_to_class">Returned to Class</option>
               <option value="sent_home">Sent Home</option>
@@ -303,11 +303,11 @@ export function VisitForm({
                 handleFieldChange('notifyParent', e.target.checked)
               }
               disabled={readOnly}
-              className="rounded border-slate-300"
+              className="rounded border-border"
             />
             <label
               htmlFor="notifyParent"
-              className="text-sm font-medium text-slate-900 dark:text-slate-50 cursor-pointer"
+              className="text-sm font-medium text-foreground cursor-pointer"
             >
               Notify Parent
             </label>
@@ -321,7 +321,7 @@ export function VisitForm({
           <Button
             type="submit"
             disabled={loading || isSubmitting}
-            className="flex-1 bg-green-600 hover:bg-green-700"
+            className="flex-1"
           >
             {isSubmitting ? 'Saving...' : 'Save Visit'}
           </Button>

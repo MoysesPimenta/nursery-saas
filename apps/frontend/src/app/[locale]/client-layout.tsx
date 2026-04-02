@@ -46,12 +46,12 @@ function LayoutContent({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="min-h-screen bg-background">
       <Sidebar />
-      <div className="flex-1 flex flex-col w-full md:ml-64">
+      <div className="md:ml-[260px] flex flex-col min-h-screen">
         <Topbar />
-        <main className="flex-1 overflow-y-auto pt-16">
-          <div className="p-4 md:p-6">{children}</div>
+        <main className="flex-1 p-4 md:p-6 lg:p-8">
+          {children}
         </main>
       </div>
     </div>

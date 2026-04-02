@@ -65,7 +65,7 @@ export default function ChildDetailPage() {
   if (!child) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <p className="text-slate-600 dark:text-slate-400">Child not found</p>
+        <p className="text-muted-foreground">Child not found</p>
         <Button
           variant="outline"
           onClick={() => router.push(`/${locale}/children`)}
@@ -96,10 +96,10 @@ export default function ChildDetailPage() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight">
               {child.firstName} {child.lastName}
             </h1>
-            <p className="text-slate-600 dark:text-slate-400 mt-1">
+            <p className="text-muted-foreground mt-1">
               Age: {age} years • {child.className || 'No class assigned'}
             </p>
           </div>
@@ -130,23 +130,23 @@ export default function ChildDetailPage() {
             <CardContent>
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Full Name</p>
+                  <p className="text-sm text-muted-foreground">Full Name</p>
                   <p className="text-lg font-semibold">
                     {child.firstName} {child.lastName}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Date of Birth</p>
+                  <p className="text-sm text-muted-foreground">Date of Birth</p>
                   <p className="text-lg font-semibold">
                     {new Date(child.dateOfBirth).toLocaleDateString()}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Gender</p>
+                  <p className="text-sm text-muted-foreground">Gender</p>
                   <p className="text-lg font-semibold capitalize">{child.gender}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Blood Type</p>
+                  <p className="text-sm text-muted-foreground">Blood Type</p>
                   <p className="text-lg font-semibold">{child.bloodType || 'Not specified'}</p>
                 </div>
               </div>
@@ -161,7 +161,7 @@ export default function ChildDetailPage() {
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Allergies</p>
+                  <p className="text-sm text-muted-foreground mb-2">Allergies</p>
                   {child.allergies && child.allergies.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {child.allergies.map((allergy, index) => (
@@ -174,13 +174,13 @@ export default function ChildDetailPage() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-slate-600 dark:text-slate-400">No allergies recorded</p>
+                    <p className="text-muted-foreground">No allergies recorded</p>
                   )}
                 </div>
                 {child.notes && (
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Additional Notes</p>
-                    <p className="text-slate-900 dark:text-slate-100">{child.notes}</p>
+                    <p className="text-sm text-muted-foreground mb-2">Additional Notes</p>
+                    <p className="text-foreground">{child.notes}</p>
                   </div>
                 )}
               </div>
@@ -195,17 +195,17 @@ export default function ChildDetailPage() {
             <CardContent>
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Name</p>
+                  <p className="text-sm text-muted-foreground">Name</p>
                   <p className="text-lg font-semibold">{child.emergencyContactName}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Relationship</p>
+                  <p className="text-sm text-muted-foreground">Relationship</p>
                   <p className="text-lg font-semibold">
                     {child.emergencyContactRelation || 'Not specified'}
                   </p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Phone</p>
+                  <p className="text-sm text-muted-foreground">Phone</p>
                   <p className="text-lg font-semibold">{child.emergencyContactPhone}</p>
                 </div>
               </div>
@@ -224,8 +224,8 @@ export default function ChildDetailPage() {
               <span
                 className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${
                   child.status === 'active'
-                    ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200'
-                    : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200'
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-200'
+                    : 'bg-muted text-foreground'
                 }`}
               >
                 {child.status.charAt(0).toUpperCase() + child.status.slice(1)}
@@ -250,11 +250,11 @@ export default function ChildDetailPage() {
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div>
-                <p className="text-slate-600 dark:text-slate-400">Created</p>
+                <p className="text-muted-foreground">Created</p>
                 <p>{new Date(child.createdAt).toLocaleDateString()}</p>
               </div>
               <div>
-                <p className="text-slate-600 dark:text-slate-400">Last Updated</p>
+                <p className="text-muted-foreground">Last Updated</p>
                 <p>{new Date(child.updatedAt).toLocaleDateString()}</p>
               </div>
             </CardContent>

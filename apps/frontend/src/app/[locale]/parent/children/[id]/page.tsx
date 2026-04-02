@@ -114,7 +114,7 @@ export default function ChildDetailPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <Loader className="w-8 h-8 animate-spin text-green-600" />
+        <Loader className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -174,41 +174,41 @@ export default function ChildDetailPage() {
                 alt={`${child.firstName} ${child.lastName}`}
               />
               <div className="flex-1">
-                <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-2">
+                <h1 className="text-3xl font-bold text-foreground mb-2">
                   {child.firstName} {child.lastName}
                 </h1>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   <div>
-                    <span className="text-slate-600 dark:text-slate-400">
+                    <span className="text-muted-foreground">
                       Age
                     </span>
-                    <p className="font-semibold text-slate-900 dark:text-slate-50">
+                    <p className="font-semibold text-foreground">
                       {age} years
                     </p>
                   </div>
                   <div>
-                    <span className="text-slate-600 dark:text-slate-400">
+                    <span className="text-muted-foreground">
                       Class
                     </span>
-                    <p className="font-semibold text-slate-900 dark:text-slate-50">
+                    <p className="font-semibold text-foreground">
                       {child.classId || 'Not assigned'}
                     </p>
                   </div>
                   {child.bloodType && (
                     <div>
-                      <span className="text-slate-600 dark:text-slate-400">
+                      <span className="text-muted-foreground">
                         Blood Type
                       </span>
-                      <p className="font-semibold text-slate-900 dark:text-slate-50">
+                      <p className="font-semibold text-foreground">
                         {child.bloodType}
                       </p>
                     </div>
                   )}
                   <div>
-                    <span className="text-slate-600 dark:text-slate-400">
+                    <span className="text-muted-foreground">
                       Date of Birth
                     </span>
-                    <p className="font-semibold text-slate-900 dark:text-slate-50">
+                    <p className="font-semibold text-foreground">
                       {formatDate(child.dateOfBirth)}
                     </p>
                   </div>
@@ -217,13 +217,13 @@ export default function ChildDetailPage() {
             </div>
 
             {/* Emergency Contact */}
-            <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
-              <h3 className="font-semibold text-slate-900 dark:text-slate-50 mb-3">
+            <div className="border-t border-border pt-4">
+              <h3 className="font-semibold text-foreground mb-3">
                 Emergency Contact
               </h3>
               <div className="text-sm space-y-1">
                 <p>
-                  <span className="text-slate-600 dark:text-slate-400">
+                  <span className="text-muted-foreground">
                     Name:
                   </span>
                   <span className="ml-2 font-medium">
@@ -231,7 +231,7 @@ export default function ChildDetailPage() {
                   </span>
                 </p>
                 <p>
-                  <span className="text-slate-600 dark:text-slate-400">
+                  <span className="text-muted-foreground">
                     Relation:
                   </span>
                   <span className="ml-2 font-medium">
@@ -239,7 +239,7 @@ export default function ChildDetailPage() {
                   </span>
                 </p>
                 <p>
-                  <span className="text-slate-600 dark:text-slate-400">
+                  <span className="text-muted-foreground">
                     Phone:
                   </span>
                   <span className="ml-2 font-medium">
@@ -268,10 +268,10 @@ export default function ChildDetailPage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Card>
                 <CardContent className="pt-6">
-                  <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                  <div className="text-sm text-muted-foreground mb-1">
                     Total Visits
                   </div>
-                  <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+                  <div className="text-2xl font-bold text-foreground">
                     {child.visits?.length || 0}
                   </div>
                 </CardContent>
@@ -279,10 +279,10 @@ export default function ChildDetailPage() {
 
               <Card>
                 <CardContent className="pt-6">
-                  <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                  <div className="text-sm text-muted-foreground mb-1">
                     Last Visit
                   </div>
-                  <div className="font-semibold text-slate-900 dark:text-slate-50">
+                  <div className="font-semibold text-foreground">
                     {child.lastVisit
                       ? formatDate(child.lastVisit.startedAt)
                       : 'None'}
@@ -292,10 +292,10 @@ export default function ChildDetailPage() {
 
               <Card>
                 <CardContent className="pt-6">
-                  <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                  <div className="text-sm text-muted-foreground mb-1">
                     Medications
                   </div>
-                  <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+                  <div className="text-2xl font-bold text-foreground">
                     {child.medications?.length || 0}
                   </div>
                 </CardContent>
@@ -303,10 +303,10 @@ export default function ChildDetailPage() {
 
               <Card>
                 <CardContent className="pt-6">
-                  <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                  <div className="text-sm text-muted-foreground mb-1">
                     Allergies
                   </div>
-                  <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+                  <div className="text-2xl font-bold text-foreground">
                     {child.allergies?.length || 0}
                   </div>
                 </CardContent>
@@ -344,7 +344,7 @@ export default function ChildDetailPage() {
                 {child.visits && child.visits.length > 0 ? (
                   <VisitTimeline visits={child.visits} />
                 ) : (
-                  <p className="text-center text-slate-600 dark:text-slate-400 py-8">
+                  <p className="text-center text-muted-foreground py-8">
                     No visits recorded yet.
                   </p>
                 )}
@@ -365,7 +365,7 @@ export default function ChildDetailPage() {
                 {child.medications && child.medications.length > 0 ? (
                   <MedicationList medications={child.medications} />
                 ) : (
-                  <p className="text-center text-slate-600 dark:text-slate-400 py-8">
+                  <p className="text-center text-muted-foreground py-8">
                     No medications recorded.
                   </p>
                 )}
@@ -389,15 +389,15 @@ export default function ChildDetailPage() {
                       <Card key={allergy.id} className="p-4">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <h4 className="font-semibold text-slate-900 dark:text-slate-50 mb-1">
+                            <h4 className="font-semibold text-foreground mb-1">
                               {allergy.name}
                             </h4>
                             {allergy.description && (
-                              <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+                              <p className="text-sm text-muted-foreground mb-2">
                                 {allergy.description}
                               </p>
                             )}
-                            <p className="text-xs text-slate-500 dark:text-slate-500">
+                            <p className="text-xs text-muted-foreground">
                               Diagnosed:{' '}
                               {formatDate(allergy.createdAt)}
                             </p>
@@ -410,7 +410,7 @@ export default function ChildDetailPage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-center text-slate-600 dark:text-slate-400 py-8">
+                  <p className="text-center text-muted-foreground py-8">
                     No known allergies recorded.
                   </p>
                 )}

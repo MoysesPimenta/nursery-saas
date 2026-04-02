@@ -1,8 +1,9 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatCard } from '@/components/ui/stat-card';
 import { motion } from 'framer-motion';
-import { Users, Baby, Calendar, TrendingUp } from 'lucide-react';
+import { Users, Baby, Plus, FileText, ClipboardList, ArrowRight, Activity, Sparkles } from 'lucide-react';
 import { useApiQuery } from '@/lib/hooks/use-api';
 import { DataTableSkeleton } from '@/components/ui/loading';
 import { Button } from '@/components/ui/button';
@@ -21,9 +22,7 @@ const container = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
+    transition: { staggerChildren: 0.08 },
   },
 };
 
@@ -37,135 +36,162 @@ export default function DashboardPage() {
   const locale = params.locale as string;
   const { data: stats, loading } = useApiQuery<DashboardStats>('/api/v1/dashboard/stats');
 
-  const statCards = stats
-    ? [
-        {
-          title: 'Total Children',
-          value: stats.childrenCount || 0,
-          icon: Baby,
-          trend: '+2.5%',
-          color: 'text-blue-600',
-          bgColor: 'bg-blue-100 dark:bg-blue-900',
-        },
-        {
-          title: 'Staff Members',
-          value: stats.staffCount || 0,
-          icon: Users,
-          trend: '+0.5%',
-          color: 'text-green-600',
-          bgColor: 'bg-green-100 dark:bg-green-900',
-        },
-        {
-          title: "Today's Visits",
-          value: stats.visitsToday || 0,
-          icon: Calendar,
-          trend: '+12%',
-          color: 'text-purple-600',
-          bgColor: 'bg-purple-100 dark:bg-purple-900',
-        },
-        {
-          title: 'Pending Authorizations',
-          value: stats.pendingAuthorizations || 0,
-          icon: TrendingUp,
-          trend: stats.allergyAlerts && stats.allergyAlerts > 0 ? `${stats.allergyAlerts} allergy alerts` : '+0',
-          color: 'text-orange-600',
-          bgColor: 'bg-orange-100 dark:bg-orange-900',
-        },
-      ]
-    : [];
+  const today = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  const quickActions = [
+    { label: 'Add Child', icon: Plus, href: `/${locale}/children/new`, color: 'from-indigo-500 to-purple-500' },
+    { label: 'New Visit', icon: ClipboardList, href: `/${locale}/visits/new`, color: 'from-violet-500 to-pink-500' },
+    { label: 'Authorizations', icon: FileText, href: `/${locale}/authorizations`, color: 'from-blue-500 to-cyan-500' },
+    { label: 'View Staff', icon: Users, href: `/${locale}/employees`, color: 'from-emerald-500 to-teal-500' },
+  ];
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-2">
-          Welcome back! Here's an overview of your nursery.
-        </p>
-      </div>
+    <motion.div
+      className="space-y-8"
+      variants={container}
+      initial="hidden"
+      animate="show"
+    >
+      {/* Welcome Header */}
+      <motion.div variants={item} className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Welcome back! <span className="inline-block animate-bounce">👋</span>
+          </h1>
+          <p className="text-muted-foreground mt-1">{today}</p>
+        </div>
+        <Link href={`/${locale}/visits/new`}>
+          <Button className="gap-2">
+            <Plus className="w-4 h-4" />
+            New Visit
+          </Button>
+        </Link>
+      </motion.div>
 
+      {/* Stats Grid */}
       {loading ? (
-        <DataTableSkeleton rows={4} />
+        <DataTableSkeleton rows={1} />
       ) : (
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
           variants={container}
-          initial="hidden"
-          animate="show"
         >
-          {statCards.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <motion.div key={index} variants={item}>
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm font-medium">
-                        {stat.title}
-                      </CardTitle>
-                      <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                        <Icon className={`w-4 h-4 ${stat.color}`} />
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{stat.value}</div>
-                    <p className={`text-xs mt-1 ${stat.color}`}>
-                      {stat.trend}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })}
+          <motion.div variants={item}>
+            <StatCard
+              title="Total Children"
+              value={stats?.childrenCount || 0}
+              icon={<Baby className="w-5 h-5" />}
+              trend="+2.5% from last month"
+              trendUp={true}
+            />
+          </motion.div>
+          <motion.div variants={item}>
+            <StatCard
+              title="Staff Members"
+              value={stats?.staffCount || 0}
+              icon={<Users className="w-5 h-5" />}
+              trend="Fully staffed"
+              trendUp={true}
+            />
+          </motion.div>
+          <motion.div variants={item}>
+            <StatCard
+              title="Today's Visits"
+              value={stats?.visitsToday || 0}
+              icon={<Activity className="w-5 h-5" />}
+              trend="Updated just now"
+              trendUp={true}
+            />
+          </motion.div>
+          <motion.div variants={item}>
+            <StatCard
+              title="Pending Auth."
+              value={stats?.pendingAuthorizations || 0}
+              icon={<FileText className="w-5 h-5" />}
+              trend={stats?.allergyAlerts ? `${stats.allergyAlerts} allergy alerts` : 'All clear'}
+              trendUp={!stats?.allergyAlerts}
+            />
+          </motion.div>
         </motion.div>
       )}
 
-      <motion.div
-        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-        variants={item}
-        initial="hidden"
-        animate="show"
-      >
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              Latest updates from your nursery
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="text-sm text-slate-600 dark:text-slate-400">
-                No recent activity yet.
+      {/* Quick Actions + Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <motion.div variants={item} className="lg:col-span-3">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-indigo-600" />
+                <CardTitle>Quick Actions</CardTitle>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+              <CardDescription>Jump to common tasks</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-3">
+                {quickActions.map((action) => {
+                  const Icon = action.icon;
+                  return (
+                    <Link key={action.label} href={action.href}>
+                      <div className="group flex items-center gap-3 p-3.5 rounded-xl border border-border/50 hover:border-indigo-600/20 hover:shadow-lg transition-all duration-200 cursor-pointer">
+                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${action.color} text-white shadow-sm`}>
+                          <Icon className="w-4 h-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium">{action.label}</p>
+                        </div>
+                        <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
+        <motion.div variants={item} className="lg:col-span-2">
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>Latest updates from your nursery</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-3">
+                  <Activity className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <p className="text-sm font-medium text-muted-foreground">No recent activity</p>
+                <p className="text-xs text-muted-foreground/60 mt-1">Activity will appear here as you use the app</p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* System Health */}
+      <motion.div variants={item}>
         <Card>
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>
-              Common tasks you perform
-            </CardDescription>
+            <CardTitle className="text-base">System Health</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              <Link href={`/${locale}/children/new`}>
-                <Button variant="ghost" className="w-full text-left justify-start">
-                  Add new child
-                </Button>
-              </Link>
-              <Button variant="ghost" className="w-full text-left justify-start">
-                Create visit authorization
-              </Button>
-              <Button variant="ghost" className="w-full text-left justify-start">
-                View staff schedule
-              </Button>
+            <div className="flex items-center gap-4">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-sm" />
+                <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-sm" />
+                <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-sm" />
+              </div>
+              <p className="text-sm font-medium">All systems operational</p>
+              <p className="text-xs text-muted-foreground ml-auto">Last checked just now</p>
             </div>
           </CardContent>
         </Card>
       </motion.div>
-    </div>
+    </motion.div>
   );
 }

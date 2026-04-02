@@ -100,7 +100,7 @@ export default function NewAuthorizationPage() {
     >
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Request Authorization</h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-1">
+        <p className="text-muted-foreground mt-1">
           Request parent pickup authorization for a child
         </p>
       </div>
@@ -124,7 +124,7 @@ export default function NewAuthorizationPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Child Selection */}
             <div>
-              <label htmlFor="childId" className="text-sm font-medium text-slate-900 dark:text-slate-50">
+              <label htmlFor="childId" className="text-sm font-medium text-foreground">
                 Select Child *
               </label>
               <select
@@ -141,8 +141,8 @@ export default function NewAuthorizationPage() {
                   }
                 }}
                 disabled={childrenLoading}
-                className={`w-full mt-1 px-3 py-2 border rounded-md text-sm bg-white dark:bg-slate-950 dark:border-slate-800 ${
-                  errors.childId ? 'border-red-500' : 'border-slate-200'
+                className={`w-full mt-1 px-3 py-2 border rounded-md text-sm bg-white dark:bg-slate-950 dark:border-border ${
+                  errors.childId ? 'border-red-500' : 'border-border'
                 }`}
               >
                 <option value="">
@@ -162,7 +162,7 @@ export default function NewAuthorizationPage() {
 
             {/* Symptoms */}
             <div>
-              <label htmlFor="symptoms" className="text-sm font-medium text-slate-900 dark:text-slate-50">
+              <label htmlFor="symptoms" className="text-sm font-medium text-foreground">
                 Symptoms/Reason *
               </label>
               <Textarea
@@ -186,7 +186,7 @@ export default function NewAuthorizationPage() {
                 {errors.symptoms && (
                   <p className="text-xs text-red-600">{errors.symptoms}</p>
                 )}
-                <p className="text-xs text-slate-500 dark:text-slate-400 ml-auto">
+                <p className="text-xs text-muted-foreground ml-auto">
                   {symptoms.length} characters
                 </p>
               </div>
@@ -194,7 +194,7 @@ export default function NewAuthorizationPage() {
 
             {/* Priority */}
             <div>
-              <label className="text-sm font-medium text-slate-900 dark:text-slate-50">
+              <label className="text-sm font-medium text-foreground">
                 Priority
               </label>
               <div className="mt-2 flex gap-4">
@@ -227,7 +227,7 @@ export default function NewAuthorizationPage() {
 
             {/* Notes */}
             <div>
-              <label htmlFor="notes" className="text-sm font-medium text-slate-900 dark:text-slate-50">
+              <label htmlFor="notes" className="text-sm font-medium text-foreground">
                 Additional Notes (optional)
               </label>
               <Textarea
@@ -252,7 +252,6 @@ export default function NewAuthorizationPage() {
               <Button
                 type="submit"
                 disabled={isCreating}
-                className="flex-1 bg-green-600 hover:bg-green-700"
               >
                 {isCreating ? 'Creating Request...' : 'Create Request'}
               </Button>
@@ -265,27 +264,26 @@ export default function NewAuthorizationPage() {
       <Dialog open={!!successId} onOpenChange={(open) => !open && router.push(`/${locale}/authorizations`)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-green-600 dark:text-green-400 flex items-center gap-2">
+            <DialogTitle className="text-primary flex items-center gap-2">
               <Check className="w-5 h-5" />
               Authorization Request Sent
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p className="text-slate-600 dark:text-slate-400">
+            <p className="text-muted-foreground">
               Your authorization request has been created successfully.
             </p>
-            <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
-              <p className="text-xs text-slate-600 dark:text-slate-400">Request ID:</p>
-              <p className="font-mono text-sm font-medium text-slate-900 dark:text-slate-50">
+            <div className="p-3 bg-muted rounded-lg">
+              <p className="text-xs text-muted-foreground">Request ID:</p>
+              <p className="font-mono text-sm font-medium text-foreground">
                 {successId}
               </p>
             </div>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-muted-foreground">
               Parents will be notified to approve or reject this request.
             </p>
             <Button
               onClick={() => router.push(`/${locale}/authorizations`)}
-              className="w-full bg-green-600 hover:bg-green-700"
             >
               View All Requests
             </Button>

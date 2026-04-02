@@ -106,7 +106,7 @@ export default function ChildHealthReportPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <Loader className="w-8 h-8 animate-spin text-green-600" />
+        <Loader className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -120,7 +120,7 @@ export default function ChildHealthReportPage() {
             Back to Child Details
           </Button>
         </Link>
-        <Card className="border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-900/10">
+        <Card className="border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-900/10 rounded-xl">
           <div className="p-4 flex items-center gap-3">
             <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
             <p className="text-red-900 dark:text-red-100">
@@ -168,7 +168,7 @@ export default function ChildHealthReportPage() {
       <PrintLayout title={`Health Report: ${child.firstName} ${child.lastName}`}>
         <div className="space-y-8">
           {/* Header */}
-          <div className="border-b border-slate-300 pb-6">
+          <div className="border-b border-border pb-6">
             <div className="flex items-start gap-6 mb-6">
               <Avatar
                 initials={initials}
@@ -201,7 +201,7 @@ export default function ChildHealthReportPage() {
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-xs text-slate-600 mb-2">Report Date</div>
+                <div className="text-xs text-muted-foreground mb-2">Report Date</div>
                 <div className="font-semibold">{today}</div>
               </div>
             </div>
@@ -222,30 +222,30 @@ export default function ChildHealthReportPage() {
 
           {/* Personal Information */}
           <div>
-            <h2 className="text-2xl font-bold mb-4 border-b border-slate-300 pb-2">
+            <h2 className="text-2xl font-bold mb-4 border-b border-border pb-2">
               Personal Information
             </h2>
             <div className="grid grid-cols-2 gap-6 text-sm">
               <div>
-                <span className="font-semibold block text-slate-600 text-xs uppercase mb-1">
+                <span className="font-semibold block text-muted-foreground text-xs uppercase mb-1">
                   Full Name
                 </span>
                 <p>{child.firstName} {child.lastName}</p>
               </div>
               <div>
-                <span className="font-semibold block text-slate-600 text-xs uppercase mb-1">
+                <span className="font-semibold block text-muted-foreground text-xs uppercase mb-1">
                   Gender
                 </span>
                 <p>{child.gender || 'Not specified'}</p>
               </div>
               <div>
-                <span className="font-semibold block text-slate-600 text-xs uppercase mb-1">
+                <span className="font-semibold block text-muted-foreground text-xs uppercase mb-1">
                   Blood Type
                 </span>
                 <p>{child.bloodType || 'Not specified'}</p>
               </div>
               <div>
-                <span className="font-semibold block text-slate-600 text-xs uppercase mb-1">
+                <span className="font-semibold block text-muted-foreground text-xs uppercase mb-1">
                   Class
                 </span>
                 <p>{child.classId || 'Not assigned'}</p>
@@ -255,7 +255,7 @@ export default function ChildHealthReportPage() {
 
           {/* Allergies */}
           <div>
-            <h2 className="text-2xl font-bold mb-4 border-b border-slate-300 pb-2">
+            <h2 className="text-2xl font-bold mb-4 border-b border-border pb-2">
               Known Allergies
             </h2>
             {child.allergies && child.allergies.length > 0 ? (
@@ -283,19 +283,19 @@ export default function ChildHealthReportPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-slate-600">No known allergies recorded.</p>
+              <p className="text-muted-foreground">No known allergies recorded.</p>
             )}
           </div>
 
           {/* Medications */}
           <div>
-            <h2 className="text-2xl font-bold mb-4 border-b border-slate-300 pb-2">
+            <h2 className="text-2xl font-bold mb-4 border-b border-border pb-2">
               Medications
             </h2>
             {child.medications && child.medications.length > 0 ? (
               <div className="space-y-3">
                 {child.medications.map((med) => (
-                  <div key={med.id} className="border border-slate-300 p-3 rounded">
+                  <div key={med.id} className="border border-border p-3 rounded">
                     <h3 className="font-semibold mb-2">{med.medicationName}</h3>
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
@@ -320,7 +320,7 @@ export default function ChildHealthReportPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-slate-600">No medications recorded.</p>
+              <p className="text-muted-foreground">No medications recorded.</p>
             )}
           </div>
 
@@ -328,13 +328,13 @@ export default function ChildHealthReportPage() {
           {child.visits && child.visits.length > 0 && (
             <>
               <div>
-                <h2 className="text-2xl font-bold mb-4 border-b border-slate-300 pb-2">
+                <h2 className="text-2xl font-bold mb-4 border-b border-border pb-2">
                   Visit Summary
                 </h2>
                 <div className="grid grid-cols-4 gap-4">
                   <div>
                     <div className="font-semibold">Total Visits</div>
-                    <div className="text-3xl font-bold text-green-600">
+                    <div className="text-3xl font-bold text-primary">
                       {child.visits.length}
                     </div>
                   </div>
@@ -353,14 +353,14 @@ export default function ChildHealthReportPage() {
 
               {/* Visit Details */}
               <div className="page-break">
-                <h2 className="text-2xl font-bold mb-4 border-b border-slate-300 pb-2">
+                <h2 className="text-2xl font-bold mb-4 border-b border-border pb-2">
                   Visit History
                 </h2>
                 <div className="space-y-4">
                   {child.visits.map((visit) => (
                     <div
                       key={visit.id}
-                      className="border border-slate-300 p-4 rounded"
+                      className="border border-border p-4 rounded"
                     >
                       <div className="flex justify-between mb-3">
                         <h3 className="font-semibold">
@@ -437,7 +437,7 @@ export default function ChildHealthReportPage() {
           )}
 
           {/* Footer */}
-          <div className="border-t border-slate-300 pt-6 text-center text-xs text-slate-600 mt-8">
+          <div className="border-t border-border pt-6 text-center text-xs text-muted-foreground mt-8">
             <p>This report was generated on {formatDate(new Date().toISOString())}</p>
             <p className="mt-2">
               For confidential medical information. Please handle with care.
