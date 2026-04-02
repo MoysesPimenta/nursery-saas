@@ -5,7 +5,7 @@ export async function GET() {
   try {
     // Verify database connectivity
     const supabase = getSupabaseServerClient();
-    const { error } = await supabase.rpc('now');
+    const { error } = await supabase.from('users').select('id').limit(1);
 
     if (error) {
       return NextResponse.json(
