@@ -28,7 +28,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   {
-    href: '/dashboard',
+    href: '',
     label: 'Dashboard',
     icon: <LayoutDashboard className="w-4 h-4" />,
   },
@@ -64,7 +64,11 @@ export function Sidebar() {
   const locale = params.locale as string;
   const { userProfile, signOut } = useAuth();
 
-  const isActive = (href: string) => pathname.includes(href);
+  const isActive = (href: string) => {
+    const localizedHref = `/${locale}${href}`;
+    if (href === '') return pathname === `/${locale}` || pathname === `/${locale}/`;
+    return pathname.startsWith(localizedHref);
+  };
 
   const handleSignOut = async () => {
     try {

@@ -59,7 +59,7 @@ const config = {
       },
     },
   },
-  plugins: [require('tailwindcss/plugin')],
+  plugins: [],
 } satisfies Config;
 
 export default config;
