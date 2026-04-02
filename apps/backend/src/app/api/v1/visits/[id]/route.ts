@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getUserClient, errorResponse, successResponse } from '@/lib/api/helpers';
+import { getUserClient, errorResponse, successResponse, validateUUID } from '@/lib/api/helpers';
 
 const updateVisitSchema = z.object({
   reason: z.string().min(1).optional(),
@@ -18,8 +18,13 @@ const updateVisitSchema = z.object({
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const supabase = getUserClient(req);
     const { id } = params;
+
+    if (!validateUUID(id)) {
+      return errorResponse('Invalid visit ID format', 400);
+    }
+
+    const supabase = getUserClient(req);
 
     const { data: visit, error: visitError } = await supabase
       .from('visits')
@@ -52,8 +57,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const supabase = getUserClient(req);
     const { id } = params;
+
+    if (!validateUUID(id)) {
+      return errorResponse('Invalid visit ID format', 400);
+    }
+
+    const supabase = getUserClient(req);
     const body = await req.json();
 
     const validatedData = updateVisitSchema.parse(body);

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useParams } from 'next/navigation';
 import {
   LayoutDashboard,
   Users,
@@ -60,6 +60,8 @@ export function Sidebar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const params = useParams();
+  const locale = params.locale as string;
   const { userProfile, signOut } = useAuth();
 
   const isActive = (href: string) => pathname.includes(href);
@@ -67,10 +69,14 @@ export function Sidebar() {
   const handleSignOut = async () => {
     try {
       await signOut();
-      router.push('/auth/login');
+      router.push(`/${locale}/auth/login`);
     } catch (error) {
       console.error('Sign out failed:', error);
     }
+  };
+
+  const getLocalizedHref = (href: string) => {
+    return `/${locale}${href}`;
   };
 
   return (
@@ -105,7 +111,7 @@ export function Sidebar() {
             {navItems.map((item) => (
               <Link
                 key={item.href}
-                href={item.href}
+                href={getLocalizedHref(item.href)}
                 onClick={() => setOpen(false)}
                 className={cn(
                   'flex items-center gap-3 px-4 py-2 rounded-lg transition-colors',
@@ -123,14 +129,14 @@ export function Sidebar() {
           {/* User Menu */}
           <div className="border-t border-slate-200 dark:border-slate-800 p-4 space-y-2">
             <Link
-              href="/profile"
+              href={getLocalizedHref('/profile')}
               className="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
             >
               <UserCircle className="w-4 h-4" />
               <span className="text-sm font-medium">Profile</span>
             </Link>
             <Link
-              href="/settings"
+              href={getLocalizedHref('/settings')}
               className="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
             >
               <Settings className="w-4 h-4" />

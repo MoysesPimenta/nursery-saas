@@ -42,21 +42,13 @@ export default function AuthorizationsPage() {
 
   const authorizations = authorizationsData?.data || [];
 
-  // Accept authorization mutation
-  const { execute: acceptAuth } = useApiMutation<any>(
-    '/api/v1/authorizations/:id',
-    'PATCH'
-  );
-
-  // Reject authorization mutation
-  const { execute: rejectAuth } = useApiMutation<any>(
-    '/api/v1/authorizations/:id',
-    'PATCH'
-  );
-
   const handleAccept = async (id: string) => {
     setProcessingId(id);
     try {
+      const { execute: acceptAuth } = useApiMutation<any>(
+        `/api/v1/authorizations/${id}`,
+        'PATCH'
+      );
       await acceptAuth({ status: 'accepted' });
       await refetch();
       // Redirect to create visit with authorization
@@ -72,6 +64,10 @@ export default function AuthorizationsPage() {
 
     setProcessingId(rejectingId);
     try {
+      const { execute: rejectAuth } = useApiMutation<any>(
+        `/api/v1/authorizations/${rejectingId}`,
+        'PATCH'
+      );
       await rejectAuth({
         status: 'rejected',
         rejectionReason: rejectReason,

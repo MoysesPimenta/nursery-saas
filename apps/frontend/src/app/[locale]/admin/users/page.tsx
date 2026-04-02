@@ -141,7 +141,7 @@ export default function UserManagementPage() {
       user.fullName.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesRole =
-      roleFilter === 'all' || user.id.includes(roleFilter);
+      roleFilter === 'all' || user.role === roleFilter;
 
     return matchesSearch && matchesRole;
   });
@@ -419,8 +419,8 @@ export default function UserManagementPage() {
                           {user.email}
                         </td>
                         <td className="py-3 px-4">
-                          <Badge variant={getRoleColor('parent')}>
-                            {getRoleLabel('parent')}
+                          <Badge variant={getRoleColor(user.role)}>
+                            {getRoleLabel(user.role)}
                           </Badge>
                         </td>
                         <td className="py-3 px-4">

@@ -37,6 +37,14 @@ const SKIP_ROUTES = [
 ];
 
 /**
+ * Parse CORS origins from environment variable
+ */
+function parseCorsOrigins(): string[] {
+  const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000,https://nursery-saas-frontend.vercel.app';
+  return corsOrigin.split(',').map(origin => origin.trim()).filter(origin => origin.length > 0);
+}
+
+/**
  * Main middleware function
  */
 export function middleware(request: NextRequest) {
@@ -47,7 +55,7 @@ export function middleware(request: NextRequest) {
 
   // Handle CORS preflight requests
   if (request.method === 'OPTIONS') {
-    const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000,https://nursery-saas-frontend.vercel.app').split(',');
+    const allowedOrigins = parseCorsOrigins();
     const requestOrigin = request.headers.get('origin') || '';
     const corsOrigin = allowedOrigins.includes(requestOrigin) ? requestOrigin : allowedOrigins[0];
     return new NextResponse(null, {
@@ -58,6 +66,7 @@ export function middleware(request: NextRequest) {
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Credentials': 'true',
         'Access-Control-Max-Age': '86400',
+        'Vary': 'Origin',
       },
     });
   }
@@ -125,13 +134,14 @@ export function middleware(request: NextRequest) {
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 
   // Add CORS headers
-  const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000,https://nursery-saas-frontend.vercel.app').split(',');
+  const allowedOrigins = parseCorsOrigins();
   const requestOrigin = request.headers.get('origin') || '';
   const corsOrigin = allowedOrigins.includes(requestOrigin) ? requestOrigin : allowedOrigins[0];
   response.headers.set('Access-Control-Allow-Origin', corsOrigin);
   response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
   response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   response.headers.set('Access-Control-Allow-Credentials', 'true');
+  response.headers.set('Vary', 'Origin');
 
   return response;
 }

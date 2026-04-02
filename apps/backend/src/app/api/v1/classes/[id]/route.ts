@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getUserClient, errorResponse, successResponse } from '@/lib/api/helpers';
+import { getUserClient, errorResponse, successResponse, validateUUID } from '@/lib/api/helpers';
 
 const updateClassSchema = z.object({
   name: z.string().min(1).optional(),
@@ -11,13 +11,19 @@ const updateClassSchema = z.object({
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const supabase = getUserClient(req);
     const { id } = params;
+
+    if (!validateUUID(id)) {
+      return errorResponse('Invalid class ID format', 400);
+    }
+
+    const supabase = getUserClient(req);
 
     const { data, error } = await supabase
       .from('classes')
       .select('*')
       .eq('id', id)
+      .is('deleted_at', null)
       .single();
 
     if (error) {
@@ -33,8 +39,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const supabase = getUserClient(req);
     const { id } = params;
+
+    if (!validateUUID(id)) {
+      return errorResponse('Invalid class ID format', 400);
+    }
+
+    const supabase = getUserClient(req);
     const body = await req.json();
 
     const validatedData = updateClassSchema.parse(body);
@@ -43,6 +54,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       .from('classes')
       .update(validatedData)
       .eq('id', id)
+      .is('deleted_at', null)
       .select()
       .single();
 
@@ -65,13 +77,20 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const supabase = getUserClient(req);
     const { id } = params;
 
+    if (!validateUUID(id)) {
+      return errorResponse('Invalid class ID format', 400);
+    }
+
+    const supabase = getUserClient(req);
+
+    // Soft delete by setting deleted_at
     const { data, error } = await supabase
       .from('classes')
-      .delete()
+      .update({ deleted_at: new Date().toISOString() })
       .eq('id', id)
+      .is('deleted_at', null)
       .select()
       .single();
 

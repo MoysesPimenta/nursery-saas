@@ -11,22 +11,34 @@ export async function POST(request: NextRequest) {
   try {
     const signature = request.headers.get('x-webhook-signature');
     const body = await request.text();
+    const webhookSecret = process.env.WEBHOOK_SECRET;
 
-    // TODO: Implement HMAC verification
-    // const isValid = verifyWebhookSignature(signature, body, WEBHOOK_SIGNING_SECRET);
-    // if (!isValid) {
-    //   return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
-    // }
+    // Require webhook secret to be configured
+    if (!webhookSecret) {
+      return NextResponse.json(
+        { error: 'Webhook secret not configured' },
+        { status: 500 }
+      );
+    }
 
-    // TODO: Parse and process webhook payload
-    // const payload = JSON.parse(body);
+    // Verify HMAC signature
+    const isValid = verifyWebhookSignature(signature, body, webhookSecret);
+    if (!isValid) {
+      return NextResponse.json(
+        { error: 'Invalid signature' },
+        { status: 401 }
+      );
+    }
+
+    // Parse and process webhook payload
+    const payload = JSON.parse(body);
 
     return NextResponse.json(
       {
-        message: 'Webhooks endpoint - not yet implemented',
+        message: 'Webhook processed successfully',
         received: true,
       },
-      { status: 501 }
+      { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
@@ -50,9 +62,11 @@ function verifyWebhookSignature(
 ): boolean {
   if (!signature) return false;
 
-  // TODO: Implement proper HMAC verification
-  // const hash = crypto.createHmac('sha256', secret).update(body).digest('hex');
-  // return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(hash));
-
-  return false;
+  try {
+    const hash = crypto.createHmac('sha256', secret).update(body).digest('hex');
+    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(hash));
+  } catch (error) {
+    // Return false on any timing comparison errors
+    return false;
+  }
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getUserClient, errorResponse, successResponse } from '@/lib/api/helpers';
+import { getUserClient, errorResponse, successResponse, validateUUID } from '@/lib/api/helpers';
 
 const updateAuthorizationSchema = z.object({
   status: z.enum(['pending', 'approved', 'rejected']).optional(),
@@ -11,8 +11,13 @@ const updateAuthorizationSchema = z.object({
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const supabase = getUserClient(req);
     const { id } = params;
+
+    if (!validateUUID(id)) {
+      return errorResponse('Invalid authorization ID format', 400);
+    }
+
+    const supabase = getUserClient(req);
 
     const { data, error } = await supabase
       .from('authorizations')
@@ -33,8 +38,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const supabase = getUserClient(req);
     const { id } = params;
+
+    if (!validateUUID(id)) {
+      return errorResponse('Invalid authorization ID format', 400);
+    }
+
+    const supabase = getUserClient(req);
     const body = await req.json();
 
     const validatedData = updateAuthorizationSchema.parse(body);

@@ -47,29 +47,36 @@ export default function ParentPortalPage() {
         // Enrich children with allergies and last visit info
         const enrichedChildren = await Promise.all(
           childrenData.map(async (child) => {
+            let allergies: any[] = [];
+            let lastVisitDate: string | undefined;
+
+            // Get child details which should include allergies
             try {
-              // Get child details which should include allergies
               const childDetails = await apiGet<any>(
                 `/api/v1/children/${child.id}`
               );
+              allergies = childDetails.allergies || [];
+            } catch (err) {
+              console.error(`Failed to load details for child ${child.id}:`, err);
+              allergies = [];
+            }
 
-              // Get latest visit
+            // Get latest visit
+            try {
               const visits = await apiGet<any[]>(
                 `/api/v1/visits?child_id=${child.id}&limit=1`
               );
-
-              return {
-                ...child,
-                allergies: childDetails.allergies || [],
-                lastVisitDate: visits?.[0]?.startedAt,
-              };
-            } catch {
-              return {
-                ...child,
-                allergies: [],
-                lastVisitDate: undefined,
-              };
+              lastVisitDate = visits?.[0]?.startedAt;
+            } catch (err) {
+              console.error(`Failed to load visits for child ${child.id}:`, err);
+              lastVisitDate = undefined;
             }
+
+            return {
+              ...child,
+              allergies,
+              lastVisitDate,
+            };
           })
         );
 

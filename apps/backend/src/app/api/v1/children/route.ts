@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getUserClient, parsePagination, errorResponse, paginatedResponse, getSearchQuery, getFilterParams } from '@/lib/api/helpers';
+import { getUserClient, parsePagination, errorResponse, paginatedResponse, getSearchQuery, getFilterParams, sanitizeSearchInput } from '@/lib/api/helpers';
 
 const createChildSchema = z.object({
   first_name: z.string().min(1, 'First name required'),
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   try {
     const supabase = getUserClient(req);
     const { from, to, page, limit } = parsePagination(req);
-    const search = getSearchQuery(req);
+    let search = getSearchQuery(req);
     const filters = getFilterParams(req, ['class_id', 'archived']);
 
     let query = supabase
@@ -25,6 +25,7 @@ export async function GET(req: NextRequest) {
 
     // Apply search filter
     if (search) {
+      search = sanitizeSearchInput(search);
       query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%`);
     }
 

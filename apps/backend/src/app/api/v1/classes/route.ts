@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getUserClient, parsePagination, errorResponse, paginatedResponse, getSearchQuery } from '@/lib/api/helpers';
+import { getUserClient, parsePagination, errorResponse, paginatedResponse, getSearchQuery, sanitizeSearchInput } from '@/lib/api/helpers';
 
 const createClassSchema = z.object({
   name: z.string().min(1, 'Class name required'),
@@ -13,13 +13,15 @@ export async function GET(req: NextRequest) {
   try {
     const supabase = getUserClient(req);
     const { from, to, page, limit } = parsePagination(req);
-    const search = getSearchQuery(req);
+    let search = getSearchQuery(req);
 
     let query = supabase
       .from('classes')
-      .select('*', { count: 'exact' });
+      .select('*', { count: 'exact' })
+      .is('deleted_at', null);
 
     if (search) {
+      search = sanitizeSearchInput(search);
       query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
     }
 

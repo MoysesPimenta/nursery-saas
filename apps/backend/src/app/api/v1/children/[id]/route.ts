@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getUserClient, errorResponse, successResponse } from '@/lib/api/helpers';
+import { getUserClient, errorResponse, successResponse, validateUUID } from '@/lib/api/helpers';
 
 const updateChildSchema = z.object({
   first_name: z.string().min(1).optional(),
@@ -15,8 +15,13 @@ const updateChildSchema = z.object({
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const supabase = getUserClient(req);
     const { id } = params;
+
+    if (!validateUUID(id)) {
+      return errorResponse('Invalid child ID format', 400);
+    }
+
+    const supabase = getUserClient(req);
 
     // Get child
     const { data: child, error: childError } = await supabase
@@ -64,8 +69,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const supabase = getUserClient(req);
     const { id } = params;
+
+    if (!validateUUID(id)) {
+      return errorResponse('Invalid child ID format', 400);
+    }
+
+    const supabase = getUserClient(req);
     const body = await req.json();
 
     const validatedData = updateChildSchema.parse(body);
@@ -96,8 +106,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const supabase = getUserClient(req);
     const { id } = params;
+
+    if (!validateUUID(id)) {
+      return errorResponse('Invalid child ID format', 400);
+    }
+
+    const supabase = getUserClient(req);
 
     // Soft delete by setting archived = true
     const { data, error } = await supabase

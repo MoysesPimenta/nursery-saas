@@ -42,22 +42,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const payload = parseResult.data;
 
-    // Check if email already exists
-    const adminClient = getSupabaseServerClient();
-    const { data: existingUser } = await adminClient.auth.admin.listUsers();
-    const emailExists = existingUser?.users?.some(u => u.email === payload.email);
-
-    if (emailExists) {
-      return NextResponse.json(
-        {
-          error: 'Email already registered',
-          code: 'EMAIL_EXISTS',
-        },
-        { status: 409 }
-      );
-    }
-
     // Handle signup (create auth user, tenant, user profile, assign role)
+    // Let Supabase handle duplicate email errors
     const response = await handleSignup(payload);
 
     return NextResponse.json(response, { status: 201 });
@@ -66,33 +52,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const message = error instanceof Error ? error.message : 'Unknown error';
 
-    // Check for specific error cases
-    if (message.includes('Email already registered')) {
-      return NextResponse.json(
-        {
-          error: 'Email already registered',
-          code: 'EMAIL_EXISTS',
-        },
-        { status: 409 }
-      );
-    }
+    // Don't leak information about whether email exists
+    // Return generic success message regardless
 
-    if (message.includes('Failed to create')) {
-      return NextResponse.json(
-        {
-          error: 'Failed to complete signup. Please try again.',
-          code: 'SIGNUP_FAILED',
-        },
-        { status: 500 }
-      );
-    }
-
+    // Return generic message for all errors to prevent email enumeration
     return NextResponse.json(
       {
-        error: 'An error occurred during signup',
-        code: 'SIGNUP_ERROR',
+        message: 'If this email is not registered, an account has been created. Please check your email for confirmation.',
+        code: 'SIGNUP_PROCESSING',
       },
-      { status: 500 }
+      { status: 201 }
     );
   }
 }

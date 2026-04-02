@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,7 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const params = useParams();
+  const router = useRouter();
   const locale = params.locale as string;
 
   const handleRequestReset = async (e: React.FormEvent) => {
@@ -68,7 +69,7 @@ export default function ResetPasswordPage() {
 
       setMessage('Password reset successful! Redirecting to login...');
       setTimeout(() => {
-        window.location.href = `/${locale}/auth/login`;
+        router.push(`/${locale}/auth/login`);
       }, 2000);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to reset password';
