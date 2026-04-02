@@ -48,9 +48,9 @@ function LayoutContent({
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
-      <div className="flex-1 flex flex-col w-full">
+      <div className="flex-1 flex flex-col w-full md:ml-64">
         <Topbar />
-        <main className="flex-1 overflow-y-auto pt-20 md:ml-0">
+        <main className="flex-1 overflow-y-auto pt-16">
           <div className="p-4 md:p-6">{children}</div>
         </main>
       </div>
