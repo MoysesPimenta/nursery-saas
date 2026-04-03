@@ -35,8 +35,13 @@ export default function SignupPage() {
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters');
+      return;
+    }
+
+    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+      setError('Password must contain at least one uppercase letter, one lowercase letter, and one number');
       return;
     }
 

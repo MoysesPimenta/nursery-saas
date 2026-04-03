@@ -34,7 +34,7 @@ const item = {
 export default function DashboardPage() {
   const params = useParams();
   const locale = params.locale as string;
-  const { data: stats, loading } = useApiQuery<DashboardStats>('/api/v1/dashboard/stats');
+  const { data: stats, loading, error } = useApiQuery<DashboardStats>('/api/v1/dashboard/stats');
 
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -72,6 +72,15 @@ export default function DashboardPage() {
           </Button>
         </Link>
       </motion.div>
+
+      {/* Error Banner */}
+      {error && (
+        <motion.div variants={item} className="rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950 p-4">
+          <p className="text-sm text-red-800 dark:text-red-200">
+            Failed to load dashboard data. Please try refreshing the page.
+          </p>
+        </motion.div>
+      )}
 
       {/* Stats Grid */}
       {loading ? (

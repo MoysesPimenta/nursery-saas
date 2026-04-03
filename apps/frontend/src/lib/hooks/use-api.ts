@@ -24,6 +24,11 @@ export function useApiQuery<T>(
   const [error, setError] = useState<Error | null>(null);
 
   const fetch = useCallback(async () => {
+    // Skip fetching if path is empty (conditional queries)
+    if (!path) {
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       setError(null);

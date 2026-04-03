@@ -38,7 +38,7 @@ export default function EmployeesPage() {
   const params = useParams();
   const locale = params.locale as string;
 
-  const { data: response, loading } = useApiQuery<EmployeesResponse>(
+  const { data: response, loading, error } = useApiQuery<EmployeesResponse>(
     `/api/v1/employees?page=${page}&limit=10&search=${search}`
   );
 
@@ -138,16 +138,24 @@ export default function EmployeesPage() {
               />
             </div>
 
-            <DataTable
-              columns={columns}
-              data={response?.data || []}
-              loading={loading}
-              pagination={response?.pagination}
-              onPageChange={setPage}
-              onRowClick={(employee) => router.push(`/${locale}/employees/${employee.id}`)}
-              emptyMessage="No employees found"
-              rowKey={(employee) => employee.id}
-            />
+            {error ? (
+              <div className="rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950 p-4 text-center">
+                <p className="text-sm text-red-800 dark:text-red-200">
+                  Failed to load employees. Please try again.
+                </p>
+              </div>
+            ) : (
+              <DataTable
+                columns={columns}
+                data={response?.data || []}
+                loading={loading}
+                pagination={response?.pagination}
+                onPageChange={setPage}
+                onRowClick={(employee) => router.push(`/${locale}/employees/${employee.id}`)}
+                emptyMessage="No employees found"
+                rowKey={(employee) => employee.id}
+              />
+            )}
           </div>
         </CardContent>
       </Card>

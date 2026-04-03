@@ -28,12 +28,16 @@ export default function NewVisitPage() {
   const [childName, setChildName] = useState<string>();
 
   // Fetch authorization details if provided
+  const { data: authData } = useApiQuery<{ data: { childName: string; childId: string } }>(
+    authorizationId ? `/api/v1/authorizations/${authorizationId}` : '',
+    [authorizationId]
+  );
+
   useEffect(() => {
-    if (authorizationId) {
-      // In a real app, you'd fetch authorization details here
-      setChildName('Child Name'); // Placeholder
+    if (authData?.data?.childName) {
+      setChildName(authData.data.childName);
     }
-  }, [authorizationId]);
+  }, [authData]);
 
   // Fetch available medications
   const { data: medicationsData } = useApiQuery<{

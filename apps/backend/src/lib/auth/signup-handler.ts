@@ -73,7 +73,11 @@ export async function handleSignup(payload: SignupRequest): Promise<SignupRespon
 
     if (roleError) {
       console.error('Failed to assign role:', roleError.message);
-      // Don't fail signup if role assignment fails, but log it
+      // Cleanup: delete auth user, user profile, and tenant on failure
+      await adminClient.from('users').delete().eq('id', userId);
+      await adminClient.from('tenants').delete().eq('id', newTenantId);
+      await adminClient.auth.admin.deleteUser(userId);
+      throw new Error('Failed to complete account setup. Please try again.');
     }
 
     return {

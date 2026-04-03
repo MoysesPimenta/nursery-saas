@@ -44,7 +44,7 @@ export default function ChildrenPage() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const { data: response, loading } = useApiQuery<ChildrenResponse>(
+  const { data: response, loading, error } = useApiQuery<ChildrenResponse>(
     `/api/v1/children?page=${page}&limit=10&search=${debouncedSearch}`
   );
 
@@ -144,16 +144,24 @@ export default function ChildrenPage() {
               />
             </div>
 
-            <DataTable
-              columns={columns}
-              data={response?.data || []}
-              loading={loading}
-              pagination={response?.pagination}
-              onPageChange={setPage}
-              onRowClick={(child) => router.push(`/${locale}/children/${child.id}`)}
-              emptyMessage="No children found"
-              rowKey={(child) => child.id}
-            />
+            {error ? (
+              <div className="rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950 p-4 text-center">
+                <p className="text-sm text-red-800 dark:text-red-200">
+                  Failed to load children. Please try again.
+                </p>
+              </div>
+            ) : (
+              <DataTable
+                columns={columns}
+                data={response?.data || []}
+                loading={loading}
+                pagination={response?.pagination}
+                onPageChange={setPage}
+                onRowClick={(child) => router.push(`/${locale}/children/${child.id}`)}
+                emptyMessage="No children found"
+                rowKey={(child) => child.id}
+              />
+            )}
           </div>
         </CardContent>
       </Card>

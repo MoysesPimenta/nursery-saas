@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { FormField } from '@/components/ui/form-field';
-import { useApiMutation } from '@/lib/hooks/use-api';
+import { useApiMutation, useApiQuery } from '@/lib/hooks/use-api';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { z } from 'zod';
@@ -42,6 +42,12 @@ export default function NewChildPage() {
     '/api/v1/children',
     'POST'
   );
+
+  // Fetch classes from API instead of hardcoding
+  const { data: classesData } = useApiQuery<{ data: Array<{ id: string; name: string }> }>(
+    '/api/v1/classes'
+  );
+  const classes = classesData?.data || [];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -171,9 +177,9 @@ export default function NewChildPage() {
                 <FormField label="Class">
                   <Select name="classId" value={formData.classId || ''} onChange={handleChange}>
                     <option value="">Select a class</option>
-                    <option value="class-1">Class 1</option>
-                    <option value="class-2">Class 2</option>
-                    <option value="class-3">Class 3</option>
+                    {classes.map((cls) => (
+                      <option key={cls.id} value={cls.id}>{cls.name}</option>
+                    ))}
                   </Select>
                 </FormField>
 

@@ -23,9 +23,31 @@ export async function api<T>(
       headers,
     });
 
-    // Handle 401 Unauthorized - clear session and redirect to login
+    // Handle 401 Unauthorized - attempt token refresh before signing out
     // Skip auto-redirect for /auth/me calls (handled gracefully by auth-context)
     if (res.status === 401 && !path.includes('/auth/me')) {
+      // Attempt to refresh the session first
+      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+
+      if (refreshData?.session && !refreshError) {
+        // Retry the original request with the new token
+        const retryHeaders: HeadersInit = {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${refreshData.session.access_token}`,
+          ...options.headers,
+        };
+
+        const retryRes = await fetch(`${API_URL}${path}`, {
+          ...options,
+          headers: retryHeaders,
+        });
+
+        if (retryRes.ok) {
+          return retryRes.json();
+        }
+      }
+
+      // Refresh failed — sign out and redirect
       await supabase.auth.signOut();
       if (typeof window !== 'undefined') {
         const locale = window.location.pathname.split('/')[1] || 'en';

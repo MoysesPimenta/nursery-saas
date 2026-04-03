@@ -84,7 +84,7 @@ export default function VisitsPage() {
   queryParams.append('page', page.toString());
   queryParams.append('limit', '20');
 
-  const { data: visitsData, loading } = useApiQuery<VisitsResponse>(
+  const { data: visitsData, loading, error } = useApiQuery<VisitsResponse>(
     `/api/v1/visits?${queryParams.toString()}`
   );
 
@@ -221,14 +221,22 @@ export default function VisitsPage() {
             <CardDescription>All visits within the selected date range</CardDescription>
           </CardHeader>
           <CardContent>
-            <DataTable
-              columns={columns}
-              data={visits}
-              loading={loading}
-              emptyMessage="No visits found"
-              onRowClick={(visit) => router.push(`/${locale}/visits/${visit.id}`)}
-              rowKey={(visit) => visit.id}
-            />
+            {error ? (
+              <div className="rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950 p-4 text-center">
+                <p className="text-sm text-red-800 dark:text-red-200">
+                  Failed to load visits. Please try again.
+                </p>
+              </div>
+            ) : (
+              <DataTable
+                columns={columns}
+                data={visits}
+                loading={loading}
+                emptyMessage="No visits found"
+                onRowClick={(visit) => router.push(`/${locale}/visits/${visit.id}`)}
+                rowKey={(visit) => visit.id}
+              />
+            )}
           </CardContent>
         </Card>
       </motion.div>
