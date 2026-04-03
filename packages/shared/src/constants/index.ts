@@ -27,6 +27,7 @@ export const DISPOSITIONS = [
   'sent_home',
   'referred',
   'hospitalized',
+  'other',
 ] as const;
 
 export const ALLERGY_SEVERITIES = [
@@ -42,6 +43,7 @@ export const DOSAGE_FORMS = [
   'injection',
   'topical',
   'inhaler',
+  'other',
 ] as const;
 
 export const AUTHORIZATION_STATUSES = [

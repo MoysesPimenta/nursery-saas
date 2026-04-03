@@ -20,12 +20,14 @@ const timestampFields = {
 export const childSchema = z.object({
   id: uuidSchema.optional(),
   tenantId: uuidSchema,
-  firstName: z.string().min(1).max(100),
-  lastName: z.string().min(1).max(100),
-  dateOfBirth: z.coerce.date(),
+  firstName: z.string().min(1, 'First name is required').max(100, 'First name must be at most 100 characters'),
+  lastName: z.string().min(1, 'Last name is required').max(100, 'Last name must be at most 100 characters'),
+  dateOfBirth: z.coerce.date().refine((date) => date <= new Date(), {
+    message: 'Date of birth cannot be in the future',
+  }),
   enrollmentDate: z.coerce.date().optional(),
   allergies: z.array(z.string()).optional(),
-  medicalNotes: z.string().optional(),
+  medicalNotes: z.string().max(5000, 'Medical notes must be at most 5000 characters').optional(),
   photo: z.string().url().optional(),
   ...timestampFields,
 });
@@ -39,10 +41,13 @@ export const employeeSchema = z.object({
   id: uuidSchema.optional(),
   tenantId: uuidSchema,
   userId: uuidSchema,
-  firstName: z.string().min(1).max(100),
-  lastName: z.string().min(1).max(100),
-  email: z.string().email(),
-  phone: z.string().optional(),
+  firstName: z.string().min(1, 'First name is required').max(100, 'First name must be at most 100 characters'),
+  lastName: z.string().min(1, 'Last name is required').max(100, 'Last name must be at most 100 characters'),
+  email: z.string().email('Invalid email address'),
+  phone: z
+    .string()
+    .regex(/^\+?[1-9]\d{1,14}$/, 'Phone number must be a valid E.164 format')
+    .optional(),
   role: z.enum(['admin', 'manager', 'employee']),
   hireDate: z.coerce.date(),
   certifications: z.array(z.string()).optional(),
@@ -63,7 +68,7 @@ export const visitSchema = z.object({
   checkOutTime: z.coerce.date().optional(),
   checkedInBy: uuidSchema,
   checkedOutBy: uuidSchema.optional(),
-  notes: z.string().optional(),
+  notes: z.string().max(5000, 'Notes must be at most 5000 characters').optional(),
   ...timestampFields,
 });
 
@@ -92,15 +97,18 @@ export type Authorization = z.infer<typeof authorizationSchema>;
  */
 export const tenantSchema = z.object({
   id: uuidSchema.optional(),
-  name: z.string().min(1).max(255),
-  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/),
-  logo: z.string().url().optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  zipCode: z.string().optional(),
-  phone: z.string().optional(),
-  email: z.string().email().optional(),
+  name: z.string().min(1, 'Name is required').max(255, 'Name must be at most 255 characters'),
+  slug: z.string().min(1, 'Slug is required').max(100, 'Slug must be at most 100 characters').regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens'),
+  logo: z.string().url('Logo must be a valid URL').optional(),
+  address: z.string().max(255, 'Address must be at most 255 characters').optional(),
+  city: z.string().max(100, 'City must be at most 100 characters').optional(),
+  state: z.string().max(100, 'State must be at most 100 characters').optional(),
+  zipCode: z.string().max(20, 'Zip code must be at most 20 characters').optional(),
+  phone: z
+    .string()
+    .regex(/^\+?[1-9]\d{1,14}$/, 'Phone number must be a valid E.164 format')
+    .optional(),
+  email: z.string().email('Invalid email address').optional(),
   isActive: z.boolean().default(true),
   ...timestampFields,
 });

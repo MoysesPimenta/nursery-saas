@@ -57,11 +57,21 @@ export function middleware(request: NextRequest) {
   if (request.method === 'OPTIONS') {
     const allowedOrigins = parseCorsOrigins();
     const requestOrigin = request.headers.get('origin') || '';
-    const corsOrigin = allowedOrigins.includes(requestOrigin) ? requestOrigin : allowedOrigins[0];
+
+    // Reject requests from origins not in allowlist
+    if (!allowedOrigins.includes(requestOrigin)) {
+      return new NextResponse(null, {
+        status: 403,
+        headers: {
+          'Vary': 'Origin',
+        },
+      });
+    }
+
     return new NextResponse(null, {
       status: 204,
       headers: {
-        'Access-Control-Allow-Origin': corsOrigin,
+        'Access-Control-Allow-Origin': requestOrigin,
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Credentials': 'true',
@@ -132,15 +142,26 @@ export function middleware(request: NextRequest) {
   response.headers.set('X-XSS-Protection', '1; mode=block');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  response.headers.set(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'none';"
+  );
+  response.headers.set(
+    'Permissions-Policy',
+    'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()'
+  );
 
   // Add CORS headers
   const allowedOrigins = parseCorsOrigins();
   const requestOrigin = request.headers.get('origin') || '';
-  const corsOrigin = allowedOrigins.includes(requestOrigin) ? requestOrigin : allowedOrigins[0];
-  response.headers.set('Access-Control-Allow-Origin', corsOrigin);
-  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  response.headers.set('Access-Control-Allow-Credentials', 'true');
+
+  // Only add CORS headers if origin is in allowlist
+  if (allowedOrigins.includes(requestOrigin)) {
+    response.headers.set('Access-Control-Allow-Origin', requestOrigin);
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    response.headers.set('Access-Control-Allow-Credentials', 'true');
+  }
   response.headers.set('Vary', 'Origin');
 
   return response;
@@ -177,7 +198,11 @@ function isPublicRoute(pathname: string): boolean {
 
 /**
  * Check if a request has exceeded rate limit
- * Simple in-memory implementation - use Redis in production
+ * DEVELOPMENT ONLY: Simple in-memory implementation - use Redis or Vercel KV in production
+ *
+ * In a production environment, replace this with Redis (redis.io) or Vercel KV (vercel.com/docs/storage/vercel-kv)
+ * to ensure rate limiting persists across serverless function invocations and supports distributed systems.
+ * Current in-memory implementation resets on cold starts and only works for single-instance deployments.
  */
 function isRateLimited(key: string, limit: number): boolean {
   if (!key) return false;

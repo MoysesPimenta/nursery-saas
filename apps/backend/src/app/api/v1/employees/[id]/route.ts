@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { requireAuth, requirePermission } from '@/lib/auth/rbac';
 import { getUserClient, errorResponse, successResponse, validateUUID } from '@/lib/api/helpers';
 
 const updateEmployeeSchema = z.object({
@@ -16,6 +17,7 @@ const updateEmployeeSchema = z.object({
 });
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  return requireAuth(async (req: NextRequest, user) => {
   try {
     const { id } = params;
 
@@ -67,9 +69,11 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     const message = error instanceof Error ? error.message : 'Internal server error';
     return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
   }
+  })(req);
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  return requirePermission('manage:employees', async (req: NextRequest, user) => {
   try {
     const { id } = params;
 
@@ -104,9 +108,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const message = error instanceof Error ? error.message : 'Internal server error';
     return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
   }
+  })(req);
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  return requirePermission('manage:employees', async (req: NextRequest, user) => {
   try {
     const { id } = params;
 
@@ -133,4 +139,5 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     const message = error instanceof Error ? error.message : 'Internal server error';
     return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
   }
+  })(req);
 }

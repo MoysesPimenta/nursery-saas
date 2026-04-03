@@ -10,8 +10,27 @@ import { useEffect } from 'react';
 
 const PUBLIC_ROUTES = ['/auth/login', '/auth/signup', '/auth/reset-password', '/auth/mfa'];
 
+const ROLE_PROTECTED_ROUTES: Record<string, string[]> = {
+  '/admin': ['super_admin', 'school_admin'],
+  '/parent': ['parent'],
+};
+
 function isPublicRoute(pathname: string): boolean {
   return PUBLIC_ROUTES.some((route) => pathname.includes(route));
+}
+
+function checkRouteAccess(pathname: string, userRole?: string): boolean {
+  // Remove locale prefix to check route access
+  const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}(-[a-z]{2})?/, '');
+
+  for (const [protectedRoute, allowedRoles] of Object.entries(ROLE_PROTECTED_ROUTES)) {
+    if (pathWithoutLocale.startsWith(protectedRoute)) {
+      return userRole ? allowedRoles.includes(userRole) : false;
+    }
+  }
+
+  // All other authenticated routes are accessible
+  return true;
 }
 
 function LayoutContent({
@@ -21,7 +40,7 @@ function LayoutContent({
   children: React.ReactNode;
   params: { locale: string };
 }) {
-  const { loading, session } = useAuth();
+  const { loading, session, userProfile } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const isPublic = isPublicRoute(pathname);
@@ -31,6 +50,17 @@ function LayoutContent({
       router.push(`/${params.locale}/auth/login`);
     }
   }, [loading, session, router, params.locale, isPublic]);
+
+  // Check role-based access for protected routes
+  useEffect(() => {
+    if (!loading && session && !isPublic) {
+      const hasAccess = checkRouteAccess(pathname, userProfile?.role);
+      if (!hasAccess) {
+        // Redirect to dashboard if user doesn't have access to this route
+        router.push(`/${params.locale}`);
+      }
+    }
+  }, [loading, session, userProfile, pathname, router, params.locale, isPublic]);
 
   // Public routes (login, signup, etc.) render without auth guard or shell
   if (isPublic) {
@@ -43,6 +73,12 @@ function LayoutContent({
 
   if (!session) {
     return null;
+  }
+
+  // Check if user has access to this route
+  const hasAccess = checkRouteAccess(pathname, userProfile?.role);
+  if (!hasAccess) {
+    return null; // Will be redirected by useEffect above
   }
 
   return (

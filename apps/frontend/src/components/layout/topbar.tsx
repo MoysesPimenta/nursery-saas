@@ -8,9 +8,12 @@ import { cn } from '@/lib/utils';
 
 const LOCALES = [
   { code: 'en', label: 'English', flag: 'EN' },
+  { code: 'pt-BR', label: 'Português (Brasil)', flag: 'BR' },
   { code: 'es', label: 'Español', flag: 'ES' },
+  { code: 'de', label: 'Deutsch', flag: 'DE' },
   { code: 'fr', label: 'Français', flag: 'FR' },
-  { code: 'pt', label: 'Português', flag: 'PT' },
+  { code: 'it', label: 'Italiano', flag: 'IT' },
+  { code: 'he', label: 'עברית', flag: 'IL' },
 ];
 
 export function Topbar() {

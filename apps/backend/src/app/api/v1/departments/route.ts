@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { requireAuth, requirePermission } from '@/lib/auth/rbac';
 import { getUserClient, parsePagination, errorResponse, paginatedResponse, getSearchQuery, sanitizeSearchInput } from '@/lib/api/helpers';
 
 const createDepartmentSchema = z.object({
@@ -7,7 +8,7 @@ const createDepartmentSchema = z.object({
   description: z.string().optional(),
 });
 
-export async function GET(req: NextRequest) {
+export const GET = requireAuth(async (req: NextRequest, user) => {
   try {
     const supabase = getUserClient(req);
     const { from, to, page, limit } = parsePagination(req);
@@ -34,9 +35,9 @@ export async function GET(req: NextRequest) {
     const message = error instanceof Error ? error.message : 'Internal server error';
     return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
   }
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = requirePermission('manage:departments', async (req: NextRequest, user) => {
   try {
     const supabase = getUserClient(req);
     const body = await req.json();
@@ -64,4 +65,4 @@ export async function POST(req: NextRequest) {
     const message = error instanceof Error ? error.message : 'Internal server error';
     return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
   }
-}
+});

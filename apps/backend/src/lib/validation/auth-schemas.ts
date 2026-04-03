@@ -7,10 +7,19 @@ import { z } from 'zod';
 // Email validation
 const emailSchema = z.string().email().toLowerCase();
 
-// Password validation (minimum 6 chars)
+// Password validation (minimum 8 chars with uppercase, lowercase, and number)
 const passwordSchema = z
   .string()
-  .min(6, 'Password must be at least 6 characters');
+  .min(8, 'Password must be at least 8 characters')
+  .refine((pwd) => /[A-Z]/.test(pwd), {
+    message: 'Password must contain at least one uppercase letter',
+  })
+  .refine((pwd) => /[a-z]/.test(pwd), {
+    message: 'Password must contain at least one lowercase letter',
+  })
+  .refine((pwd) => /[0-9]/.test(pwd), {
+    message: 'Password must contain at least one number',
+  });
 
 // Tenant slug validation
 const tenantSlugSchema = z

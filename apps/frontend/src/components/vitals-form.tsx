@@ -55,6 +55,24 @@ export function VitalsForm({
     return (((value - 32) * 5) / 9).toFixed(1);
   };
 
+  // Validation ranges
+  const validateTemperature = (value: number): boolean => {
+    // Convert to Celsius if needed for validation
+    const tempC = vitals.temperatureUnit === 'F' ? ((value - 32) * 5) / 9 : value;
+    return tempC >= 35.0 && tempC <= 42.0;
+  };
+
+  const validateHeartRate = (value: number): boolean => value >= 40 && value <= 200;
+  const validateSystolicBP = (value: number): boolean => value >= 60 && value <= 250;
+  const validateDiastolicBP = (value: number): boolean => value >= 30 && value <= 150;
+  const validateWeight = (value: number): boolean => value >= 1 && value <= 300;
+
+  const isTemperatureUnusual = vitals.temperature !== null && !validateTemperature(vitals.temperature);
+  const isHeartRateUnusual = vitals.heartRate !== null && !validateHeartRate(vitals.heartRate);
+  const isSystolicBPUnusual = vitals.systolicBP !== null && !validateSystolicBP(vitals.systolicBP);
+  const isDiastolicBPUnusual = vitals.diastolicBP !== null && !validateDiastolicBP(vitals.diastolicBP);
+  const isWeightUnusual = vitals.weight !== null && !validateWeight(vitals.weight);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -72,7 +90,7 @@ export function VitalsForm({
               value={vitals.temperature ?? ''}
               onChange={(e) => handleChange('temperature', parseFloat(e.target.value))}
               disabled={readOnly}
-              className="flex-1"
+              className={`flex-1 ${isTemperatureUnusual ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-950/20' : ''}`}
             />
             <select
               value={vitals.temperatureUnit}
@@ -90,6 +108,11 @@ export function VitalsForm({
               {vitals.temperatureUnit === 'C' ? 'F' : 'C'}
             </div>
           )}
+          {isTemperatureUnusual && (
+            <div className="text-xs text-yellow-700 dark:text-yellow-200 bg-yellow-50 dark:bg-yellow-950/30 p-2 rounded">
+              Warning: Temperature outside normal range (35.0-42.0°C)
+            </div>
+          )}
         </div>
 
         {/* Blood Pressure */}
@@ -104,7 +127,7 @@ export function VitalsForm({
               value={vitals.systolicBP ?? ''}
               onChange={(e) => handleChange('systolicBP', parseInt(e.target.value))}
               disabled={readOnly}
-              className="flex-1"
+              className={`flex-1 ${isSystolicBPUnusual ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-950/20' : ''}`}
             />
             <span className="flex items-center text-muted-foreground">/</span>
             <Input
@@ -113,9 +136,14 @@ export function VitalsForm({
               value={vitals.diastolicBP ?? ''}
               onChange={(e) => handleChange('diastolicBP', parseInt(e.target.value))}
               disabled={readOnly}
-              className="flex-1"
+              className={`flex-1 ${isDiastolicBPUnusual ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-950/20' : ''}`}
             />
           </div>
+          {(isSystolicBPUnusual || isDiastolicBPUnusual) && (
+            <div className="text-xs text-yellow-700 dark:text-yellow-200 bg-yellow-50 dark:bg-yellow-950/30 p-2 rounded">
+              Warning: Blood pressure outside normal ranges (Systolic: 60-250, Diastolic: 30-150)
+            </div>
+          )}
         </div>
 
         {/* Heart Rate */}
@@ -129,7 +157,13 @@ export function VitalsForm({
             value={vitals.heartRate ?? ''}
             onChange={(e) => handleChange('heartRate', parseInt(e.target.value))}
             disabled={readOnly}
+            className={`${isHeartRateUnusual ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-950/20' : ''}`}
           />
+          {isHeartRateUnusual && (
+            <div className="text-xs text-yellow-700 dark:text-yellow-200 bg-yellow-50 dark:bg-yellow-950/30 p-2 rounded">
+              Warning: Heart rate outside normal range (40-200 bpm)
+            </div>
+          )}
         </div>
 
         {/* Weight */}
@@ -143,7 +177,7 @@ export function VitalsForm({
               value={vitals.weight ?? ''}
               onChange={(e) => handleChange('weight', parseFloat(e.target.value))}
               disabled={readOnly}
-              className="flex-1"
+              className={`flex-1 ${isWeightUnusual ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-950/20' : ''}`}
             />
             <select
               value={vitals.weightUnit}
@@ -155,6 +189,11 @@ export function VitalsForm({
               <option value="lb">lb</option>
             </select>
           </div>
+          {isWeightUnusual && (
+            <div className="text-xs text-yellow-700 dark:text-yellow-200 bg-yellow-50 dark:bg-yellow-950/30 p-2 rounded">
+              Warning: Weight outside normal range (1-300 kg)
+            </div>
+          )}
         </div>
       </div>
 

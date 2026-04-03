@@ -84,12 +84,14 @@ export interface Employee {
 }
 
 // Medication
+export type DosageForm = 'tablet' | 'liquid' | 'injection' | 'topical' | 'inhaler' | 'other';
+
 export interface Medication {
   id: string;
   tenantId: string;
   name: string;
   genericName?: string;
-  dosageForm: 'tablet' | 'liquid' | 'injection' | 'topical' | 'inhaler';
+  dosageForm: DosageForm;
   defaultDosage?: string;
   instructions?: string;
   requiresAuthorization: boolean;
@@ -137,7 +139,8 @@ export type Disposition =
   | 'returned_to_class'
   | 'sent_home'
   | 'referred'
-  | 'hospitalized';
+  | 'hospitalized'
+  | 'other';
 
 export interface Vitals {
   temperature?: number;
@@ -212,4 +215,42 @@ export interface CustomField {
   displayOrder: number;
   isActive: boolean;
   createdAt: string;
+}
+
+// API Response Types
+export interface ApiError {
+  code: string;
+  message: string;
+  details?: Record<string, unknown>;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: ApiError;
+  meta?: Record<string, unknown>;
+}
+
+// Pagination Types
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface PaginatedResponse<T> {
+  success: boolean;
+  data: T[];
+  meta: PaginationMeta;
+  error?: ApiError;
+}
+
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }

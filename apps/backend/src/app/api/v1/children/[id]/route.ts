@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { requireAuth, requirePermission } from '@/lib/auth/rbac';
 import { getUserClient, errorResponse, successResponse, validateUUID } from '@/lib/api/helpers';
 
 const updateChildSchema = z.object({
@@ -14,8 +15,9 @@ const updateChildSchema = z.object({
 });
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const { id } = params;
+  return requireAuth(async (req: NextRequest, user) => {
+    try {
+      const { id } = params;
 
     if (!validateUUID(id)) {
       return errorResponse('Invalid child ID format', 400);
@@ -64,10 +66,12 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal server error';
     return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
-  }
+    }
+  })(req);
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  return requirePermission('manage:children', async (req: NextRequest, user) => {
   try {
     const { id } = params;
 
@@ -101,10 +105,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     }
     const message = error instanceof Error ? error.message : 'Internal server error';
     return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
-  }
+    }
+  })(req);
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  return requirePermission('manage:children', async (req: NextRequest, user) => {
   try {
     const { id } = params;
 
@@ -130,5 +136,6 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal server error';
     return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
-  }
+    }
+  })(req);
 }

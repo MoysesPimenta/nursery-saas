@@ -1,7 +1,8 @@
 import { NextRequest } from 'next/server';
+import { requireAuth } from '@/lib/auth/rbac';
 import { getUserClient, errorResponse, successResponse } from '@/lib/api/helpers';
 
-export async function GET(req: NextRequest) {
+export const GET = requireAuth(async (req: NextRequest, user) => {
   try {
     const supabase = getUserClient(req);
 
@@ -68,4 +69,4 @@ export async function GET(req: NextRequest) {
     const message = error instanceof Error ? error.message : 'Internal server error';
     return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
   }
-}
+});

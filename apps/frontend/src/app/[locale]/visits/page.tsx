@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -62,15 +62,22 @@ export default function VisitsPage() {
 
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [visitType, setVisitType] = useState<string>('all');
   const [startDate, setStartDate] = useState(
     new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
   );
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
 
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
   // Build query params
   const queryParams = new URLSearchParams();
-  if (search) queryParams.append('search', search);
+  if (debouncedSearch) queryParams.append('search', debouncedSearch);
   if (visitType !== 'all') queryParams.append('visitType', visitType);
   queryParams.append('startDate', startDate);
   queryParams.append('endDate', endDate);

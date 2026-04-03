@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,12 +33,19 @@ interface ChildrenResponse {
 export default function ChildrenPage() {
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const router = useRouter();
   const params = useParams();
   const locale = params.locale as string;
 
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
   const { data: response, loading } = useApiQuery<ChildrenResponse>(
-    `/api/v1/children?page=${page}&limit=10&search=${search}`
+    `/api/v1/children?page=${page}&limit=10&search=${debouncedSearch}`
   );
 
   const columns = [

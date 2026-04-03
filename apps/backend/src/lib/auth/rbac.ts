@@ -10,18 +10,29 @@ export type Permission =
   | 'read:children'
   | 'write:children'
   | 'delete:children'
+  | 'create:children'
+  | 'manage:children'
   | 'read:employees'
   | 'write:employees'
   | 'delete:employees'
+  | 'create:employees'
+  | 'manage:employees'
   | 'read:visits'
   | 'write:visits'
   | 'delete:visits'
+  | 'create:visits'
+  | 'manage:visits'
   | 'read:authorizations'
   | 'write:authorizations'
   | 'delete:authorizations'
+  | 'manage:authorizations'
   | 'manage:tenant'
   | 'manage:billing'
-  | 'manage:users';
+  | 'manage:users'
+  | 'manage:classes'
+  | 'manage:departments'
+  | 'manage:allergies'
+  | 'manage:medications';
 
 /**
  * Requires authentication on an API handler

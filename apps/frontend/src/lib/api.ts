@@ -23,6 +23,16 @@ export async function api<T>(
       headers,
     });
 
+    // Handle 401 Unauthorized - clear session and redirect to login
+    if (res.status === 401) {
+      await supabase.auth.signOut();
+      // Use window.location for immediate redirect to bypass Next.js router caching
+      if (typeof window !== 'undefined') {
+        window.location.href = '/auth/login';
+      }
+      throw new Error('Unauthorized: Session expired');
+    }
+
     if (!res.ok) {
       let errorMessage = res.statusText;
       try {

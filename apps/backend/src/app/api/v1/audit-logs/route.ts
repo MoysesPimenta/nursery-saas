@@ -1,7 +1,8 @@
 import { NextRequest } from 'next/server';
+import { requireRole } from '@/lib/auth/rbac';
 import { getUserClient, parsePagination, errorResponse, paginatedResponse, getFilterParams } from '@/lib/api/helpers';
 
-export async function GET(req: NextRequest) {
+export const GET = requireRole('school_admin', async (req: NextRequest, user) => {
   try {
     const supabase = getUserClient(req);
     const { from, to, page, limit } = parsePagination(req);
@@ -44,4 +45,4 @@ export async function GET(req: NextRequest) {
     const message = error instanceof Error ? error.message : 'Internal server error';
     return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
   }
-}
+});

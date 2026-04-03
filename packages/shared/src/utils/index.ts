@@ -152,3 +152,103 @@ export function enumToLabel(value: string): string {
     .map(capitalize)
     .join(' ');
 }
+
+/**
+ * Format a full name from first and last name
+ */
+export function formatFullName(firstName: string, lastName: string): string {
+  return `${firstName} ${lastName}`.trim();
+}
+
+/**
+ * Get initials from first and last name
+ */
+export function getInitials(firstName: string, lastName: string): string {
+  const first = firstName.charAt(0).toUpperCase();
+  const last = lastName.charAt(0).toUpperCase();
+  return `${first}${last}`;
+}
+
+/**
+ * Format a phone number with basic formatting
+ */
+export function formatPhoneNumber(phone: string): string {
+  const cleaned = phone.replace(/\D/g, '');
+
+  if (cleaned.length === 11 && cleaned.startsWith('1')) {
+    // US/Canada format with country code
+    return `+1 (${cleaned.slice(1, 4)}) ${cleaned.slice(4, 7)}-${cleaned.slice(7)}`;
+  }
+
+  if (cleaned.length === 10) {
+    // US/Canada format without country code
+    return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+  }
+
+  // Return original for non-standard lengths
+  return phone;
+}
+
+/**
+ * Validate password strength
+ */
+export function isValidPassword(password: string): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+
+  if (password.length < 8) {
+    errors.push('Password must be at least 8 characters long');
+  }
+
+  if (!/[A-Z]/.test(password)) {
+    errors.push('Password must contain at least one uppercase letter');
+  }
+
+  if (!/[a-z]/.test(password)) {
+    errors.push('Password must contain at least one lowercase letter');
+  }
+
+  if (!/\d/.test(password)) {
+    errors.push('Password must contain at least one number');
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
+}
+
+/**
+ * Build a query string from parameters object
+ */
+export function buildQueryString(params: Record<string, string | number | boolean | undefined>): string {
+  const searchParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      searchParams.append(key, String(value));
+    }
+  });
+
+  const queryString = searchParams.toString();
+  return queryString ? `?${queryString}` : '';
+}
+
+/**
+ * Debounce a function
+ */
+export function debounce<T extends (...args: any[]) => any>(fn: T, ms: number): T {
+  let timeoutId: NodeJS.Timeout | null = null;
+
+  const debounced = (...args: Parameters<T>) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+
+    timeoutId = setTimeout(() => {
+      fn(...args);
+      timeoutId = null;
+    }, ms);
+  };
+
+  return debounced as T;
+}

@@ -72,7 +72,9 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-2 space-y-1">
-        {navItems.map((item) => {
+        {navItems
+          .filter((item) => !item.roles || item.roles.includes(userProfile?.role || ''))
+          .map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);
           return (

@@ -23,6 +23,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
   signOut: () => Promise<void>;
+  refreshSession: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -142,15 +143,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       const { error: signOutError } = await supabase.auth.signOut();
 
-      if (signOutError) {
-        throw signOutError;
-      }
-
+      // Clear local state even if API fails
       setUser(null);
       setSession(null);
       setUserProfile(null);
+
+      if (signOutError) {
+        throw signOutError;
+      }
     } catch (err) {
+      // Still clear state on error, but set error message
+      setUser(null);
+      setSession(null);
+      setUserProfile(null);
       const error = err instanceof Error ? err : new Error('Sign out failed');
+      setError(error);
+      throw error;
+    }
+  };
+
+  const refreshSession = async () => {
+    try {
+      setError(null);
+      const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
+
+      if (refreshError) {
+        throw refreshError;
+      }
+
+      if (refreshedSession) {
+        setSession(refreshedSession);
+        setUser(refreshedSession.user);
+
+        try {
+          const profile = await api<UserProfile>('/api/v1/auth/me');
+          setUserProfile(profile);
+        } catch (err) {
+          console.error('Failed to fetch user profile after refresh:', err);
+          setUserProfile(null);
+        }
+      }
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Session refresh failed');
       setError(error);
       throw error;
     }
@@ -167,6 +201,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signIn,
         signUp,
         signOut,
+        refreshSession,
       }}
     >
       {children}
