@@ -48,11 +48,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(currentSession.user);
 
           try {
-            const profile = await api<UserProfile>('/api/v1/auth/me');
-            setUserProfile(profile);
+            const response = await api<{ user: UserProfile }>('/api/v1/auth/me');
+            setUserProfile(response.user || response as unknown as UserProfile);
           } catch (err) {
             console.error('Failed to fetch user profile:', err);
-            setUserProfile(null);
+            // Set a minimal profile from the session so the app doesn't break
+            setUserProfile({
+              id: currentSession.user.id,
+              email: currentSession.user.email || '',
+              role: currentSession.user.user_metadata?.role || 'read_only',
+            });
           }
         }
 
@@ -64,11 +69,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           if (newSession?.user) {
             try {
-              const profile = await api<UserProfile>('/api/v1/auth/me');
-              setUserProfile(profile);
+              const response = await api<{ user: UserProfile }>('/api/v1/auth/me');
+              setUserProfile(response.user || response as unknown as UserProfile);
             } catch (err) {
               console.error('Failed to fetch user profile:', err);
-              setUserProfile(null);
+              // Set a minimal profile from the session so the app doesn't break
+              setUserProfile({
+                id: newSession.user.id,
+                email: newSession.user.email || '',
+                role: newSession.user.user_metadata?.role || 'read_only',
+              });
             }
           } else {
             setUserProfile(null);
@@ -176,11 +186,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(refreshedSession.user);
 
         try {
-          const profile = await api<UserProfile>('/api/v1/auth/me');
-          setUserProfile(profile);
+          const response = await api<{ user: UserProfile }>('/api/v1/auth/me');
+          setUserProfile(response.user || response as unknown as UserProfile);
         } catch (err) {
           console.error('Failed to fetch user profile after refresh:', err);
-          setUserProfile(null);
+          setUserProfile({
+            id: refreshedSession.user.id,
+            email: refreshedSession.user.email || '',
+            role: refreshedSession.user.user_metadata?.role || 'read_only',
+          });
         }
       }
     } catch (err) {
