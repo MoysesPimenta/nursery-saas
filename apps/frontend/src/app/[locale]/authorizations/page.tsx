@@ -8,7 +8,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { AuthorizationCard } from '@/components/authorization-card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/modal';
 import { Textarea } from '@/components/ui/textarea';
-import { useApiQuery, useApiMutation } from '@/lib/hooks/use-api';
+import { useApiQuery } from '@/lib/hooks/use-api';
+import { api } from '@/lib/api';
 import { Plus, AlertCircle, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -45,11 +46,10 @@ export default function AuthorizationsPage() {
   const handleAccept = async (id: string) => {
     setProcessingId(id);
     try {
-      const { execute: acceptAuth } = useApiMutation<any>(
-        `/api/v1/authorizations/${id}`,
-        'PATCH'
-      );
-      await acceptAuth({ status: 'accepted' });
+      await api(`/api/v1/authorizations/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'accepted' }),
+      });
       await refetch();
       // Redirect to create visit with authorization
       router.push(`/${locale}/visits/new?authorizationId=${id}`);
@@ -64,13 +64,12 @@ export default function AuthorizationsPage() {
 
     setProcessingId(rejectingId);
     try {
-      const { execute: rejectAuth } = useApiMutation<any>(
-        `/api/v1/authorizations/${rejectingId}`,
-        'PATCH'
-      );
-      await rejectAuth({
-        status: 'rejected',
-        rejectionReason: rejectReason,
+      await api(`/api/v1/authorizations/${rejectingId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          status: 'rejected',
+          rejectionReason: rejectReason,
+        }),
       });
       await refetch();
       setRejectingId(null);

@@ -1,4 +1,4 @@
-import { getSupabaseClientWithAuth, getSupabaseServerClient } from '../supabase/server';
+import { getSupabaseServerClient } from '../supabase/server';
 
 /**
  * Authentication user interface with roles and permissions
@@ -64,19 +64,17 @@ export async function verifyToken(token: string): Promise<AuthUser | null> {
       return null;
     }
 
-    // Create a client with the user's token to verify it
-    const userClient = getSupabaseClientWithAuth(token);
+    // Use admin client to verify the token directly
+    // This avoids the setSession race condition entirely
+    const adminClient = getSupabaseServerClient();
 
-    // Verify token by fetching the current user
-    const { data: { user }, error: authError } = await userClient.auth.getUser();
+    // Verify token by passing it directly to getUser
+    const { data: { user }, error: authError } = await adminClient.auth.getUser(token);
 
     if (authError || !user) {
       console.error('Token verification failed:', authError?.message);
       return null;
     }
-
-    // Get admin client to fetch user details and roles
-    const adminClient = getSupabaseServerClient();
 
     // Fetch user's tenant and full name
     const { data: userData, error: userError } = await adminClient

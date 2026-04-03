@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { requireAuth } from '@/lib/auth/rbac';
+import { requireAuth, requirePermission } from '@/lib/auth/rbac';
 import { getUserClient, errorResponse, successResponse, validateUUID } from '@/lib/api/helpers';
 
 const updateMedicationSchema = z.object({
@@ -81,7 +81,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-  return requireAuth(async (req: NextRequest, user) => {
+  return requirePermission('manage:medications', async (req: NextRequest, user) => {
   try {
     const { id } = params;
 

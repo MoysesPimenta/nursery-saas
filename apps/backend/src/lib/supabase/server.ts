@@ -28,8 +28,11 @@ export function getSupabaseServerClient() {
 /**
  * Get a Supabase client with a specific user's JWT token
  * Used for server-side operations that respect user's RLS policies
+ *
+ * IMPORTANT: This function is async because setSession() returns a Promise.
+ * Always await when calling this function.
  */
-export function getSupabaseClientWithAuth(token: string) {
+export async function getSupabaseClientWithAuth(token: string) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -39,13 +42,17 @@ export function getSupabaseClientWithAuth(token: string) {
     );
   }
 
-  const client = createClient(supabaseUrl, supabaseAnonKey);
-  client.auth.setSession({
+  const client = createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  });
+
+  await client.auth.setSession({
     access_token: token,
     refresh_token: '',
-    token_type: 'bearer',
-    expires_in: 3600,
-    user: null as any,
   });
 
   return client;

@@ -24,7 +24,7 @@ export async function createTRPCContext(opts: {
     }
   }
 
-  const supabase = token ? getSupabaseClientWithAuth(token) : null;
+  const supabase = token ? await getSupabaseClientWithAuth(token) : null;
 
   return {
     req: opts.req,

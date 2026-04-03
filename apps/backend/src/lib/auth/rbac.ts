@@ -32,7 +32,8 @@ export type Permission =
   | 'manage:classes'
   | 'manage:departments'
   | 'manage:allergies'
-  | 'manage:medications';
+  | 'manage:medications'
+  | 'manage:reports';
 
 /**
  * Requires authentication on an API handler

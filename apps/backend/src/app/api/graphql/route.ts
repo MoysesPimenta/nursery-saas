@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/auth/rbac';
 
 /**
  * POST /api/graphql
@@ -12,7 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
  * 5. Set up authentication and authorization hooks
  */
 
-export async function POST(request: NextRequest) {
+export const POST = requireAuth(async (req: NextRequest, user) => {
   return NextResponse.json(
     {
       message: 'GraphQL endpoint - PostGraphile will be configured here',
@@ -20,17 +21,17 @@ export async function POST(request: NextRequest) {
     },
     { status: 501 }
   );
-}
+});
 
 /**
  * GET /api/graphql
  * Serve GraphQL playground (optional, disable in production)
  */
-export async function GET(request: NextRequest) {
+export const GET = requireAuth(async (req: NextRequest, user) => {
   return NextResponse.json(
     {
       message: 'GraphQL endpoint available at POST /api/graphql',
     },
     { status: 200 }
   );
-}
+});

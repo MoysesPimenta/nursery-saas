@@ -21,7 +21,7 @@ function isPublicRoute(pathname: string): boolean {
 
 function checkRouteAccess(pathname: string, userRole?: string): boolean {
   // Remove locale prefix to check route access
-  const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}(-[a-z]{2})?/, '');
+  const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}(-[a-zA-Z]{2})?/, '');
 
   for (const [protectedRoute, allowedRoles] of Object.entries(ROLE_PROTECTED_ROUTES)) {
     if (pathWithoutLocale.startsWith(protectedRoute)) {
