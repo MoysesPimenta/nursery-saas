@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Mail, Lock, User, Heart, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
+import { api } from '@/lib/api';
 import { motion } from 'framer-motion';
 
 export default function SignupPage() {
@@ -48,18 +49,10 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-      const res = await fetch(`${API_URL}/api/v1/auth/signup`, {
+      await api('/api/v1/auth/signup', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, firstName, lastName }),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Signup failed');
-      }
 
       router.push(`/${params.locale}/auth/login?registered=true`);
     } catch (err) {

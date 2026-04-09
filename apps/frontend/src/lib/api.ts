@@ -1,6 +1,30 @@
 import { supabase } from './supabase/client';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+function getApiUrl(): string {
+  // NEXT_PUBLIC_API_URL is baked in at build time by Next.js
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+
+  // Runtime fallback: infer backend URL from current hostname
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return 'http://localhost:3001';
+    }
+    // Production: derive backend URL from frontend URL pattern
+    // nursery-saas-frontend.vercel.app -> nursery-saas-backend.vercel.app
+    if (hostname.includes('vercel.app')) {
+      return `https://${hostname.replace('-frontend', '-backend')}`;
+    }
+    // Custom domain fallback
+    return `https://api.${hostname}`;
+  }
+
+  return 'http://localhost:3001';
+}
+
+const API_URL = getApiUrl();
 
 export async function api<T>(
   path: string,
