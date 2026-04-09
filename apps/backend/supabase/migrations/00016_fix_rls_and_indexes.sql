@@ -38,27 +38,23 @@ CREATE POLICY "parent_read_child_visits" ON public.visits
 
 -- Children: commonly filtered by tenant + archived status
 CREATE INDEX IF NOT EXISTS idx_children_tenant_archived
-  ON public.children(tenant_id, is_archived)
-  WHERE deleted_at IS NULL;
+  ON public.children(tenant_id, is_archived);
 
 -- Visits: commonly fetched by tenant + creation date (recent first)
 CREATE INDEX IF NOT EXISTS idx_visits_tenant_created
-  ON public.visits(tenant_id, created_at DESC)
-  WHERE deleted_at IS NULL;
+  ON public.visits(tenant_id, created_at DESC);
 
 -- Authorizations: commonly filtered by tenant + status
 CREATE INDEX IF NOT EXISTS idx_authorizations_tenant_status
   ON public.authorizations(tenant_id, status);
 
--- Allergies: commonly filtered by tenant + active
-CREATE INDEX IF NOT EXISTS idx_allergies_tenant_active
-  ON public.allergies(tenant_id)
-  WHERE is_active AND deleted_at IS NULL;
+-- Allergies: commonly filtered by tenant
+CREATE INDEX IF NOT EXISTS idx_allergies_tenant
+  ON public.allergies(tenant_id);
 
--- Employees: commonly filtered by tenant + active status
-CREATE INDEX IF NOT EXISTS idx_employees_tenant_active
-  ON public.employees(tenant_id, is_active)
-  WHERE deleted_at IS NULL;
+-- Employees: commonly filtered by tenant + archived status
+CREATE INDEX IF NOT EXISTS idx_employees_tenant_archived
+  ON public.employees(tenant_id, is_archived);
 
 -- Audit logs: commonly filtered by tenant + timestamp
 CREATE INDEX IF NOT EXISTS idx_audit_logs_tenant_timestamp
