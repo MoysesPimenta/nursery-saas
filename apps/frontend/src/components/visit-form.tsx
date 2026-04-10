@@ -5,13 +5,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import { VitalsForm, type Vitals } from '@/components/vitals-form';
 import {
   MedicationAdminForm,
   type MedicationAdministration,
 } from '@/components/medication-admin-form';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle, AlertTriangle, Pill } from 'lucide-react';
+import { apiGet } from '@/lib/api';
+import { calculateAgeInMonths } from '@/lib/vitals-evaluation';
 
 export interface VisitFormData {
   childId: string;
@@ -31,6 +34,22 @@ interface ChildOption {
   id: string;
   first_name: string;
   last_name: string;
+  date_of_birth?: string;
+}
+
+interface ChildAllergyMedication {
+  allergies: Array<{
+    name: string;
+    severity_level: string;
+    reaction_description: string;
+  }>;
+  medications: Array<{
+    name: string;
+    dosage: string;
+    frequency: string;
+    start_date: string;
+    end_date: string | null;
+  }>;
 }
 
 interface VisitFormProps {
@@ -78,6 +97,47 @@ export function VisitForm({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [childSummary, setChildSummary] = useState<ChildAllergyMedication | null>(null);
+  const [loadingChildSummary, setLoadingChildSummary] = useState(false);
+  const [childAgeInMonths, setChildAgeInMonths] = useState<number | undefined>(undefined);
+
+  // Fetch child allergies and medications when childId changes
+  useEffect(() => {
+    if (!formData.childId) {
+      setChildSummary(null);
+      setChildAgeInMonths(undefined);
+      return;
+    }
+
+    const fetchChildSummary = async () => {
+      setLoadingChildSummary(true);
+      try {
+        const summary = await apiGet<{ data: ChildAllergyMedication & { date_of_birth?: string } }>(
+          `/api/v1/children/${formData.childId}/summary`
+        );
+
+        if (summary.data) {
+          setChildSummary({
+            allergies: summary.data.allergies || [],
+            medications: summary.data.medications || [],
+          });
+
+          // Calculate age in months if date_of_birth is available
+          if (summary.data.date_of_birth) {
+            const ageInMonths = calculateAgeInMonths(summary.data.date_of_birth);
+            setChildAgeInMonths(ageInMonths);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch child summary:', error);
+        setChildSummary(null);
+      } finally {
+        setLoadingChildSummary(false);
+      }
+    };
+
+    fetchChildSummary();
+  }, [formData.childId]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -181,6 +241,66 @@ export function VisitForm({
             )}
           </div>
 
+          {/* Child Allergies & Medications */}
+          {!childName && formData.childId && (
+            <>
+              {loadingChildSummary && (
+                <div className="text-sm text-muted-foreground">
+                  Loading child information...
+                </div>
+              )}
+
+              {/* Allergies Alert */}
+              {childSummary && childSummary.allergies && childSummary.allergies.length > 0 && (
+                <Alert variant="destructive" className="mt-4">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>Allergies</AlertTitle>
+                  <AlertDescription>
+                    <div className="space-y-2 mt-2">
+                      {childSummary.allergies.map((allergy, idx) => (
+                        <div key={idx} className="flex items-start gap-2">
+                          <div className="flex-1">
+                            <p className="font-medium">{allergy.name}</p>
+                            {allergy.reaction_description && (
+                              <p className="text-sm opacity-90">
+                                Reaction: {allergy.reaction_description}
+                              </p>
+                            )}
+                          </div>
+                          <Badge variant="destructive">
+                            {allergy.severity_level}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Medications Alert */}
+              {childSummary && childSummary.medications && childSummary.medications.length > 0 && (
+                <Alert className="mt-4 bg-sky-50 border-sky-200 dark:bg-sky-950/30 dark:border-sky-800">
+                  <Pill className="h-4 w-4" />
+                  <AlertTitle className="text-sky-900 dark:text-sky-200">
+                    Active Medications
+                  </AlertTitle>
+                  <AlertDescription className="text-sky-800 dark:text-sky-300">
+                    <div className="space-y-2 mt-2">
+                      {childSummary.medications.map((med, idx) => (
+                        <div key={idx} className="text-sm">
+                          <p className="font-medium">{med.name}</p>
+                          <p className="opacity-90">
+                            {med.dosage} - {med.frequency}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
+            </>
+          )}
+
           <div>
             <label className="text-sm font-medium text-foreground">
               Visit Type *
@@ -229,6 +349,7 @@ export function VisitForm({
             initialValues={formData.vitals}
             onChange={(vitals) => handleFieldChange('vitals', vitals)}
             readOnly={readOnly}
+            childAgeInMonths={childAgeInMonths}
           />
         </CardContent>
       </Card>

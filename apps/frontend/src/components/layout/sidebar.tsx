@@ -37,7 +37,7 @@ const navItems: NavItem[] = [
   { href: '', labelKey: 'dashboard', icon: LayoutDashboard },
   { href: '/children', labelKey: 'children', icon: Baby },
   { href: '/classes', labelKey: 'classes', icon: GraduationCap },
-  { href: '/employees', labelKey: 'employees', icon: Users, roles: ['admin', 'manager'] },
+  { href: '/employees', labelKey: 'employees', icon: Users, roles: ['admin', 'manager', 'nurse', 'school_admin'] },
   { href: '/departments', labelKey: 'departments', icon: Building2, roles: ['admin', 'manager'] },
   { href: '/visits', labelKey: 'visits', icon: CalendarCheck },
   { href: '/authorizations', labelKey: 'authorizations', icon: Shield },

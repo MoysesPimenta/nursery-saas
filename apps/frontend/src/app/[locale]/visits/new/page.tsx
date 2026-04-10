@@ -41,7 +41,7 @@ export default function NewVisitPage() {
 
   // Fetch available children for dropdown
   const { data: childrenData } = useApiQuery<{
-    data: Array<{ id: string; first_name: string; last_name: string }>;
+    data: Array<{ id: string; first_name: string; last_name: string; date_of_birth?: string }>;
   }>('/api/v1/children?limit=500');
 
   const availableChildren = childrenData?.data || [];

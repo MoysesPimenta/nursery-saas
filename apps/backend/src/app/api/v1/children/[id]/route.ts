@@ -40,21 +40,22 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return errorResponse(childError.message, childError.code === 'PGRST116' ? 404 : 400);
     }
 
-    // Get allergies
+    // Get allergies with full details
     const { data: allergies, error: allergyError } = await supabase
       .from('child_allergies')
-      .select('allergies(*)')
+      .select('id, reaction_description, diagnosed_date, notes, allergies(*)')
       .eq('child_id', id);
 
     if (allergyError) {
       return errorResponse(allergyError.message, 400);
     }
 
-    // Get medications
+    // Get medications with full details
     const { data: medications, error: medError } = await supabase
       .from('child_medications')
-      .select('medications(*)')
-      .eq('child_id', id);
+      .select('id, dosage, frequency, start_date, end_date, prescribed_by, authorization_document_url, notes, medications(*)')
+      .eq('child_id', id)
+      .order('start_date', { ascending: false });
 
     if (medError) {
       return errorResponse(medError.message, 400);
@@ -62,8 +63,24 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     const childWithDetails = {
       ...child,
-      allergies: allergies?.map((a) => a.allergies) || [],
-      medications: medications?.map((m) => m.medications) || [],
+      allergies: allergies?.map((a) => ({
+        child_allergy_id: a.id,
+        ...a.allergies,
+        reaction_description: a.reaction_description,
+        diagnosed_date: a.diagnosed_date,
+        notes: a.notes,
+      })) || [],
+      medications: medications?.map((m) => ({
+        child_medication_id: m.id,
+        ...m.medications,
+        dosage: m.dosage,
+        frequency: m.frequency,
+        start_date: m.start_date,
+        end_date: m.end_date,
+        prescribed_by: m.prescribed_by,
+        authorization_document_url: m.authorization_document_url,
+        notes: m.notes,
+      })) || [],
     };
 
     return successResponse(childWithDetails);

@@ -1,15 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Thermometer } from 'lucide-react';
+import { evaluateVitals, type VitalEvaluation } from '@/lib/vitals-evaluation';
 
 interface VitalsFormProps {
   onSubmit?: (vitals: Vitals) => void;
   onChange?: (vitals: Vitals) => void;
   initialValues?: Partial<Vitals>;
   readOnly?: boolean;
+  childAgeInMonths?: number;
 }
 
 export interface Vitals {
@@ -27,6 +30,7 @@ export function VitalsForm({
   onChange,
   initialValues,
   readOnly = false,
+  childAgeInMonths,
 }: VitalsFormProps) {
   const [vitals, setVitals] = useState<Vitals>({
     temperature: initialValues?.temperature ?? null,
@@ -37,6 +41,31 @@ export function VitalsForm({
     weight: initialValues?.weight ?? null,
     weightUnit: initialValues?.weightUnit ?? 'kg',
   });
+
+  // Evaluate vitals if child age is provided
+  const evaluations = useMemo(() => {
+    if (!childAgeInMonths) return [];
+    return evaluateVitals(vitals, childAgeInMonths);
+  }, [vitals, childAgeInMonths]);
+
+  // Helper to get evaluation for a field
+  const getEvaluationForField = (fieldName: string): VitalEvaluation | undefined => {
+    return evaluations.find((e) => e.field === fieldName);
+  };
+
+  // Helper to get badge color based on status
+  const getStatusBadgeVariant = (status: 'normal' | 'warning' | 'critical') => {
+    switch (status) {
+      case 'normal':
+        return 'success';
+      case 'warning':
+        return 'warning';
+      case 'critical':
+        return 'destructive';
+      default:
+        return 'default';
+    }
+  };
 
   const handleChange = (field: keyof Vitals, value: any) => {
     const updated = {
@@ -116,7 +145,21 @@ export function VitalsForm({
               {vitals.temperatureUnit === 'C' ? 'F' : 'C'}
             </div>
           )}
-          {isTemperatureUnusual && (
+          {childAgeInMonths !== undefined && getEvaluationForField('Temperature') && (
+            <div className="flex gap-2 items-center flex-wrap">
+              {(() => {
+                const eval = getEvaluationForField('Temperature');
+                return eval ? (
+                  <>
+                    <Badge variant={getStatusBadgeVariant(eval.status)}>
+                      {eval.status === 'normal' ? '✓' : eval.status === 'warning' ? '⚠' : '⚠'} {eval.message}
+                    </Badge>
+                  </>
+                ) : null;
+              })()}
+            </div>
+          )}
+          {isTemperatureUnusual && !childAgeInMonths && (
             <div className="text-xs text-yellow-700 dark:text-yellow-200 bg-yellow-50 dark:bg-yellow-950/30 p-2 rounded">
               Warning: Temperature outside normal range (35.0-42.0°C)
             </div>
@@ -147,7 +190,21 @@ export function VitalsForm({
               className={`flex-1 ${isDiastolicBPUnusual ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-950/20' : ''}`}
             />
           </div>
-          {(isSystolicBPUnusual || isDiastolicBPUnusual) && (
+          {childAgeInMonths !== undefined && getEvaluationForField('Blood Pressure') && (
+            <div className="flex gap-2 items-center flex-wrap">
+              {(() => {
+                const eval = getEvaluationForField('Blood Pressure');
+                return eval ? (
+                  <>
+                    <Badge variant={getStatusBadgeVariant(eval.status)}>
+                      {eval.status === 'normal' ? '✓' : eval.status === 'warning' ? '⚠' : '⚠'} {eval.message}
+                    </Badge>
+                  </>
+                ) : null;
+              })()}
+            </div>
+          )}
+          {!childAgeInMonths && (isSystolicBPUnusual || isDiastolicBPUnusual) && (
             <div className="text-xs text-yellow-700 dark:text-yellow-200 bg-yellow-50 dark:bg-yellow-950/30 p-2 rounded">
               Warning: Blood pressure outside normal ranges (Systolic: 60-250, Diastolic: 30-150)
             </div>
@@ -167,7 +224,21 @@ export function VitalsForm({
             disabled={readOnly}
             className={`${isHeartRateUnusual ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-950/20' : ''}`}
           />
-          {isHeartRateUnusual && (
+          {childAgeInMonths !== undefined && getEvaluationForField('Heart Rate') && (
+            <div className="flex gap-2 items-center flex-wrap">
+              {(() => {
+                const eval = getEvaluationForField('Heart Rate');
+                return eval ? (
+                  <>
+                    <Badge variant={getStatusBadgeVariant(eval.status)}>
+                      {eval.status === 'normal' ? '✓' : eval.status === 'warning' ? '⚠' : '⚠'} {eval.message}
+                    </Badge>
+                  </>
+                ) : null;
+              })()}
+            </div>
+          )}
+          {!childAgeInMonths && isHeartRateUnusual && (
             <div className="text-xs text-yellow-700 dark:text-yellow-200 bg-yellow-50 dark:bg-yellow-950/30 p-2 rounded">
               Warning: Heart rate outside normal range (40-200 bpm)
             </div>

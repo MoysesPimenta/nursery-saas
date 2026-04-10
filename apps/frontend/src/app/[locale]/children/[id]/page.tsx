@@ -5,9 +5,17 @@ import { useParams, useRouter } from 'next/navigation';
 import { useApiQuery, useApiMutation } from '@/lib/hooks/use-api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { PageLoading } from '@/components/ui/loading';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import {
   Dialog,
@@ -19,6 +27,24 @@ import {
 } from '@/components/ui/modal';
 
 // API returns snake_case from Supabase
+interface AllergyDetail {
+  id: string;
+  name: string;
+  severity_level: string;
+  description?: string;
+}
+
+interface MedicationDetail {
+  id: string;
+  name: string;
+  dosage: string;
+  frequency?: string;
+  start_date?: string;
+  end_date?: string;
+  prescribed_by?: string;
+  notes?: string;
+}
+
 interface ChildDetail {
   id: string;
   first_name: string;
@@ -27,7 +53,8 @@ interface ChildDetail {
   gender: string;
   class_id?: string;
   blood_type?: string;
-  allergies: Array<{ name: string }> | string[];
+  allergies: AllergyDetail[];
+  medications: MedicationDetail[];
   emergency_contact_name: string;
   emergency_contact_phone: string;
   emergency_contact_relation?: string;
@@ -37,6 +64,19 @@ interface ChildDetail {
   updated_at: string;
 }
 
+interface AvailableAllergy {
+  id: string;
+  name: string;
+  severity_level: string;
+  description?: string;
+}
+
+interface AvailableMedication {
+  id: string;
+  name: string;
+  dosage_form?: string;
+}
+
 export default function ChildDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -44,10 +84,45 @@ export default function ChildDetailPage() {
   const locale = params.locale as string;
   const childId = params.id as string;
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showAddAllergyDialog, setShowAddAllergyDialog] = useState(false);
+  const [showAddMedicationDialog, setShowAddMedicationDialog] = useState(false);
+  const [selectedAllergyId, setSelectedAllergyId] = useState<string>('');
+  const [selectedMedicationId, setSelectedMedicationId] = useState<string>('');
+  const [medicationForm, setMedicationForm] = useState({
+    dosage: '',
+    frequency: '',
+    start_date: '',
+    end_date: '',
+    prescribed_by: '',
+    notes: '',
+  });
 
-  const { data: child, loading } = useApiQuery<ChildDetail>(`/api/v1/children/${childId}`);
+  const { data: child, loading, refetch } = useApiQuery<ChildDetail>(`/api/v1/children/${childId}`);
+  const { data: availableAllergies } = useApiQuery<AvailableAllergy[]>(`/api/v1/allergies`);
+  const { data: availableMedications } = useApiQuery<AvailableMedication[]>(`/api/v1/medications/catalog`);
+
   const { execute: deleteChild, loading: deleting } = useApiMutation(
     `/api/v1/children/${childId}`,
+    'DELETE'
+  );
+
+  const { execute: addAllergy, loading: addingAllergy } = useApiMutation(
+    `/api/v1/children/${childId}/allergies`,
+    'POST'
+  );
+
+  const { execute: removeAllergy, loading: removingAllergy } = useApiMutation(
+    `/api/v1/children/${childId}/allergies`,
+    'DELETE'
+  );
+
+  const { execute: addMedication, loading: addingMedication } = useApiMutation(
+    `/api/v1/children/${childId}/medications`,
+    'POST'
+  );
+
+  const { execute: removeMedication, loading: removingMedication } = useApiMutation(
+    `/api/v1/children/${childId}/medications`,
     'DELETE'
   );
 
@@ -57,6 +132,79 @@ export default function ChildDetailPage() {
       router.push(`/${locale}/children`);
     } catch (error) {
       console.error('Failed to delete child:', error);
+    }
+  };
+
+  const handleAddAllergy = async () => {
+    if (!selectedAllergyId) return;
+    try {
+      await addAllergy({ allergy_id: selectedAllergyId });
+      setShowAddAllergyDialog(false);
+      setSelectedAllergyId('');
+      refetch();
+    } catch (error) {
+      console.error('Failed to add allergy:', error);
+    }
+  };
+
+  const handleRemoveAllergy = async (allergyId: string) => {
+    try {
+      await removeAllergy({ allergy_id: allergyId });
+      refetch();
+    } catch (error) {
+      console.error('Failed to remove allergy:', error);
+    }
+  };
+
+  const handleAddMedication = async () => {
+    if (!selectedMedicationId || !medicationForm.dosage) return;
+    try {
+      await addMedication({
+        medication_id: selectedMedicationId,
+        dosage: medicationForm.dosage,
+        ...(medicationForm.frequency && { frequency: medicationForm.frequency }),
+        ...(medicationForm.start_date && { start_date: medicationForm.start_date }),
+        ...(medicationForm.end_date && { end_date: medicationForm.end_date }),
+        ...(medicationForm.prescribed_by && { prescribed_by: medicationForm.prescribed_by }),
+        ...(medicationForm.notes && { notes: medicationForm.notes }),
+      });
+      setShowAddMedicationDialog(false);
+      setSelectedMedicationId('');
+      setMedicationForm({
+        dosage: '',
+        frequency: '',
+        start_date: '',
+        end_date: '',
+        prescribed_by: '',
+        notes: '',
+      });
+      refetch();
+    } catch (error) {
+      console.error('Failed to add medication:', error);
+    }
+  };
+
+  const handleRemoveMedication = async (medicationId: string) => {
+    try {
+      await removeMedication({ medication_id: medicationId });
+      refetch();
+    } catch (error) {
+      console.error('Failed to remove medication:', error);
+    }
+  };
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity?.toLowerCase()) {
+      case 'mild':
+        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'moderate':
+        return 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-200';
+      case 'severe':
+        return 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200';
+      case 'life_threatening':
+        return 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200';
+      default:
+        return 'bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-200';
     }
   };
 
@@ -173,37 +321,153 @@ export default function ChildDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Medical Information */}
+          {/* Medical Information - Allergies */}
           <Card>
-            <CardHeader>
-              <CardTitle>{t('medicalInfo')}</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>{t('allergies')}</CardTitle>
+              <Button
+                size="sm"
+                onClick={() => setShowAddAllergyDialog(true)}
+                className="gap-1"
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </Button>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">{t('allergies')}</p>
-                  {child.allergies && child.allergies.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {child.allergies.map((allergy, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 rounded text-sm"
-                        >
-                          {allergy}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground">{t('noAllergiesRecorded')}</p>
-                  )}
+              {child.allergies && child.allergies.length > 0 ? (
+                <div className="space-y-2">
+                  {child.allergies.map((allergy) => (
+                    <motion.div
+                      key={allergy.id}
+                      className="flex items-center justify-between p-3 border rounded-lg"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold">{allergy.name}</span>
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(allergy.severity_level)}`}>
+                            {allergy.severity_level || 'Unknown'}
+                          </span>
+                        </div>
+                        {allergy.description && (
+                          <p className="text-xs text-muted-foreground mt-1">{allergy.description}</p>
+                        )}
+                      </div>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => handleRemoveAllergy(allergy.id)}
+                        disabled={removingAllergy}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </motion.div>
+                  ))}
                 </div>
-                {child.notes && (
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-2">{t('additionalNotes')}</p>
-                    <p className="text-foreground">{child.notes}</p>
-                  </div>
-                )}
-              </div>
+              ) : (
+                <p className="text-muted-foreground text-center py-4">{t('noAllergiesRecorded')}</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Medications/Prescriptions */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Medications & Prescriptions</CardTitle>
+              <Button
+                size="sm"
+                onClick={() => setShowAddMedicationDialog(true)}
+                className="gap-1"
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {child.medications && child.medications.length > 0 ? (
+                <div className="space-y-3">
+                  {child.medications.map((med) => {
+                    const isContinuous = !med.end_date;
+                    return (
+                      <motion.div
+                        key={med.id}
+                        className="border rounded-lg p-4"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-semibold">{med.name}</h4>
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                isContinuous
+                                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200'
+                                  : 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200'
+                              }`}>
+                                {isContinuous ? 'Continuous' : 'Temporary'}
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 mt-2 text-sm">
+                              <div>
+                                <p className="text-muted-foreground">Dosage</p>
+                                <p className="font-medium">{med.dosage}</p>
+                              </div>
+                              {med.frequency && (
+                                <div>
+                                  <p className="text-muted-foreground">Frequency</p>
+                                  <p className="font-medium">{med.frequency}</p>
+                                </div>
+                              )}
+                            </div>
+                            {(med.start_date || med.end_date) && (
+                              <div className="grid grid-cols-2 gap-2 mt-2 text-sm">
+                                {med.start_date && (
+                                  <div>
+                                    <p className="text-muted-foreground">Start Date</p>
+                                    <p className="font-medium">{new Date(med.start_date).toLocaleDateString()}</p>
+                                  </div>
+                                )}
+                                {med.end_date && (
+                                  <div>
+                                    <p className="text-muted-foreground">End Date</p>
+                                    <p className="font-medium">{new Date(med.end_date).toLocaleDateString()}</p>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            {med.prescribed_by && (
+                              <div className="mt-2 text-sm">
+                                <p className="text-muted-foreground">Prescribed By</p>
+                                <p className="font-medium">{med.prescribed_by}</p>
+                              </div>
+                            )}
+                            {med.notes && (
+                              <div className="mt-2 text-sm">
+                                <p className="text-muted-foreground">Notes</p>
+                                <p className="font-medium">{med.notes}</p>
+                              </div>
+                            )}
+                          </div>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => handleRemoveMedication(med.id)}
+                            disabled={removingMedication}
+                            className="text-destructive hover:text-destructive mt-1"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-center py-4">No medications recorded</p>
+              )}
             </CardContent>
           </Card>
 
@@ -281,6 +545,129 @@ export default function ChildDetailPage() {
           </Card>
         </div>
       </div>
+
+      {/* Add Allergy Dialog */}
+      <Dialog open={showAddAllergyDialog} onOpenChange={setShowAddAllergyDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Allergy</DialogTitle>
+            <DialogDescription>
+              Select an allergy from the available catalog to add to {child.first_name}'s record.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Select value={selectedAllergyId} onValueChange={setSelectedAllergyId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select an allergy..." />
+              </SelectTrigger>
+              <SelectContent>
+                {availableAllergies?.map((allergy) => (
+                  <SelectItem key={allergy.id} value={allergy.id}>
+                    {allergy.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowAddAllergyDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddAllergy}
+              disabled={addingAllergy || !selectedAllergyId}
+            >
+              {addingAllergy ? 'Adding...' : 'Add Allergy'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Medication Dialog */}
+      <Dialog open={showAddMedicationDialog} onOpenChange={setShowAddMedicationDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Medication</DialogTitle>
+            <DialogDescription>
+              Add a medication or prescription to {child.first_name}'s record.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Select value={selectedMedicationId} onValueChange={setSelectedMedicationId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a medication..." />
+              </SelectTrigger>
+              <SelectContent>
+                {availableMedications?.map((med) => (
+                  <SelectItem key={med.id} value={med.id}>
+                    {med.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              placeholder="Dosage (e.g., 10mg, 2 puffs)"
+              value={medicationForm.dosage}
+              onChange={(e) => setMedicationForm({ ...medicationForm, dosage: e.target.value })}
+            />
+            <Input
+              placeholder="Frequency (e.g., 3 times daily)"
+              value={medicationForm.frequency}
+              onChange={(e) => setMedicationForm({ ...medicationForm, frequency: e.target.value })}
+            />
+            <Input
+              type="date"
+              placeholder="Start Date"
+              value={medicationForm.start_date}
+              onChange={(e) => setMedicationForm({ ...medicationForm, start_date: e.target.value })}
+            />
+            <Input
+              type="date"
+              placeholder="End Date (optional)"
+              value={medicationForm.end_date}
+              onChange={(e) => setMedicationForm({ ...medicationForm, end_date: e.target.value })}
+            />
+            <Input
+              placeholder="Prescribed By"
+              value={medicationForm.prescribed_by}
+              onChange={(e) => setMedicationForm({ ...medicationForm, prescribed_by: e.target.value })}
+            />
+            <Input
+              placeholder="Notes (optional)"
+              value={medicationForm.notes}
+              onChange={(e) => setMedicationForm({ ...medicationForm, notes: e.target.value })}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowAddMedicationDialog(false);
+                setSelectedMedicationId('');
+                setMedicationForm({
+                  dosage: '',
+                  frequency: '',
+                  start_date: '',
+                  end_date: '',
+                  prescribed_by: '',
+                  notes: '',
+                });
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddMedication}
+              disabled={addingMedication || !selectedMedicationId || !medicationForm.dosage}
+            >
+              {addingMedication ? 'Adding...' : 'Add Medication'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
