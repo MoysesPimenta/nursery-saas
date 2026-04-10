@@ -5,10 +5,9 @@ import { getUserClient, parsePagination, errorResponse, paginatedResponse, getFi
 
 const createAuthorizationSchema = z.object({
   child_id: z.string().uuid('Invalid child ID'),
-  title: z.string().min(1, 'Authorization title required'),
-  description: z.string().optional(),
-  treatment_plan: z.string().optional(),
-  requested_by: z.string().optional(),
+  symptoms: z.string().optional(),
+  notes: z.string().optional(),
+  priority: z.enum(['low', 'normal', 'high', 'urgent']).optional().default('normal'),
 });
 
 export const GET = requireAuth(async (req: NextRequest, user) => {
@@ -19,19 +18,16 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
 
     let query = supabase
       .from('authorizations')
-      .select('*', { count: 'exact' });
+      .select('*, children(first_name, last_name)', { count: 'exact' });
 
-    // Apply status filter (pending, approved, rejected)
     if (filters.status) {
       query = query.eq('status', filters.status);
     }
 
-    // Apply child filter
     if (filters.child_id) {
       query = query.eq('child_id', filters.child_id);
     }
 
-    // Order by created_at descending
     query = query.order('created_at', { ascending: false });
 
     const { data, count, error } = await query.range(from, to);
@@ -40,10 +36,18 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
       return errorResponse(error.message, 400);
     }
 
-    return paginatedResponse(data || [], page, limit, count || 0);
+    const enriched = (data || []).map((auth: Record<string, unknown>) => ({
+      ...auth,
+      child_name: auth.children
+        ? `${(auth.children as any).first_name} ${(auth.children as any).last_name}`
+        : null,
+      children: undefined,
+    }));
+
+    return paginatedResponse(enriched, page, limit, count || 0);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal server error';
-    return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
+    return errorResponse(message, 500);
   }
 });
 
@@ -51,12 +55,16 @@ export const POST = requireAuth(async (req: NextRequest, user) => {
   try {
     const supabase = getUserClient(req);
     const body = await req.json();
-
     const validatedData = createAuthorizationSchema.parse(body);
 
     const { data, error } = await supabase
       .from('authorizations')
-      .insert([{ ...validatedData, status: 'pending' }])
+      .insert([{
+        ...validatedData,
+        tenant_id: user.tenantId,
+        requested_by: user.id,
+        status: 'pending',
+      }])
       .select()
       .single();
 
@@ -73,6 +81,6 @@ export const POST = requireAuth(async (req: NextRequest, user) => {
       );
     }
     const message = error instanceof Error ? error.message : 'Internal server error';
-    return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
+    return errorResponse(message, 500);
   }
 });

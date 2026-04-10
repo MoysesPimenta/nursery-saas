@@ -4,10 +4,17 @@ import { requireAuth, requirePermission } from '@/lib/auth/rbac';
 import { getUserClient, parsePagination, errorResponse, paginatedResponse, getFilterParams } from '@/lib/api/helpers';
 
 const createVisitSchema = z.object({
-  child_id: z.string().uuid('Invalid child ID'),
-  visit_type: z.enum(['check_in', 'medication', 'injury', 'illness', 'wellness']),
-  reason: z.string().min(1, 'Visit reason required'),
-  notes: z.string().optional(),
+  child_id: z.string().uuid('Invalid child ID').optional().nullable(),
+  employee_id: z.string().uuid('Invalid employee ID').optional().nullable(),
+  authorization_id: z.string().uuid().optional().nullable(),
+  visit_type: z.string().min(1, 'Visit type required'),
+  chief_complaint: z.string().optional(),
+  vitals: z.record(z.unknown()).optional().nullable(),
+  assessment: z.string().optional(),
+  treatment: z.string().optional(),
+  medications_administered: z.array(z.record(z.unknown())).optional().nullable(),
+  disposition: z.string().optional(),
+  parent_notified: z.boolean().optional().default(false),
   started_at: z.string().datetime().optional(),
 });
 
@@ -19,19 +26,16 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
 
     let query = supabase
       .from('visits')
-      .select('*', { count: 'exact' });
+      .select('*, children(first_name, last_name)', { count: 'exact' });
 
-    // Apply child filter
     if (filters.child_id) {
       query = query.eq('child_id', filters.child_id);
     }
 
-    // Apply visit type filter
     if (filters.visit_type) {
       query = query.eq('visit_type', filters.visit_type);
     }
 
-    // Apply date range filters
     if (filters.date_from) {
       query = query.gte('created_at', filters.date_from);
     }
@@ -40,7 +44,6 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
       query = query.lte('created_at', filters.date_to);
     }
 
-    // Order by created_at descending
     query = query.order('created_at', { ascending: false });
 
     const { data, count, error } = await query.range(from, to);
@@ -49,10 +52,18 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
       return errorResponse(error.message, 400);
     }
 
-    return paginatedResponse(data || [], page, limit, count || 0);
+    const enriched = (data || []).map((visit: Record<string, unknown>) => ({
+      ...visit,
+      child_name: visit.children
+        ? `${(visit.children as any).first_name} ${(visit.children as any).last_name}`
+        : null,
+      children: undefined,
+    }));
+
+    return paginatedResponse(enriched, page, limit, count || 0);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal server error';
-    return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
+    return errorResponse(message, 500);
   }
 });
 
@@ -60,12 +71,12 @@ export const POST = requirePermission('manage_visits', async (req: NextRequest, 
   try {
     const supabase = getUserClient(req);
     const body = await req.json();
-
     const validatedData = createVisitSchema.parse(body);
 
-    // If no started_at provided, use current time
     const visitData = {
       ...validatedData,
+      tenant_id: user.tenantId,
+      nurse_id: user.id,
       started_at: validatedData.started_at || new Date().toISOString(),
     };
 
@@ -88,6 +99,6 @@ export const POST = requirePermission('manage_visits', async (req: NextRequest, 
       );
     }
     const message = error instanceof Error ? error.message : 'Internal server error';
-    return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
+    return errorResponse(message, 500);
   }
 });

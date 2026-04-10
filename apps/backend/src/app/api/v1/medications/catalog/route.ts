@@ -15,7 +15,6 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
       .from('medications')
       .select('id, name, default_dosage, dosage_form')
       .eq('is_active', true)
-      .is('deleted_at', null)
       .order('name', { ascending: true });
 
     if (error) {

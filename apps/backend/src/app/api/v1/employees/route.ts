@@ -6,12 +6,15 @@ import { getUserClient, parsePagination, errorResponse, paginatedResponse, getSe
 const createEmployeeSchema = z.object({
   first_name: z.string().min(1, 'First name required'),
   last_name: z.string().min(1, 'Last name required'),
-  email: z.string().email('Invalid email'),
-  phone: z.string().optional(),
-  department_id: z.string().uuid().optional(),
-  role_id: z.string().uuid().optional(),
-  hire_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)').optional(),
+  user_id: z.string().uuid().optional().nullable(),
+  date_of_birth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format').optional(),
+  department_id: z.string().uuid().optional().nullable(),
+  position: z.string().optional(),
+  hire_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format').optional(),
   photo_url: z.string().url().nullable().optional(),
+  blood_type: z.string().optional(),
+  emergency_contact_name: z.string().optional(),
+  emergency_contact_phone: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -26,32 +29,27 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
       .from('employees')
       .select('*, departments(name)', { count: 'exact' });
 
-    // Apply search filter
     if (search) {
       search = sanitizeSearchInput(search);
-      query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`);
+      query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%`);
     }
 
-    // Apply department filter
     if (filters.department_id) {
       query = query.eq('department_id', filters.department_id);
     }
 
-    // Apply archived filter
     if (filters.archived) {
       query = query.eq('is_archived', filters.archived === 'true');
     } else {
       query = query.eq('is_archived', false);
     }
 
-    // Apply pagination
-    const { data, count, error } = await query.range(from, to);
+    const { data, count, error } = await query.order('created_at', { ascending: false }).range(from, to);
 
     if (error) {
       return errorResponse(error.message, 400);
     }
 
-    // Flatten the joined department name into the response
     const enriched = (data || []).map((emp: Record<string, unknown>) => ({
       ...emp,
       department_name: (emp.departments as { name: string } | null)?.name || null,
@@ -61,7 +59,7 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
     return paginatedResponse(enriched, page, limit, count || 0);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal server error';
-    return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
+    return errorResponse(message, 500);
   }
 });
 
@@ -69,12 +67,11 @@ export const POST = requirePermission('manage_employees', async (req: NextReques
   try {
     const supabase = getUserClient(req);
     const body = await req.json();
-
     const validatedData = createEmployeeSchema.parse(body);
 
     const { data, error } = await supabase
       .from('employees')
-      .insert([validatedData])
+      .insert([{ ...validatedData, tenant_id: user.tenantId }])
       .select()
       .single();
 
@@ -91,6 +88,6 @@ export const POST = requirePermission('manage_employees', async (req: NextReques
       );
     }
     const message = error instanceof Error ? error.message : 'Internal server error';
-    return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
+    return errorResponse(message, 500);
   }
 });

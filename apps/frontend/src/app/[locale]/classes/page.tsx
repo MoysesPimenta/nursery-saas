@@ -18,6 +18,8 @@ interface Class {
   id: string;
   name: string;
   description?: string;
+  grade_level?: string;
+  academic_year?: string;
   capacity?: number;
 }
 
@@ -37,10 +39,12 @@ export default function ClassesPage() {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<Class | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    max_capacity: '',
+    grade_level: '',
+    capacity: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const router = useRouter();
@@ -60,6 +64,16 @@ export default function ClassesPage() {
   const { execute: createClass, loading: isSubmitting } = useApiMutation<Class>(
     '/api/v1/classes',
     'POST'
+  );
+
+  const { execute: updateClass, loading: isUpdating } = useApiMutation<Class>(
+    editingItem ? `/api/v1/classes/${editingItem.id}` : '/api/v1/classes',
+    'PATCH'
+  );
+
+  const { execute: deleteClass, loading: isDeleting } = useApiMutation<void>(
+    '',
+    'DELETE'
   );
 
   const handleInputChange = (
@@ -88,19 +102,51 @@ export default function ClassesPage() {
       const payload = {
         name: formData.name,
         description: formData.description || undefined,
-        capacity: formData.max_capacity ? parseInt(formData.max_capacity, 10) : undefined,
+        grade_level: formData.grade_level || undefined,
+        capacity: formData.capacity ? parseInt(formData.capacity, 10) : undefined,
       };
 
-      await createClass(payload);
+      if (editingItem) {
+        await updateClass(payload);
+      } else {
+        await createClass(payload);
+      }
+
       setIsDialogOpen(false);
+      setEditingItem(null);
       setFormData({
         name: '',
         description: '',
-        max_capacity: '',
+        grade_level: '',
+        capacity: '',
       });
       await refetch();
     } catch (err) {
-      setErrors({ submit: (err as Error).message || 'Failed to create class' });
+      setErrors({ submit: (err as Error).message || `Failed to ${editingItem ? 'update' : 'create'} class` });
+    }
+  };
+
+  const handleEdit = (item: Class) => {
+    setEditingItem(item);
+    setFormData({
+      name: item.name,
+      description: item.description || '',
+      grade_level: item.grade_level || '',
+      capacity: item.capacity?.toString() || '',
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleDelete = async (item: Class) => {
+    if (!window.confirm(`Are you sure you want to delete "${item.name}"?`)) {
+      return;
+    }
+
+    try {
+      await deleteClass(undefined, `/api/v1/classes/${item.id}`);
+      await refetch();
+    } catch (err) {
+      setErrors({ submit: (err as Error).message || 'Failed to delete class' });
     }
   };
 
@@ -125,6 +171,13 @@ export default function ClassesPage() {
       ),
     },
     {
+      key: 'grade_level' as const,
+      label: t('gradeLevel'),
+      render: (value: string) => (
+        <span className="text-sm">{value || '—'}</span>
+      ),
+    },
+    {
       key: 'capacity' as const,
       label: t('maxCapacity'),
       render: (value: number) => (
@@ -135,20 +188,14 @@ export default function ClassesPage() {
 
   const rowActions = (item: Class) => [
     {
-      label: 'Edit',
+      label: tc('edit'),
       icon: Edit2,
-      onClick: () => {
-        // Edit functionality would go here
-        console.log('Edit class:', item.id);
-      },
+      onClick: () => handleEdit(item),
     },
     {
-      label: 'Delete',
+      label: tc('delete'),
       icon: Trash2,
-      onClick: () => {
-        // Delete functionality would go here
-        console.log('Delete class:', item.id);
-      },
+      onClick: () => handleDelete(item),
     },
   ];
 
@@ -179,7 +226,7 @@ export default function ClassesPage() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <GraduationCap className="w-4 h-4 text-amber-600" />
-                All Classes
+                {t('title')}
               </CardTitle>
               <CardDescription>
                 {response?.pagination?.total || 0} classes available
@@ -225,12 +272,23 @@ export default function ClassesPage() {
       </Card>
 
       {/* Add/Edit Class Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => {
+        if (!open) {
+          setEditingItem(null);
+          setFormData({
+            name: '',
+            description: '',
+            grade_level: '',
+            capacity: '',
+          });
+        }
+        setIsDialogOpen(open);
+      }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{t('addClass')}</DialogTitle>
+            <DialogTitle>{editingItem ? t('editClass') : t('addClass')}</DialogTitle>
             <DialogDescription>
-              {t('addClassDescription')}
+              {editingItem ? t('editClassDescription') : t('addClassDescription')}
             </DialogDescription>
           </DialogHeader>
 
@@ -262,14 +320,26 @@ export default function ClassesPage() {
             </FormField>
 
             <FormField
-              label={t('maxCapacity')}
-              error={errors.max_capacity}
+              label={t('gradeLevel')}
+              error={errors.grade_level}
             >
               <Input
-                name="max_capacity"
+                name="grade_level"
+                placeholder="e.g., Kindergarten"
+                value={formData.grade_level}
+                onChange={handleInputChange}
+              />
+            </FormField>
+
+            <FormField
+              label={t('maxCapacity')}
+              error={errors.capacity}
+            >
+              <Input
+                name="capacity"
                 type="number"
                 placeholder="e.g., 15"
-                value={formData.max_capacity}
+                value={formData.capacity}
                 onChange={handleInputChange}
                 min="1"
               />
@@ -285,17 +355,26 @@ export default function ClassesPage() {
           <DialogFooter className="gap-2 sm:gap-0">
             <Button
               variant="outline"
-              onClick={() => setIsDialogOpen(false)}
-              disabled={isSubmitting}
+              onClick={() => {
+                setIsDialogOpen(false);
+                setEditingItem(null);
+                setFormData({
+                  name: '',
+                  description: '',
+                  grade_level: '',
+                  capacity: '',
+                });
+              }}
+              disabled={isSubmitting || isUpdating}
             >
               {tc('cancel')}
             </Button>
             <Button
               onClick={handleSubmit}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isUpdating}
               className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
             >
-              {isSubmitting ? t('creating') : t('addClass')}
+              {isSubmitting || isUpdating ? t('creating') : (editingItem ? t('saveChanges') : t('addClass'))}
             </Button>
           </DialogFooter>
         </DialogContent>

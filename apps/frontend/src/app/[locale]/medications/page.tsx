@@ -43,6 +43,7 @@ export default function MedicationsPage() {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<Medication | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     generic_name: '',
@@ -70,6 +71,11 @@ export default function MedicationsPage() {
     'POST'
   );
 
+  const { execute: updateMedication, loading: isUpdating } = useApiMutation<Medication>(
+    editingItem ? `/api/v1/medications/${editingItem.id}` : '/api/v1/medications',
+    'PATCH'
+  );
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
@@ -89,6 +95,43 @@ export default function MedicationsPage() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleEditClick = (medication: Medication) => {
+    setEditingItem(medication);
+    setFormData({
+      name: medication.name,
+      generic_name: medication.generic_name || '',
+      dosage_form: medication.dosage_form || '',
+      default_dosage: medication.default_dosage || '',
+      instructions: medication.instructions || '',
+    });
+    setErrors({});
+    setIsDialogOpen(true);
+  };
+
+  const handleDeactivateClick = async (medication: Medication) => {
+    if (!window.confirm(`Are you sure you want to deactivate "${medication.name}"?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/v1/medications/${medication.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ is_active: false }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to deactivate medication');
+      }
+
+      await refetch();
+    } catch (err) {
+      setErrors({ submit: (err as Error).message || 'Failed to deactivate medication' });
+    }
+  };
+
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
@@ -101,8 +144,14 @@ export default function MedicationsPage() {
         instructions: formData.instructions || undefined,
       };
 
-      await createMedication(payload);
+      if (editingItem) {
+        await updateMedication(payload);
+      } else {
+        await createMedication(payload);
+      }
+
       setIsDialogOpen(false);
+      setEditingItem(null);
       setFormData({
         name: '',
         generic_name: '',
@@ -112,7 +161,7 @@ export default function MedicationsPage() {
       });
       await refetch();
     } catch (err) {
-      setErrors({ submit: (err as Error).message || 'Failed to create medication' });
+      setErrors({ submit: (err as Error).message || 'Failed to save medication' });
     }
   };
 
@@ -165,18 +214,12 @@ export default function MedicationsPage() {
     {
       label: tc('edit'),
       icon: Edit2,
-      onClick: () => {
-        // Edit functionality would go here
-        console.log('Edit medication:', item.id);
-      },
+      onClick: () => handleEditClick(item),
     },
     {
       label: t('deactivate') || 'Deactivate',
       icon: X,
-      onClick: () => {
-        // Deactivate functionality would go here
-        console.log('Deactivate medication:', item.id);
-      },
+      onClick: () => handleDeactivateClick(item),
     },
   ];
 
@@ -210,7 +253,9 @@ export default function MedicationsPage() {
                 {t('title')}
               </CardTitle>
               <CardDescription>
-                {response?.pagination?.total || 0} medications in catalog
+                {t('medicationsInCatalog', {
+                  count: response?.pagination?.total || 0,
+                })}
               </CardDescription>
             </div>
           </div>
@@ -253,12 +298,32 @@ export default function MedicationsPage() {
       </Card>
 
       {/* Add/Edit Medication Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog
+        open={isDialogOpen}
+        onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) {
+            setEditingItem(null);
+            setFormData({
+              name: '',
+              generic_name: '',
+              dosage_form: '',
+              default_dosage: '',
+              instructions: '',
+            });
+            setErrors({});
+          }
+        }}
+      >
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{t('addMedication')}</DialogTitle>
+            <DialogTitle>
+              {editingItem ? t('editMedication') || 'Edit Medication' : t('addMedication')}
+            </DialogTitle>
             <DialogDescription>
-              {t('addMedicationDescription') || 'Add a new medication to your nursery catalog'}
+              {editingItem
+                ? t('editMedicationDescription') || 'Update medication details'
+                : t('addMedicationDescription') || 'Add a new medication to your nursery catalog'}
             </DialogDescription>
           </DialogHeader>
 
@@ -344,16 +409,16 @@ export default function MedicationsPage() {
             <Button
               variant="outline"
               onClick={() => setIsDialogOpen(false)}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isUpdating}
             >
               {tc('cancel')}
             </Button>
             <Button
               onClick={handleSubmit}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isUpdating}
               className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
             >
-              {isSubmitting ? tc('loading') : t('addMedication')}
+              {isSubmitting || isUpdating ? tc('loading') : editingItem ? t('save') || 'Save' : t('addMedication')}
             </Button>
           </DialogFooter>
         </DialogContent>

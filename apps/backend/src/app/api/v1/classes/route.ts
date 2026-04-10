@@ -7,6 +7,8 @@ const createClassSchema = z.object({
   name: z.string().min(1, 'Class name required'),
   description: z.string().optional(),
   grade_level: z.string().optional(),
+  academic_year: z.string().optional(),
+  teacher_id: z.string().uuid().optional().nullable(),
   capacity: z.number().int().positive().optional(),
 });
 
@@ -18,15 +20,14 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
 
     let query = supabase
       .from('classes')
-      .select('*', { count: 'exact' })
-      .is('deleted_at', null);
+      .select('*', { count: 'exact' });
 
     if (search) {
       search = sanitizeSearchInput(search);
       query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
     }
 
-    const { data, count, error } = await query.range(from, to);
+    const { data, count, error } = await query.order('name').range(from, to);
 
     if (error) {
       return errorResponse(error.message, 400);
@@ -35,7 +36,7 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
     return paginatedResponse(data || [], page, limit, count || 0);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal server error';
-    return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
+    return errorResponse(message, 500);
   }
 });
 
@@ -43,12 +44,11 @@ export const POST = requirePermission('manage_classes', async (req: NextRequest,
   try {
     const supabase = getUserClient(req);
     const body = await req.json();
-
     const validatedData = createClassSchema.parse(body);
 
     const { data, error } = await supabase
       .from('classes')
-      .insert([validatedData])
+      .insert([{ ...validatedData, tenant_id: user.tenantId }])
       .select()
       .single();
 
@@ -65,6 +65,6 @@ export const POST = requirePermission('manage_classes', async (req: NextRequest,
       );
     }
     const message = error instanceof Error ? error.message : 'Internal server error';
-    return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
+    return errorResponse(message, 500);
   }
 });

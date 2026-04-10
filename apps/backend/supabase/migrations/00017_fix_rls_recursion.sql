@@ -118,3 +118,15 @@ CREATE POLICY tenant_read_field_values ON public.custom_field_values
 
 -- 15. Add description column to classes table (used by frontend but was missing)
 ALTER TABLE public.classes ADD COLUMN IF NOT EXISTS description text;
+
+-- 16. Fix audit_logs INSERT policy (still referenced FROM users)
+DROP POLICY IF EXISTS audit_logs_append_only ON public.audit_logs;
+CREATE POLICY audit_logs_append_only ON public.audit_logs
+  FOR INSERT
+  WITH CHECK (tenant_id = get_user_tenant_id());
+
+-- 17. Fix authorizations teacher_create policy (still referenced FROM users)
+DROP POLICY IF EXISTS teacher_create_authorizations ON public.authorizations;
+CREATE POLICY teacher_create_authorizations ON public.authorizations
+  FOR INSERT
+  WITH CHECK (user_has_role('teacher', tenant_id) AND requested_by = auth.uid() AND tenant_id = get_user_tenant_id());

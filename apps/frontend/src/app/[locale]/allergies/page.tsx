@@ -20,9 +20,7 @@ interface Allergy {
   id: string;
   name: string;
   description?: string;
-  severity: 'mild' | 'moderate' | 'severe' | 'life_threatening';
-  category: 'food' | 'drug' | 'environmental' | 'other';
-  notes?: string;
+  severity_level?: 'mild' | 'moderate' | 'severe' | 'life_threatening';
 }
 
 interface AllergiesResponse {
@@ -55,12 +53,11 @@ export default function AllergiesPage() {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<Allergy | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    severity: 'mild' as const,
-    category: 'food' as const,
-    notes: '',
+    severity_level: 'mild' as const,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const router = useRouter();
@@ -82,6 +79,16 @@ export default function AllergiesPage() {
     'POST'
   );
 
+  const { execute: updateAllergy, loading: isUpdating } = useApiMutation<Allergy>(
+    editingItem ? `/api/v1/allergies/${editingItem.id}` : '/api/v1/allergies',
+    editingItem ? 'PATCH' : 'POST'
+  );
+
+  const { execute: deleteAllergy, loading: isDeleting } = useApiMutation<void>(
+    editingItem ? `/api/v1/allergies/${editingItem.id}` : '/api/v1/allergies',
+    'DELETE'
+  );
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
@@ -101,6 +108,16 @@ export default function AllergiesPage() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      description: '',
+      severity_level: 'mild',
+    });
+    setEditingItem(null);
+    setErrors({});
+  };
+
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
@@ -108,23 +125,46 @@ export default function AllergiesPage() {
       const payload = {
         name: formData.name,
         description: formData.description || undefined,
-        severity: formData.severity,
-        category: formData.category,
-        notes: formData.notes || undefined,
+        severity_level: formData.severity_level,
       };
 
-      await createAllergy(payload);
+      if (editingItem) {
+        await updateAllergy(payload);
+      } else {
+        await createAllergy(payload);
+      }
+
       setIsDialogOpen(false);
-      setFormData({
-        name: '',
-        description: '',
-        severity: 'mild',
-        category: 'food',
-        notes: '',
-      });
+      resetForm();
       await refetch();
     } catch (err) {
-      setErrors({ submit: (err as Error).message || 'Failed to create allergy' });
+      setErrors({ submit: (err as Error).message || (editingItem ? 'Failed to update allergy' : 'Failed to create allergy') });
+    }
+  };
+
+  const handleEdit = (item: Allergy) => {
+    setEditingItem(item);
+    setFormData({
+      name: item.name,
+      description: item.description || '',
+      severity_level: item.severity_level || 'mild',
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleDelete = async (item: Allergy) => {
+    if (!confirm(`Are you sure you want to delete "${item.name}"?`)) {
+      return;
+    }
+
+    try {
+      setEditingItem(item);
+      await deleteAllergy();
+      await refetch();
+    } catch (err) {
+      setErrors({ submit: (err as Error).message || 'Failed to delete allergy' });
+    } finally {
+      setEditingItem(null);
     }
   };
 
@@ -142,17 +182,8 @@ export default function AllergiesPage() {
       ),
     },
     {
-      key: 'category' as const,
-      label: t('category') || 'Category',
-      render: (value: string) => (
-        <Badge variant="secondary" className="capitalize">
-          {value}
-        </Badge>
-      ),
-    },
-    {
-      key: 'severity' as const,
-      label: t('severity'),
+      key: 'severity_level' as const,
+      label: t('severity') || 'Severity',
       render: (value: string) => {
         const severityLabel = value.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
         return (
@@ -175,18 +206,12 @@ export default function AllergiesPage() {
     {
       label: tc('edit'),
       icon: Edit2,
-      onClick: () => {
-        // Edit functionality would go here
-        console.log('Edit allergy:', item.id);
-      },
+      onClick: () => handleEdit(item),
     },
     {
       label: tc('delete'),
       icon: Trash2,
-      onClick: () => {
-        // Delete functionality would go here
-        console.log('Delete allergy:', item.id);
-      },
+      onClick: () => handleDelete(item),
     },
   ];
 
@@ -263,12 +288,17 @@ export default function AllergiesPage() {
       </Card>
 
       {/* Add/Edit Allergy Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => {
+        setIsDialogOpen(open);
+        if (!open) resetForm();
+      }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{t('addAllergy')}</DialogTitle>
+            <DialogTitle>{editingItem ? t('editAllergy') || 'Edit Allergy' : t('addAllergy')}</DialogTitle>
             <DialogDescription>
-              {t('addAllergyDescription') || 'Add a new allergy definition to your nursery catalog'}
+              {editingItem
+                ? t('editAllergyDescription') || 'Update this allergy definition'
+                : t('addAllergyDescription') || 'Add a new allergy definition to your nursery catalog'}
             </DialogDescription>
           </DialogHeader>
 
@@ -299,48 +329,19 @@ export default function AllergiesPage() {
             </FormField>
 
             <FormField
-              label={t('category') || 'Category'}
-              error={errors.category}
+              label={t('severity') || 'Severity Level'}
+              error={errors.severity_level}
             >
               <Select
-                name="category"
-                value={formData.category}
+                name="severity_level"
+                value={formData.severity_level}
                 onChange={handleInputChange}
               >
-                <option value="food">{t('food') || 'Food'}</option>
-                <option value="drug">{t('drug') || 'Drug'}</option>
-                <option value="environmental">{t('environmental') || 'Environmental'}</option>
-                <option value="other">{t('other') || 'Other'}</option>
+                <option value="mild">{t('mild') || 'Mild'}</option>
+                <option value="moderate">{t('moderate') || 'Moderate'}</option>
+                <option value="severe">{t('severe') || 'Severe'}</option>
+                <option value="life_threatening">{t('lifeThreatening') || 'Life Threatening'}</option>
               </Select>
-            </FormField>
-
-            <FormField
-              label={t('severity')}
-              error={errors.severity}
-            >
-              <Select
-                name="severity"
-                value={formData.severity}
-                onChange={handleInputChange}
-              >
-                <option value="mild">{t('mild')}</option>
-                <option value="moderate">{t('moderate')}</option>
-                <option value="severe">{t('severe')}</option>
-                <option value="life_threatening">{t('lifeThreatening')}</option>
-              </Select>
-            </FormField>
-
-            <FormField
-              label={tc('notes')}
-              error={errors.notes}
-            >
-              <Textarea
-                name="notes"
-                placeholder="Additional notes about this allergy"
-                value={formData.notes}
-                onChange={handleInputChange}
-                rows={3}
-              />
             </FormField>
 
             {errors.submit && (
@@ -353,17 +354,20 @@ export default function AllergiesPage() {
           <DialogFooter className="gap-2 sm:gap-0">
             <Button
               variant="outline"
-              onClick={() => setIsDialogOpen(false)}
-              disabled={isSubmitting}
+              onClick={() => {
+                setIsDialogOpen(false);
+                resetForm();
+              }}
+              disabled={isSubmitting || isUpdating || isDeleting}
             >
               {tc('cancel')}
             </Button>
             <Button
               onClick={handleSubmit}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isUpdating}
               className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700"
             >
-              {isSubmitting ? tc('loading') : t('addAllergy')}
+              {isSubmitting || isUpdating ? tc('loading') : editingItem ? t('update') || 'Update' : t('addAllergy')}
             </Button>
           </DialogFooter>
         </DialogContent>

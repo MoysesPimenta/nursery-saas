@@ -6,7 +6,7 @@ import { getUserClient, parsePagination, errorResponse, paginatedResponse, getSe
 const createAllergySchema = z.object({
   name: z.string().min(1, 'Allergy name required'),
   description: z.string().optional(),
-  severity: z.enum(['mild', 'moderate', 'severe']).optional(),
+  severity_level: z.enum(['mild', 'moderate', 'severe', 'life_threatening']).optional(),
 });
 
 export const GET = requireAuth(async (req: NextRequest, user) => {
@@ -17,15 +17,14 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
 
     let query = supabase
       .from('allergies')
-      .select('*', { count: 'exact' })
-      .is('deleted_at', null);
+      .select('*', { count: 'exact' });
 
     if (search) {
       search = sanitizeSearchInput(search);
       query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
     }
 
-    const { data, count, error } = await query.range(from, to);
+    const { data, count, error } = await query.order('name').range(from, to);
 
     if (error) {
       return errorResponse(error.message, 400);
@@ -34,7 +33,7 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
     return paginatedResponse(data || [], page, limit, count || 0);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal server error';
-    return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
+    return errorResponse(message, 500);
   }
 });
 
@@ -42,12 +41,11 @@ export const POST = requirePermission('manage_allergies', async (req: NextReques
   try {
     const supabase = getUserClient(req);
     const body = await req.json();
-
     const validatedData = createAllergySchema.parse(body);
 
     const { data, error } = await supabase
       .from('allergies')
-      .insert([validatedData])
+      .insert([{ ...validatedData, tenant_id: user.tenantId }])
       .select()
       .single();
 
@@ -64,6 +62,6 @@ export const POST = requirePermission('manage_allergies', async (req: NextReques
       );
     }
     const message = error instanceof Error ? error.message : 'Internal server error';
-    return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
+    return errorResponse(message, 500);
   }
 });

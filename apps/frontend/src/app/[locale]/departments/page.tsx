@@ -36,6 +36,7 @@ export default function DepartmentsPage() {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<Department | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -58,6 +59,16 @@ export default function DepartmentsPage() {
   const { execute: createDepartment, loading: isSubmitting } = useApiMutation<Department>(
     '/api/v1/departments',
     'POST'
+  );
+
+  const { execute: updateDepartment, loading: isUpdating } = useApiMutation<Department>(
+    editingItem ? `/api/v1/departments/${editingItem.id}` : '',
+    'PATCH'
+  );
+
+  const { execute: deleteDepartment, loading: isDeleting } = useApiMutation<void>(
+    '',
+    'DELETE'
   );
 
   const handleInputChange = (
@@ -88,15 +99,43 @@ export default function DepartmentsPage() {
         description: formData.description || undefined,
       };
 
-      await createDepartment(payload);
+      if (editingItem) {
+        await updateDepartment(payload);
+      } else {
+        await createDepartment(payload);
+      }
       setIsDialogOpen(false);
+      setEditingItem(null);
       setFormData({
         name: '',
         description: '',
       });
       await refetch();
     } catch (err) {
-      setErrors({ submit: (err as Error).message || 'Failed to create department' });
+      setErrors({ submit: (err as Error).message || 'Failed to save department' });
+    }
+  };
+
+  const handleEdit = (item: Department) => {
+    setEditingItem(item);
+    setFormData({
+      name: item.name,
+      description: item.description || '',
+    });
+    setErrors({});
+    setIsDialogOpen(true);
+  };
+
+  const handleDelete = async (item: Department) => {
+    if (!window.confirm(`Are you sure you want to delete "${item.name}"?`)) {
+      return;
+    }
+
+    try {
+      await deleteDepartment(undefined, `/api/v1/departments/${item.id}`);
+      await refetch();
+    } catch (err) {
+      setErrors({ submit: (err as Error).message || 'Failed to delete department' });
     }
   };
 
@@ -124,20 +163,14 @@ export default function DepartmentsPage() {
 
   const rowActions = (item: Department) => [
     {
-      label: 'Edit',
+      label: tc('edit'),
       icon: Edit2,
-      onClick: () => {
-        // Edit functionality would go here
-        console.log('Edit department:', item.id);
-      },
+      onClick: () => handleEdit(item),
     },
     {
-      label: 'Delete',
+      label: tc('delete'),
       icon: Trash2,
-      onClick: () => {
-        // Delete functionality would go here
-        console.log('Delete department:', item.id);
-      },
+      onClick: () => handleDelete(item),
     },
   ];
 
@@ -168,7 +201,7 @@ export default function DepartmentsPage() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-blue-600" />
-                All Departments
+                {t('title')}
               </CardTitle>
               <CardDescription>
                 {response?.pagination?.total || 0} departments available
@@ -214,12 +247,19 @@ export default function DepartmentsPage() {
       </Card>
 
       {/* Add/Edit Department Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => {
+        setIsDialogOpen(open);
+        if (!open) {
+          setEditingItem(null);
+          setFormData({ name: '', description: '' });
+          setErrors({});
+        }
+      }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{t('addDepartment')}</DialogTitle>
+            <DialogTitle>{editingItem ? t('editDepartment') : t('addDepartment')}</DialogTitle>
             <DialogDescription>
-              {t('addDepartmentDescription')}
+              {editingItem ? t('editDepartmentDescription') : t('addDepartmentDescription')}
             </DialogDescription>
           </DialogHeader>
 
@@ -261,16 +301,16 @@ export default function DepartmentsPage() {
             <Button
               variant="outline"
               onClick={() => setIsDialogOpen(false)}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isUpdating}
             >
               {tc('cancel')}
             </Button>
             <Button
               onClick={handleSubmit}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isUpdating}
               className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
             >
-              {isSubmitting ? t('creating') : t('addDepartment')}
+              {isSubmitting || isUpdating ? (editingItem ? t('updating') : t('creating')) : (editingItem ? t('update') : t('addDepartment'))}
             </Button>
           </DialogFooter>
         </DialogContent>

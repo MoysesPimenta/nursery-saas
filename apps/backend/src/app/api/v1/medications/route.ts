@@ -5,9 +5,11 @@ import { getUserClient, parsePagination, errorResponse, paginatedResponse, getSe
 
 const createMedicationSchema = z.object({
   name: z.string().min(1, 'Medication name required'),
-  description: z.string().optional(),
-  strength: z.string().optional(),
-  form: z.string().optional(),
+  generic_name: z.string().optional(),
+  dosage_form: z.string().optional(),
+  default_dosage: z.string().optional(),
+  instructions: z.string().optional(),
+  requires_authorization: z.boolean().optional().default(true),
 });
 
 export const GET = requireAuth(async (req: NextRequest, user) => {
@@ -19,14 +21,14 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
     let query = supabase
       .from('medications')
       .select('*', { count: 'exact' })
-      .is('deleted_at', null);
+      .eq('is_active', true);
 
     if (search) {
       search = sanitizeSearchInput(search);
-      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
+      query = query.or(`name.ilike.%${search}%,generic_name.ilike.%${search}%`);
     }
 
-    const { data, count, error } = await query.range(from, to);
+    const { data, count, error } = await query.order('name').range(from, to);
 
     if (error) {
       return errorResponse(error.message, 400);
@@ -35,7 +37,7 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
     return paginatedResponse(data || [], page, limit, count || 0);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal server error';
-    return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
+    return errorResponse(message, 500);
   }
 });
 
@@ -43,12 +45,11 @@ export const POST = requirePermission('manage_medications', async (req: NextRequ
   try {
     const supabase = getUserClient(req);
     const body = await req.json();
-
     const validatedData = createMedicationSchema.parse(body);
 
     const { data, error } = await supabase
       .from('medications')
-      .insert([validatedData])
+      .insert([{ ...validatedData, tenant_id: user.tenantId }])
       .select()
       .single();
 
@@ -65,6 +66,6 @@ export const POST = requirePermission('manage_medications', async (req: NextRequ
       );
     }
     const message = error instanceof Error ? error.message : 'Internal server error';
-    return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);
+    return errorResponse(message, 500);
   }
 });

@@ -6,12 +6,15 @@ import { getUserClient, errorResponse, successResponse, validateUUID } from '@/l
 const updateEmployeeSchema = z.object({
   first_name: z.string().min(1).optional(),
   last_name: z.string().min(1).optional(),
-  email: z.string().email().optional(),
-  phone: z.string().optional(),
+  user_id: z.string().uuid().nullable().optional(),
+  date_of_birth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   department_id: z.string().uuid().nullable().optional(),
-  role_id: z.string().uuid().nullable().optional(),
+  position: z.string().optional(),
   hire_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   photo_url: z.string().url().nullable().optional(),
+  blood_type: z.string().optional(),
+  emergency_contact_name: z.string().optional(),
+  emergency_contact_phone: z.string().optional(),
   notes: z.string().optional(),
   is_archived: z.boolean().optional(),
 });
