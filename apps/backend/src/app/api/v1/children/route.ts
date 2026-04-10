@@ -10,7 +10,7 @@ const createChildSchema = z.object({
   class_id: z.string().uuid().optional().nullable(),
   notes: z.string().optional(),
   photo_url: z.string().url().optional().nullable(),
-  gender: z.string().optional(),
+  gender: z.enum(['M', 'F', 'O', 'Prefer not to say']).optional(),
   blood_type: z.string().optional(),
   emergency_contact_name: z.string().optional(),
   emergency_contact_phone: z.string().optional(),

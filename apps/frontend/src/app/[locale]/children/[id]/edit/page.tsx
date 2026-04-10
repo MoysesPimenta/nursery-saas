@@ -225,12 +225,13 @@ export default function EditChildPage() {
             <FormField label={t('gender')} error={errors.gender} required>
               <Select
                 name="gender"
-                value={formData.gender || 'male'}
+                value={formData.gender || 'M'}
                 onChange={handleChange}
               >
-                <option value="male">{t('male')}</option>
-                <option value="female">{t('female')}</option>
-                <option value="other">{t('other')}</option>
+                <option value="M">{t('male')}</option>
+                <option value="F">{t('female')}</option>
+                <option value="O">{t('other')}</option>
+                <option value="Prefer not to say">{t('preferNotToSay')}</option>
               </Select>
             </FormField>
 

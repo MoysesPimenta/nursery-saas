@@ -35,7 +35,7 @@ export default function NewChildPage() {
   const [step, setStep] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<Partial<ChildFormData>>({
-    gender: 'male',
+    gender: 'M',
   });
 
   const { execute: createChild, loading } = useApiMutation<{ id: string }>(
@@ -178,12 +178,13 @@ export default function NewChildPage() {
                 <FormField label="Gender" error={errors.gender} required>
                   <Select
                     name="gender"
-                    value={formData.gender || 'male'}
+                    value={formData.gender || 'M'}
                     onChange={handleChange}
                   >
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                    <option value="O">Other</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
                   </Select>
                 </FormField>
 

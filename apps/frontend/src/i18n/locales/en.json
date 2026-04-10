@@ -140,6 +140,7 @@
     "male": "Male",
     "female": "Female",
     "other": "Other",
+    "preferNotToSay": "Prefer not to say",
     "selectClass": "Select a class",
     "selectBloodType": "Select blood type",
     "emergencyContactMedical": "Emergency Contact & Medical",

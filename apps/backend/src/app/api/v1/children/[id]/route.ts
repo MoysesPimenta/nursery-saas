@@ -11,7 +11,7 @@ const updateChildSchema = z.object({
   notes: z.string().optional(),
   photo_url: z.string().url().nullable().optional(),
   is_archived: z.boolean().optional(),
-  gender: z.string().optional(),
+  gender: z.enum(['M', 'F', 'O', 'Prefer not to say']).optional(),
   blood_type: z.string().optional(),
   emergency_contact_name: z.string().optional(),
   emergency_contact_phone: z.string().optional(),
