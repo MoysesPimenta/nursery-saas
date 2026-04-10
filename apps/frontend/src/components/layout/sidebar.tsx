@@ -24,26 +24,27 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
+import { useTranslations } from 'next-intl';
 
 interface NavItem {
   href: string;
-  label: string;
+  labelKey: string;
   icon: React.ElementType;
   roles?: string[];
 }
 
 const navItems: NavItem[] = [
-  { href: '', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/children', label: 'Children', icon: Baby },
-  { href: '/classes', label: 'Classes', icon: GraduationCap },
-  { href: '/employees', label: 'Employees', icon: Users, roles: ['admin', 'manager'] },
-  { href: '/departments', label: 'Departments', icon: Building2, roles: ['admin', 'manager'] },
-  { href: '/visits', label: 'Visits', icon: CalendarCheck },
-  { href: '/authorizations', label: 'Authorizations', icon: Shield },
-  { href: '/medications', label: 'Medications', icon: Pill },
-  { href: '/allergies', label: 'Allergies', icon: AlertTriangle },
-  { href: '/admin', label: 'Admin', icon: Shield, roles: ['admin'] },
-  { href: '/parent', label: 'Parent Portal', icon: Users },
+  { href: '', labelKey: 'dashboard', icon: LayoutDashboard },
+  { href: '/children', labelKey: 'children', icon: Baby },
+  { href: '/classes', labelKey: 'classes', icon: GraduationCap },
+  { href: '/employees', labelKey: 'employees', icon: Users, roles: ['admin', 'manager'] },
+  { href: '/departments', labelKey: 'departments', icon: Building2, roles: ['admin', 'manager'] },
+  { href: '/visits', labelKey: 'visits', icon: CalendarCheck },
+  { href: '/authorizations', labelKey: 'authorizations', icon: Shield },
+  { href: '/medications', labelKey: 'medications', icon: Pill },
+  { href: '/allergies', labelKey: 'allergies', icon: AlertTriangle },
+  { href: '/admin', labelKey: 'admin', icon: Shield, roles: ['admin'] },
+  { href: '/parent', labelKey: 'parentPortal', icon: Users },
 ];
 
 export function Sidebar() {
@@ -53,6 +54,7 @@ export function Sidebar() {
   const params = useParams();
   const locale = params.locale as string;
   const { userProfile, signOut } = useAuth();
+  const t = useTranslations('common');
 
   const isActive = (href: string) => {
     const localizedHref = `/${locale}${href}`;
@@ -104,7 +106,7 @@ export function Sidebar() {
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full gradient-primary" />
               )}
               <Icon className={cn('w-[18px] h-[18px] transition-colors', active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground')} />
-              <span>{item.label}</span>
+              <span>{t(item.labelKey)}</span>
             </Link>
           );
         })}
@@ -120,7 +122,7 @@ export function Sidebar() {
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200"
           >
             <Download className="w-[18px] h-[18px]" />
-            <span>Export</span>
+            <span>{t('export')}</span>
           </Link>
         </div>
 
@@ -131,21 +133,21 @@ export function Sidebar() {
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200"
           >
             <UserCircle className="w-[18px] h-[18px]" />
-            <span>Profile</span>
+            <span>{t('profile')}</span>
           </Link>
           <Link
             href={getLocalizedHref('/settings')}
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200"
           >
             <Settings className="w-[18px] h-[18px]" />
-            <span>Settings</span>
+            <span>{t('settings')}</span>
           </Link>
           <button
             onClick={handleSignOut}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-200"
           >
             <LogOut className="w-[18px] h-[18px]" />
-            <span>Logout</span>
+            <span>{t('logout')}</span>
           </button>
         </div>
       </div>

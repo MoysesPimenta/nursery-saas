@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,6 +37,8 @@ interface MedicationsResponse {
 }
 
 export default function MedicationsPage() {
+  const t = useTranslations('medications');
+  const tc = useTranslations('common');
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -119,7 +122,7 @@ export default function MedicationsPage() {
   const columns = [
     {
       key: 'name' as const,
-      label: 'Name',
+      label: tc('name'),
       render: (value: string, item: Medication) => (
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-xs font-bold">
@@ -131,31 +134,31 @@ export default function MedicationsPage() {
     },
     {
       key: 'generic_name' as const,
-      label: 'Generic Name',
+      label: t('genericName'),
       render: (value: string) => (
         <span className="text-muted-foreground">{value || '—'}</span>
       ),
     },
     {
       key: 'dosage_form' as const,
-      label: 'Dosage Form',
+      label: t('dosageForm'),
       render: (value: string) => (
         <span className="text-sm">{value || '—'}</span>
       ),
     },
     {
       key: 'strength' as const,
-      label: 'Strength',
+      label: t('strength') || 'Strength',
       render: (value: string) => (
         <span className="text-sm">{value || '—'}</span>
       ),
     },
     {
       key: 'is_active' as const,
-      label: 'Status',
+      label: tc('status'),
       render: (value: boolean) => (
         <Badge variant={value ? 'success' : 'secondary'}>
-          {value ? 'Active' : 'Inactive'}
+          {value ? tc('active') : tc('inactive')}
         </Badge>
       ),
     },
@@ -163,7 +166,7 @@ export default function MedicationsPage() {
 
   const rowActions = (item: Medication) => [
     {
-      label: 'Edit',
+      label: tc('edit'),
       icon: Edit2,
       onClick: () => {
         // Edit functionality would go here
@@ -171,7 +174,7 @@ export default function MedicationsPage() {
       },
     },
     {
-      label: 'Deactivate',
+      label: t('deactivate') || 'Deactivate',
       icon: X,
       onClick: () => {
         // Deactivate functionality would go here
@@ -189,15 +192,15 @@ export default function MedicationsPage() {
     >
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Medications</h1>
-          <p className="text-muted-foreground mt-1">Manage medication catalog for your nursery</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('subtitle')}</p>
         </div>
         <Button
           onClick={() => setIsDialogOpen(true)}
           className="gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
         >
           <Plus className="w-4 h-4" />
-          Add Medication
+          {t('addMedication')}
         </Button>
       </div>
 
@@ -207,7 +210,7 @@ export default function MedicationsPage() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Pill className="w-4 h-4 text-blue-600" />
-                All Medications
+                {t('title')}
               </CardTitle>
               <CardDescription>
                 {response?.pagination?.total || 0} medications in catalog
@@ -221,7 +224,7 @@ export default function MedicationsPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search by name..."
+                placeholder={t('searchPlaceholder')}
                 className="pl-10"
                 value={search}
                 onChange={(e) => {
@@ -244,7 +247,7 @@ export default function MedicationsPage() {
                 loading={loading}
                 pagination={response?.pagination}
                 onPageChange={setPage}
-                emptyMessage="No medications found"
+                emptyMessage={t('noMedications')}
                 rowKey={(medication) => medication.id}
               />
             )}
@@ -256,15 +259,15 @@ export default function MedicationsPage() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Add Medication</DialogTitle>
+            <DialogTitle>{t('addMedication')}</DialogTitle>
             <DialogDescription>
-              Add a new medication to your nursery catalog
+              {t('addMedicationDescription') || 'Add a new medication to your nursery catalog'}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <FormField
-              label="Medication Name"
+              label={t('medicationName')}
               required
               error={errors.name}
             >
@@ -277,7 +280,7 @@ export default function MedicationsPage() {
             </FormField>
 
             <FormField
-              label="Generic Name"
+              label={t('genericName')}
               error={errors.generic_name}
             >
               <Input
@@ -289,7 +292,7 @@ export default function MedicationsPage() {
             </FormField>
 
             <FormField
-              label="Dosage Form"
+              label={t('dosageForm')}
               error={errors.dosage_form}
             >
               <Select
@@ -297,19 +300,19 @@ export default function MedicationsPage() {
                 value={formData.dosage_form}
                 onChange={handleInputChange}
               >
-                <option value="">Select dosage form</option>
-                <option value="tablet">Tablet</option>
-                <option value="capsule">Capsule</option>
-                <option value="liquid">Liquid</option>
-                <option value="injection">Injection</option>
-                <option value="topical">Topical</option>
-                <option value="inhaler">Inhaler</option>
-                <option value="other">Other</option>
+                <option value="">{t('selectDosageForm') || 'Select dosage form'}</option>
+                <option value="tablet">{t('tablet') || 'Tablet'}</option>
+                <option value="capsule">{t('capsule') || 'Capsule'}</option>
+                <option value="liquid">{t('liquid') || 'Liquid'}</option>
+                <option value="injection">{t('injection') || 'Injection'}</option>
+                <option value="topical">{t('topical') || 'Topical'}</option>
+                <option value="inhaler">{t('inhaler') || 'Inhaler'}</option>
+                <option value="other">{t('other') || 'Other'}</option>
               </Select>
             </FormField>
 
             <FormField
-              label="Strength"
+              label={t('strength') || 'Strength'}
               error={errors.strength}
             >
               <Input
@@ -321,7 +324,7 @@ export default function MedicationsPage() {
             </FormField>
 
             <FormField
-              label="Manufacturer"
+              label={t('manufacturer') || 'Manufacturer'}
               error={errors.manufacturer}
             >
               <Input
@@ -333,7 +336,7 @@ export default function MedicationsPage() {
             </FormField>
 
             <FormField
-              label="Notes"
+              label={tc('notes')}
               error={errors.notes}
             >
               <Textarea
@@ -358,14 +361,14 @@ export default function MedicationsPage() {
               onClick={() => setIsDialogOpen(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {tc('cancel')}
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting}
               className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
             >
-              {isSubmitting ? 'Creating...' : 'Add Medication'}
+              {isSubmitting ? tc('loading') : t('addMedication')}
             </Button>
           </DialogFooter>
         </DialogContent>

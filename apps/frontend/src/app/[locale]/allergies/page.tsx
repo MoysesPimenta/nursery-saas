@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,6 +49,8 @@ const SEVERITY_COLORS: Record<string, string> = {
 };
 
 export default function AllergiesPage() {
+  const t = useTranslations('allergies');
+  const tc = useTranslations('common');
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -128,7 +131,7 @@ export default function AllergiesPage() {
   const columns = [
     {
       key: 'name' as const,
-      label: 'Name',
+      label: tc('name'),
       render: (value: string, item: Allergy) => (
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white text-xs font-bold">
@@ -140,7 +143,7 @@ export default function AllergiesPage() {
     },
     {
       key: 'category' as const,
-      label: 'Category',
+      label: t('category') || 'Category',
       render: (value: string) => (
         <Badge variant="secondary" className="capitalize">
           {value}
@@ -149,7 +152,7 @@ export default function AllergiesPage() {
     },
     {
       key: 'severity' as const,
-      label: 'Severity',
+      label: t('severity'),
       render: (value: string) => {
         const severityLabel = value.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
         return (
@@ -161,7 +164,7 @@ export default function AllergiesPage() {
     },
     {
       key: 'description' as const,
-      label: 'Description',
+      label: tc('description'),
       render: (value: string) => (
         <span className="text-sm text-muted-foreground max-w-xs truncate">{value || '—'}</span>
       ),
@@ -170,7 +173,7 @@ export default function AllergiesPage() {
 
   const rowActions = (item: Allergy) => [
     {
-      label: 'Edit',
+      label: tc('edit'),
       icon: Edit2,
       onClick: () => {
         // Edit functionality would go here
@@ -178,7 +181,7 @@ export default function AllergiesPage() {
       },
     },
     {
-      label: 'Delete',
+      label: tc('delete'),
       icon: Trash2,
       onClick: () => {
         // Delete functionality would go here
@@ -196,15 +199,15 @@ export default function AllergiesPage() {
     >
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Allergies</h1>
-          <p className="text-muted-foreground mt-1">Manage allergy definitions for your nursery</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('subtitle')}</p>
         </div>
         <Button
           onClick={() => setIsDialogOpen(true)}
           className="gap-2 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700"
         >
           <Plus className="w-4 h-4" />
-          Add Allergy
+          {t('addAllergy')}
         </Button>
       </div>
 
@@ -214,7 +217,7 @@ export default function AllergiesPage() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 text-red-600" />
-                All Allergies
+                {t('title')}
               </CardTitle>
               <CardDescription>
                 {response?.pagination?.total || 0} allergies defined
@@ -228,7 +231,7 @@ export default function AllergiesPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search by name..."
+                placeholder={t('searchPlaceholder')}
                 className="pl-10"
                 value={search}
                 onChange={(e) => {
@@ -251,7 +254,7 @@ export default function AllergiesPage() {
                 loading={loading}
                 pagination={response?.pagination}
                 onPageChange={setPage}
-                emptyMessage="No allergies found"
+                emptyMessage={t('noAllergies')}
                 rowKey={(allergy) => allergy.id}
               />
             )}
@@ -263,15 +266,15 @@ export default function AllergiesPage() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Add Allergy</DialogTitle>
+            <DialogTitle>{t('addAllergy')}</DialogTitle>
             <DialogDescription>
-              Add a new allergy definition to your nursery catalog
+              {t('addAllergyDescription') || 'Add a new allergy definition to your nursery catalog'}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <FormField
-              label="Allergy Name"
+              label={t('allergyName') || 'Allergy Name'}
               required
               error={errors.name}
             >
@@ -284,7 +287,7 @@ export default function AllergiesPage() {
             </FormField>
 
             <FormField
-              label="Description"
+              label={tc('description')}
               error={errors.description}
             >
               <Input
@@ -296,7 +299,7 @@ export default function AllergiesPage() {
             </FormField>
 
             <FormField
-              label="Category"
+              label={t('category') || 'Category'}
               error={errors.category}
             >
               <Select
@@ -304,15 +307,15 @@ export default function AllergiesPage() {
                 value={formData.category}
                 onChange={handleInputChange}
               >
-                <option value="food">Food</option>
-                <option value="drug">Drug</option>
-                <option value="environmental">Environmental</option>
-                <option value="other">Other</option>
+                <option value="food">{t('food') || 'Food'}</option>
+                <option value="drug">{t('drug') || 'Drug'}</option>
+                <option value="environmental">{t('environmental') || 'Environmental'}</option>
+                <option value="other">{t('other') || 'Other'}</option>
               </Select>
             </FormField>
 
             <FormField
-              label="Severity"
+              label={t('severity')}
               error={errors.severity}
             >
               <Select
@@ -320,15 +323,15 @@ export default function AllergiesPage() {
                 value={formData.severity}
                 onChange={handleInputChange}
               >
-                <option value="mild">Mild</option>
-                <option value="moderate">Moderate</option>
-                <option value="severe">Severe</option>
-                <option value="life_threatening">Life Threatening</option>
+                <option value="mild">{t('mild')}</option>
+                <option value="moderate">{t('moderate')}</option>
+                <option value="severe">{t('severe')}</option>
+                <option value="life_threatening">{t('lifeThreatening')}</option>
               </Select>
             </FormField>
 
             <FormField
-              label="Notes"
+              label={tc('notes')}
               error={errors.notes}
             >
               <Textarea
@@ -353,14 +356,14 @@ export default function AllergiesPage() {
               onClick={() => setIsDialogOpen(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {tc('cancel')}
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting}
               className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700"
             >
-              {isSubmitting ? 'Creating...' : 'Add Allergy'}
+              {isSubmitting ? tc('loading') : t('addAllergy')}
             </Button>
           </DialogFooter>
         </DialogContent>

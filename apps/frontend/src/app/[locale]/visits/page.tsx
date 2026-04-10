@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -56,6 +57,7 @@ const item = {
 };
 
 export default function VisitsPage() {
+  const t = useTranslations('visits');
   const router = useRouter();
   const params = useParams();
   const locale = params.locale as string;
@@ -94,7 +96,7 @@ export default function VisitsPage() {
   const columns = [
     {
       key: 'started_at' as const,
-      label: 'Date/Time',
+      label: t('startedAt') || 'Date/Time',
       render: (value: string) => {
         const date = new Date(value);
         return (
@@ -107,12 +109,12 @@ export default function VisitsPage() {
     },
     {
       key: 'child_id' as const,
-      label: 'Child',
+      label: t('child') || 'Child',
       render: (value: string) => <span className="font-medium">{value}</span>,
     },
     {
       key: 'visit_type' as const,
-      label: 'Type',
+      label: t('visitType'),
       render: (value: string) => (
         <Badge variant={visitTypeConfig[value]?.color || 'default'}>
           {visitTypeConfig[value]?.label || value}
@@ -121,12 +123,12 @@ export default function VisitsPage() {
     },
     {
       key: 'chief_complaint' as const,
-      label: 'Complaint',
+      label: t('chiefComplaint'),
       render: (value: string) => <div className="text-sm truncate max-w-[200px]">{value}</div>,
     },
     {
       key: 'disposition' as const,
-      label: 'Disposition',
+      label: t('disposition'),
       render: (value: string) => (
         <Badge variant={dispositionConfig[value]?.color || 'default'}>
           {dispositionConfig[value]?.label || value}
@@ -135,9 +137,9 @@ export default function VisitsPage() {
     },
     {
       key: 'id' as const,
-      label: 'Duration',
+      label: t('duration') || 'Duration',
       render: (_: string, item: Visit) => {
-        if (!item.ended_at) return <Badge variant="info">Ongoing</Badge>;
+        if (!item.ended_at) return <Badge variant="info">{t('ongoing') || 'Ongoing'}</Badge>;
         const duration = Math.round(
           (new Date(item.ended_at).getTime() - new Date(item.started_at).getTime()) / 60000
         );
@@ -151,21 +153,21 @@ export default function VisitsPage() {
       {/* Header */}
       <motion.div variants={item} className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Visits</h1>
-          <p className="text-muted-foreground mt-1">Track and manage all child visits</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('subtitle')}</p>
         </div>
         <Button onClick={() => router.push(`/${locale}/visits/new`)} className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
           <Plus className="w-4 h-4" />
-          New Visit
+          {t('newVisit')}
         </Button>
       </motion.div>
 
       {/* Stats */}
       <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total Visits" value={stats.total} icon={<Activity className="w-5 h-5" />} />
-        <StatCard title="Authorized" value={stats.byType?.authorization || 0} icon={<Calendar className="w-5 h-5" />} />
-        <StatCard title="Walk-ins" value={stats.byType?.walk_in || 0} icon={<Stethoscope className="w-5 h-5" />} />
-        <StatCard title="Emergency" value={stats.byType?.emergency || 0} icon={<AlertTriangle className="w-5 h-5" />} />
+        <StatCard title={t('totalVisits') || 'Total Visits'} value={stats.total} icon={<Activity className="w-5 h-5" />} />
+        <StatCard title={t('authorized') || 'Authorized'} value={stats.byType?.authorization || 0} icon={<Calendar className="w-5 h-5" />} />
+        <StatCard title={t('walkIns') || 'Walk-ins'} value={stats.byType?.walk_in || 0} icon={<Stethoscope className="w-5 h-5" />} />
+        <StatCard title={t('emergency') || 'Emergency'} value={stats.byType?.emergency || 0} icon={<AlertTriangle className="w-5 h-5" />} />
       </motion.div>
 
       {/* Filters */}
@@ -176,7 +178,7 @@ export default function VisitsPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search child..."
+                  placeholder={t('searchPlaceholder')}
                   value={search}
                   onChange={(e) => { setSearch(e.target.value); setPage(0); }}
                   className="pl-10"
@@ -187,11 +189,11 @@ export default function VisitsPage() {
                 onChange={(e) => { setVisitType(e.target.value); setPage(0); }}
                 className="h-10 rounded-lg border border-input bg-background px-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:border-primary/50"
               >
-                <option value="all">All Types</option>
-                <option value="authorization">Authorization</option>
-                <option value="walk_in">Walk-in</option>
-                <option value="scheduled">Scheduled</option>
-                <option value="emergency">Emergency</option>
+                <option value="all">{t('allTypes') || 'All Types'}</option>
+                <option value="authorization">{t('authorization') || 'Authorization'}</option>
+                <option value="walk_in">{t('walkIn') || 'Walk-in'}</option>
+                <option value="scheduled">{t('scheduled') || 'Scheduled'}</option>
+                <option value="emergency">{t('emergency') || 'Emergency'}</option>
               </select>
               <input
                 type="date"
@@ -216,9 +218,9 @@ export default function VisitsPage() {
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2">
               <Stethoscope className="w-4 h-4 text-indigo-600" />
-              Visit Records
+              {t('visitRecords') || 'Visit Records'}
             </CardTitle>
-            <CardDescription>All visits within the selected date range</CardDescription>
+            <CardDescription>{t('visitDescription') || 'All visits within the selected date range'}</CardDescription>
           </CardHeader>
           <CardContent>
             {error ? (
@@ -232,7 +234,7 @@ export default function VisitsPage() {
                 columns={columns}
                 data={visits}
                 loading={loading}
-                emptyMessage="No visits found"
+                emptyMessage={t('noVisits')}
                 onRowClick={(visit) => router.push(`/${locale}/visits/${visit.id}`)}
                 rowKey={(visit) => visit.id}
               />

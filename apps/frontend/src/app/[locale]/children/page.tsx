@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,6 +33,7 @@ interface ChildrenResponse {
 }
 
 export default function ChildrenPage() {
+  const t = useTranslations('children');
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -52,7 +54,7 @@ export default function ChildrenPage() {
   const columns = [
     {
       key: 'first_name' as const,
-      label: 'Name',
+      label: t('firstName'),
       render: (value: string, item: Child) => (
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
@@ -64,22 +66,22 @@ export default function ChildrenPage() {
     },
     {
       key: 'date_of_birth' as const,
-      label: 'Date of Birth',
+      label: t('dateOfBirth'),
       render: (value: string) => (
         <span className="text-muted-foreground">{value ? new Date(value).toLocaleDateString() : '—'}</span>
       ),
     },
     {
       key: 'class_name' as const,
-      label: 'Class',
+      label: t('class'),
       render: (value: string) => value ? <Badge variant="secondary">{value}</Badge> : <span className="text-muted-foreground/50">—</span>,
     },
     {
       key: 'is_archived' as const,
-      label: 'Status',
+      label: t('status'),
       render: (value: boolean) => (
         <Badge variant={!value ? 'success' : 'secondary'}>
-          {value ? 'Archived' : 'Active'}
+          {value ? t('archived') : t('active')}
         </Badge>
       ),
     },
@@ -94,12 +96,12 @@ export default function ChildrenPage() {
     >
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Children</h1>
-          <p className="text-muted-foreground mt-1">Manage children enrolled in your nursery</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('subtitle')}</p>
         </div>
         <Button onClick={() => router.push(`/${locale}/children/new`)} className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
           <Plus className="w-4 h-4" />
-          Add Child
+          {t('addChild')}
         </Button>
       </div>
 
@@ -109,7 +111,7 @@ export default function ChildrenPage() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Baby className="w-4 h-4 text-indigo-600" />
-                All Children
+                {t('title')}
               </CardTitle>
               <CardDescription>
                 {response?.pagination?.total || 0} children registered
@@ -123,7 +125,7 @@ export default function ChildrenPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search by name..."
+                placeholder={t('searchPlaceholder')}
                 className="pl-10"
                 value={search}
                 onChange={(e) => {
@@ -147,7 +149,7 @@ export default function ChildrenPage() {
                 pagination={response?.pagination}
                 onPageChange={setPage}
                 onRowClick={(child) => router.push(`/${locale}/children/${child.id}`)}
-                emptyMessage="No children found"
+                emptyMessage={t('noChildren')}
                 rowKey={(child) => child.id}
               />
             )}

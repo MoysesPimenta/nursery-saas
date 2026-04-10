@@ -9,6 +9,7 @@ import { DataTableSkeleton } from '@/components/ui/loading';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 interface DashboardStats {
   childrenCount: number;
@@ -35,6 +36,8 @@ export default function DashboardPage() {
   const params = useParams();
   const locale = params.locale as string;
   const { data: stats, loading, error } = useApiQuery<DashboardStats>('/api/v1/dashboard');
+  const t = useTranslations('dashboard');
+  const tCommon = useTranslations('common');
 
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -44,10 +47,10 @@ export default function DashboardPage() {
   });
 
   const quickActions = [
-    { label: 'Add Child', icon: Plus, href: `/${locale}/children/new`, color: 'from-indigo-500 to-purple-500' },
-    { label: 'New Visit', icon: ClipboardList, href: `/${locale}/visits/new`, color: 'from-violet-500 to-pink-500' },
-    { label: 'Authorizations', icon: FileText, href: `/${locale}/authorizations`, color: 'from-blue-500 to-cyan-500' },
-    { label: 'View Staff', icon: Users, href: `/${locale}/employees`, color: 'from-emerald-500 to-teal-500' },
+    { label: tCommon('children'), icon: Plus, href: `/${locale}/children/new`, color: 'from-indigo-500 to-purple-500' },
+    { label: t('newVisit'), icon: ClipboardList, href: `/${locale}/visits/new`, color: 'from-violet-500 to-pink-500' },
+    { label: tCommon('authorizations'), icon: FileText, href: `/${locale}/authorizations`, color: 'from-blue-500 to-cyan-500' },
+    { label: tCommon('employees'), icon: Users, href: `/${locale}/employees`, color: 'from-emerald-500 to-teal-500' },
   ];
 
   return (
@@ -61,14 +64,14 @@ export default function DashboardPage() {
       <motion.div variants={item} className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            Welcome back! <span className="inline-block animate-bounce">👋</span>
+            {t('welcome')} <span className="inline-block animate-bounce">👋</span>
           </h1>
           <p className="text-muted-foreground mt-1">{today}</p>
         </div>
         <Link href={`/${locale}/visits/new`}>
           <Button className="gap-2">
             <Plus className="w-4 h-4" />
-            New Visit
+            {t('newVisit')}
           </Button>
         </Link>
       </motion.div>
@@ -92,7 +95,7 @@ export default function DashboardPage() {
         >
           <motion.div variants={item}>
             <StatCard
-              title="Total Children"
+              title={t('totalChildren')}
               value={stats?.childrenCount || 0}
               icon={<Baby className="w-5 h-5" />}
               trend={stats?.childrenCount ? `${stats.childrenCount} enrolled` : 'No children yet'}
@@ -101,7 +104,7 @@ export default function DashboardPage() {
           </motion.div>
           <motion.div variants={item}>
             <StatCard
-              title="Staff Members"
+              title={t('staffMembers')}
               value={stats?.staffCount || 0}
               icon={<Users className="w-5 h-5" />}
               trend={stats?.staffCount ? `${stats.staffCount} active` : 'No staff yet'}
@@ -110,7 +113,7 @@ export default function DashboardPage() {
           </motion.div>
           <motion.div variants={item}>
             <StatCard
-              title="Today's Visits"
+              title={t('todaysVisits')}
               value={stats?.visitsToday || 0}
               icon={<Activity className="w-5 h-5" />}
               trend={stats?.visitsToday ? 'Updated just now' : 'No visits today'}
@@ -119,7 +122,7 @@ export default function DashboardPage() {
           </motion.div>
           <motion.div variants={item}>
             <StatCard
-              title="Pending Auth."
+              title={t('pendingAuth')}
               value={stats?.pendingAuthorizations || 0}
               icon={<FileText className="w-5 h-5" />}
               trend={stats?.allergyAlerts ? `${stats.allergyAlerts} allergy alerts` : 'All clear'}
@@ -136,7 +139,7 @@ export default function DashboardPage() {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-indigo-600" />
-                <CardTitle>Quick Actions</CardTitle>
+                <CardTitle>{t('quickActions')}</CardTitle>
               </div>
               <CardDescription>Jump to common tasks</CardDescription>
             </CardHeader>
