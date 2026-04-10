@@ -2,6 +2,19 @@ import { initTRPC } from '@trpc/server';
 import { Context } from './context';
 
 /**
+ * SCAFFOLDING FOR FUTURE USE
+ *
+ * This tRPC router is currently not used in the application.
+ * Currently, the backend uses REST API endpoints for all CRUD operations.
+ * The tRPC setup is ready for future migration if needed.
+ *
+ * To enable tRPC:
+ * 1. Create /app/api/trpc/[trpc]/route.ts handler
+ * 2. Export AppRouter type from this router
+ * 3. Add CRUD procedures (children, employees, visits, etc.)
+ */
+
+/**
  * tRPC router initialization
  * Defines the root router and common middleware
  */

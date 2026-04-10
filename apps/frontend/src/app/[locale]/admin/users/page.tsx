@@ -23,8 +23,23 @@ import {
   AlertCircle,
   Loader,
 } from 'lucide-react';
-import { User, SystemRole } from '@nursery-saas/shared';
 import { apiGet, apiPost, apiPatch } from '@/lib/api';
+
+// Local interface matching backend snake_case response
+interface BackendUser {
+  id: string;
+  email: string;
+  full_name: string;
+  is_active: boolean;
+  roles: Array<{ id: string; name: string }>;
+  created_at: string;
+  updated_at: string;
+}
+
+interface BackendRole {
+  id: string;
+  name: string;
+}
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -39,18 +54,18 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-const ROLES: { value: SystemRole; label: string; color: string }[] = [
-  { value: 'school_admin', label: 'School Admin', color: 'purple' },
-  { value: 'nurse', label: 'Nurse', color: 'green' },
-  { value: 'teacher', label: 'Teacher', color: 'blue' },
-  { value: 'inspector', label: 'Inspector', color: 'orange' },
-  { value: 'parent', label: 'Parent', color: 'info' },
-  { value: 'read_only', label: 'Read Only', color: 'secondary' },
+const ROLE_CONFIG: { name: string; label: string; variant: 'success' | 'info' | 'warning' | 'purple' | 'default' | 'secondary' | 'destructive' | 'outline' }[] = [
+  { name: 'school_admin', label: 'School Admin', variant: 'purple' },
+  { name: 'nurse', label: 'Nurse', variant: 'success' },
+  { name: 'teacher', label: 'Teacher', variant: 'info' },
+  { name: 'inspector', label: 'Inspector', variant: 'warning' },
+  { name: 'parent', label: 'Parent', variant: 'default' },
+  { name: 'read_only', label: 'Read Only', variant: 'secondary' },
 ];
 
 interface InviteForm {
   email: string;
-  role: SystemRole;
+  roleId: string;
   fullName?: string;
 }
 
@@ -63,46 +78,59 @@ function formatDate(dateString?: string): string {
   });
 }
 
-function getRoleColor(role: SystemRole): string {
-  const config = ROLES.find((r) => r.value === role);
-  return config?.color || 'secondary';
+function getRoleVariant(roleName: string): 'success' | 'info' | 'warning' | 'purple' | 'default' | 'secondary' | 'destructive' | 'outline' {
+  const config = ROLE_CONFIG.find((r) => r.name === roleName);
+  return config?.variant || 'default';
 }
 
-function getRoleLabel(role: SystemRole): string {
-  const config = ROLES.find((r) => r.value === role);
-  return config?.label || role;
+function getRoleLabel(roleName: string): string {
+  const config = ROLE_CONFIG.find((r) => r.name === roleName);
+  return config?.label || roleName;
 }
 
 export default function UserManagementPage() {
-  const [users, setUsers] = React.useState<User[]>([]);
+  const [users, setUsers] = React.useState<BackendUser[]>([]);
+  const [availableRoles, setAvailableRoles] = React.useState<BackendRole[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [searchTerm, setSearchTerm] = React.useState('');
-  const [roleFilter, setRoleFilter] = React.useState<SystemRole | 'all'>('all');
+  const [roleFilter, setRoleFilter] = React.useState<string | 'all'>('all');
   const [isInviteOpen, setIsInviteOpen] = React.useState(false);
   const [formData, setFormData] = React.useState<InviteForm>({
     email: '',
-    role: 'parent',
+    roleId: '',
     fullName: '',
   });
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   React.useEffect(() => {
-    async function loadUsers() {
+    async function loadUsersAndRoles() {
       try {
         setLoading(true);
         setError(null);
-        const data = await apiGet<User[]>('/api/v1/users');
-        setUsers(data || []);
+
+        // Fetch users from correct endpoint
+        const response = await apiGet<{ data: BackendUser[] }>('/api/v1/admin/users');
+        setUsers(response?.data || []);
+
+        // Try to fetch roles - if endpoint doesn't exist, set empty array
+        try {
+          const rolesResponse = await apiGet<{ data: BackendRole[] }>('/api/v1/admin/roles');
+          setAvailableRoles(rolesResponse?.data || ROLE_CONFIG.map((r) => ({ id: r.name, name: r.name })));
+        } catch {
+          // Fallback to predefined roles if endpoint doesn't exist
+          setAvailableRoles(ROLE_CONFIG.map((r) => ({ id: r.name, name: r.name })));
+        }
       } catch (err) {
-        // For demo purposes, use empty array
+        setError(err instanceof Error ? err.message : 'Failed to load users');
         setUsers([]);
+        setAvailableRoles(ROLE_CONFIG.map((r) => ({ id: r.name, name: r.name })));
       } finally {
         setLoading(false);
       }
     }
 
-    loadUsers();
+    loadUsersAndRoles();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -110,22 +138,22 @@ export default function UserManagementPage() {
     setIsSubmitting(true);
 
     try {
-      await apiPost('/api/v1/users/invite', {
+      await apiPost('/api/v1/admin/users', {
         email: formData.email,
-        role: formData.role,
-        fullName: formData.fullName,
+        role_id: formData.roleId,
+        full_name: formData.fullName,
       });
 
       setIsInviteOpen(false);
       setFormData({
         email: '',
-        role: 'parent',
+        roleId: '',
         fullName: '',
       });
 
       // Reload users
-      const data = await apiGet<User[]>('/api/v1/users');
-      setUsers(data || []);
+      const response = await apiGet<{ data: BackendUser[] }>('/api/v1/admin/users');
+      setUsers(response?.data || []);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Failed to send invite'
@@ -138,15 +166,15 @@ export default function UserManagementPage() {
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.fullName.toLowerCase().includes(searchTerm.toLowerCase());
+      user.full_name.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesRole =
-      roleFilter === 'all' || user.role === roleFilter;
+      roleFilter === 'all' || user.roles.some((r) => r.name === roleFilter);
 
     return matchesSearch && matchesRole;
   });
 
-  const activeUsers = users.filter((u) => u.isActive).length;
+  const activeUsers = users.filter((u) => u.is_active).length;
 
   return (
     <motion.div
@@ -168,7 +196,7 @@ export default function UserManagementPage() {
           </div>
           <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
             <DialogTrigger asChild>
-              <Button variant="primary" className="gap-2">
+              <Button variant="default" className="gap-2">
                 <Plus className="w-4 h-4" />
                 Invite User
               </Button>
@@ -221,18 +249,20 @@ export default function UserManagementPage() {
                     Role
                   </label>
                   <select
-                    value={formData.role}
+                    value={formData.roleId}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        role: e.target.value as SystemRole,
+                        roleId: e.target.value,
                       }))
                     }
                     className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    required
                   >
-                    {ROLES.map((role) => (
-                      <option key={role.value} value={role.value}>
-                        {role.label}
+                    <option value="">Select a role...</option>
+                    {availableRoles.map((role) => (
+                      <option key={role.id} value={role.id}>
+                        {getRoleLabel(role.name)}
                       </option>
                     ))}
                   </select>
@@ -249,8 +279,8 @@ export default function UserManagementPage() {
                   </Button>
                   <Button
                     type="submit"
-                    variant="primary"
-                    disabled={isSubmitting || !formData.email}
+                    variant="default"
+                    disabled={isSubmitting || !formData.email || !formData.roleId}
                   >
                     {isSubmitting ? (
                       <>
@@ -303,20 +333,20 @@ export default function UserManagementPage() {
               </label>
               <div className="flex gap-2 flex-wrap">
                 <Button
-                  variant={roleFilter === 'all' ? 'primary' : 'secondary'}
+                  variant={roleFilter === 'all' ? 'default' : 'secondary'}
                   size="sm"
                   onClick={() => setRoleFilter('all')}
                 >
                   All Roles
                 </Button>
-                {ROLES.map((role) => (
+                {ROLE_CONFIG.map((role) => (
                   <Button
-                    key={role.value}
+                    key={role.name}
                     variant={
-                      roleFilter === role.value ? 'primary' : 'secondary'
+                      roleFilter === role.name ? 'default' : 'secondary'
                     }
                     size="sm"
-                    onClick={() => setRoleFilter(role.value)}
+                    onClick={() => setRoleFilter(role.name)}
                   >
                     {role.label}
                   </Button>
@@ -412,28 +442,36 @@ export default function UserManagementPage() {
                       >
                         <td className="py-3 px-4">
                           <div className="font-medium text-foreground">
-                            {user.fullName}
+                            {user.full_name}
                           </div>
                         </td>
                         <td className="py-3 px-4 text-muted-foreground">
                           {user.email}
                         </td>
                         <td className="py-3 px-4">
-                          <Badge variant={getRoleColor(user.role)}>
-                            {getRoleLabel(user.role)}
-                          </Badge>
+                          {user.roles.length > 0 ? (
+                            <div className="flex gap-1 flex-wrap">
+                              {user.roles.map((role) => (
+                                <Badge key={role.id} variant={getRoleVariant(role.name)}>
+                                  {getRoleLabel(role.name)}
+                                </Badge>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">No role</span>
+                          )}
                         </td>
                         <td className="py-3 px-4">
                           <Badge
                             variant={
-                              user.isActive ? 'success' : 'secondary'
+                              user.is_active ? 'success' : 'secondary'
                             }
                           >
-                            {user.isActive ? 'Active' : 'Inactive'}
+                            {user.is_active ? 'Active' : 'Inactive'}
                           </Badge>
                         </td>
                         <td className="py-3 px-4 text-muted-foreground">
-                          {formatDate(user.lastLoginAt)}
+                          {formatDate(user.updated_at)}
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex justify-end gap-2">

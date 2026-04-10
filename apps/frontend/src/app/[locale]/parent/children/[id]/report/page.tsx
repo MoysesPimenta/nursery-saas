@@ -10,26 +10,39 @@ import { Avatar } from '@/components/ui/avatar';
 import { AllergyBadge } from '@/components/allergy-badge';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Printer, AlertCircle, Loader } from 'lucide-react';
-import { Child, Visit, Allergy } from '@nursery-saas/shared';
 import { apiGet } from '@/lib/api';
 
-interface ChildMedication {
+interface DetailedChild {
   id: string;
-  medicationId: string;
-  childId: string;
-  medicationName: string;
-  dosage: string;
-  frequency: string;
-  prescribedBy?: string;
-  startDate: string;
-  endDate?: string;
+  tenant_id: string;
+  first_name: string;
+  last_name: string;
+  date_of_birth: string;
+  gender?: string;
+  class_id?: string;
+  photo_url?: string;
+  blood_type?: string;
+  emergency_contact_name: string;
+  emergency_contact_phone: string;
+  emergency_contact_relation: string;
   notes?: string;
-}
-
-interface DetailedChild extends Child {
-  allergies: Allergy[];
-  medications: ChildMedication[];
-  visits: Visit[];
+  is_archived: boolean;
+  created_at: string;
+  updated_at: string;
+  allergies: Array<{
+    id: string;
+    name: string;
+    severity_level: 'mild' | 'moderate' | 'severe' | 'life_threatening';
+    description?: string;
+    created_at: string;
+  }>;
+  medications: Array<{
+    id: string;
+    name: string;
+    dosage_form?: string;
+    default_dosage?: string;
+  }>;
+  visits: any[];
 }
 
 function getInitials(firstName: string, lastName: string): string {
@@ -82,8 +95,8 @@ export default function ChildHealthReportPage() {
         setLoading(true);
         setError(null);
 
-        const childData = await apiGet<any>(`/api/v1/children/${childId}`);
-        const visitsData = await apiGet<Visit[]>(
+        const childData = await apiGet<DetailedChild>(`/api/v1/children/${childId}`);
+        const visitsData = await apiGet<any[]>(
           `/api/v1/visits?child_id=${childId}`
         );
 
@@ -132,12 +145,12 @@ export default function ChildHealthReportPage() {
     );
   }
 
-  const age = calculateAge(child.dateOfBirth);
-  const initials = getInitials(child.firstName, child.lastName);
+  const age = calculateAge(child.date_of_birth);
+  const initials = getInitials(child.first_name, child.last_name);
   const today = formatDate(new Date().toISOString());
   const visitsByType = (child.visits || []).reduce(
     (acc, visit) => {
-      const type = visit.visitType;
+      const type = visit.visit_type;
       acc[type] = (acc[type] || 0) + 1;
       return acc;
     },
@@ -165,20 +178,20 @@ export default function ChildHealthReportPage() {
       </motion.div>
 
       {/* Report Content */}
-      <PrintLayout title={`Health Report: ${child.firstName} ${child.lastName}`}>
+      <PrintLayout title={`Health Report: ${child.first_name} ${child.last_name}`}>
         <div className="space-y-8">
           {/* Header */}
           <div className="border-b border-border pb-6">
             <div className="flex items-start gap-6 mb-6">
               <Avatar
                 initials={initials}
-                src={child.photoUrl}
-                colorSeed={child.firstName + child.lastName}
+                src={child.photo_url}
+                colorSeed={child.first_name + child.last_name}
                 size="lg"
               />
               <div className="flex-1">
                 <h1 className="text-3xl font-bold mb-4">
-                  {child.firstName} {child.lastName}
+                  {child.first_name} {child.last_name}
                 </h1>
                 <div className="grid grid-cols-2 gap-6 text-sm">
                   <div>
@@ -186,17 +199,17 @@ export default function ChildHealthReportPage() {
                   </div>
                   <div>
                     <span className="font-semibold">Class:</span>{' '}
-                    {child.classId || 'Not assigned'}
+                    {child.class_id || 'Not assigned'}
                   </div>
-                  {child.bloodType && (
+                  {child.blood_type && (
                     <div>
                       <span className="font-semibold">Blood Type:</span>{' '}
-                      {child.bloodType}
+                      {child.blood_type}
                     </div>
                   )}
                   <div>
                     <span className="font-semibold">Date of Birth:</span>{' '}
-                    {formatDate(child.dateOfBirth)}
+                    {formatDate(child.date_of_birth)}
                   </div>
                 </div>
               </div>
@@ -211,11 +224,11 @@ export default function ChildHealthReportPage() {
               <h3 className="font-semibold mb-2 text-sm">Emergency Contact</h3>
               <div className="text-sm space-y-0.5">
                 <p>
-                  <span className="font-medium">{child.emergencyContactName}</span>
+                  <span className="font-medium">{child.emergency_contact_name}</span>
                   {' '}
-                  ({child.emergencyContactRelation})
+                  ({child.emergency_contact_relation})
                 </p>
-                <p>{child.emergencyContactPhone}</p>
+                <p>{child.emergency_contact_phone}</p>
               </div>
             </div>
           </div>
@@ -230,7 +243,7 @@ export default function ChildHealthReportPage() {
                 <span className="font-semibold block text-muted-foreground text-xs uppercase mb-1">
                   Full Name
                 </span>
-                <p>{child.firstName} {child.lastName}</p>
+                <p>{child.first_name} {child.last_name}</p>
               </div>
               <div>
                 <span className="font-semibold block text-muted-foreground text-xs uppercase mb-1">
@@ -242,13 +255,13 @@ export default function ChildHealthReportPage() {
                 <span className="font-semibold block text-muted-foreground text-xs uppercase mb-1">
                   Blood Type
                 </span>
-                <p>{child.bloodType || 'Not specified'}</p>
+                <p>{child.blood_type || 'Not specified'}</p>
               </div>
               <div>
                 <span className="font-semibold block text-muted-foreground text-xs uppercase mb-1">
                   Class
                 </span>
-                <p>{child.classId || 'Not assigned'}</p>
+                <p>{child.class_id || 'Not assigned'}</p>
               </div>
             </div>
           </div>
@@ -272,11 +285,11 @@ export default function ChildHealthReportPage() {
                       )}
                       <p>
                         <span className="font-medium">Severity:</span>{' '}
-                        {allergy.severityLevel.replace(/_/g, ' ')}
+                        {allergy.severity_level.replace(/_/g, ' ')}
                       </p>
                       <p>
                         <span className="font-medium">Diagnosed:</span>{' '}
-                        {formatDate(allergy.createdAt)}
+                        {formatDate(allergy.created_at)}
                       </p>
                     </div>
                   </div>
@@ -296,24 +309,14 @@ export default function ChildHealthReportPage() {
               <div className="space-y-3">
                 {child.medications.map((med) => (
                   <div key={med.id} className="border border-border p-3 rounded">
-                    <h3 className="font-semibold mb-2">{med.medicationName}</h3>
+                    <h3 className="font-semibold mb-2">{med.name}</h3>
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
-                        <span className="font-medium">Dosage:</span> {med.dosage}
+                        <span className="font-medium">Dosage Form:</span> {med.dosage_form || 'N/A'}
                       </div>
                       <div>
-                        <span className="font-medium">Frequency:</span>{' '}
-                        {med.frequency}
-                      </div>
-                      {med.prescribedBy && (
-                        <div>
-                          <span className="font-medium">Prescribed by:</span>{' '}
-                          {med.prescribedBy}
-                        </div>
-                      )}
-                      <div>
-                        <span className="font-medium">Started:</span>{' '}
-                        {formatDate(med.startDate)}
+                        <span className="font-medium">Default Dosage:</span>{' '}
+                        {med.default_dosage || 'N/A'}
                       </div>
                     </div>
                   </div>
@@ -364,20 +367,20 @@ export default function ChildHealthReportPage() {
                     >
                       <div className="flex justify-between mb-3">
                         <h3 className="font-semibold">
-                          {formatDateTime(visit.startedAt)}
+                          {formatDateTime(visit.started_at)}
                         </h3>
                         <span className="font-medium text-sm">
-                          {visit.visitType.replace(/_/g, ' ')}
+                          {visit.visit_type.replace(/_/g, ' ')}
                         </span>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4 text-sm mb-3">
-                        {visit.chiefComplaint && (
+                        {visit.chief_complaint && (
                           <div>
                             <span className="font-medium block mb-1">
                               Chief Complaint
                             </span>
-                            <p>{visit.chiefComplaint}</p>
+                            <p>{visit.chief_complaint}</p>
                           </div>
                         )}
                         {visit.assessment && (
@@ -417,11 +420,11 @@ export default function ChildHealthReportPage() {
                                 Temperature: {visit.vitals.temperature}°C
                               </p>
                             )}
-                            {visit.vitals.heartRate && (
-                              <p>Heart Rate: {visit.vitals.heartRate} bpm</p>
+                            {visit.vitals.heart_rate && (
+                              <p>Heart Rate: {visit.vitals.heart_rate} bpm</p>
                             )}
-                            {visit.vitals.bloodPressure && (
-                              <p>BP: {visit.vitals.bloodPressure}</p>
+                            {visit.vitals.blood_pressure && (
+                              <p>BP: {visit.vitals.blood_pressure}</p>
                             )}
                             {visit.vitals.weight && (
                               <p>Weight: {visit.vitals.weight} kg</p>

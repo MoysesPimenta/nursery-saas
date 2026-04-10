@@ -13,27 +13,48 @@ import { MedicationList } from '@/components/medication-list';
 import { AllergyBadge } from '@/components/allergy-badge';
 import { motion } from 'framer-motion';
 import { ArrowLeft, AlertCircle, Loader } from 'lucide-react';
-import { Child, Visit, Allergy } from '@nursery-saas/shared';
 import { apiGet } from '@/lib/api';
 
-interface ChildMedication {
-  id: string;
-  medicationId: string;
-  childId: string;
-  medicationName: string;
-  dosage: string;
-  frequency: string;
-  prescribedBy?: string;
-  startDate: string;
-  endDate?: string;
-  notes?: string;
+interface ChildMedicationRow {
+  medications: {
+    id: string;
+    name: string;
+    dosage_form?: string;
+    default_dosage?: string;
+  };
 }
 
-interface DetailedChild extends Child {
-  allergies: Allergy[];
-  medications: ChildMedication[];
-  visits: Visit[];
-  lastVisit?: Visit;
+interface ChildAllergyRow {
+  allergies: {
+    id: string;
+    name: string;
+    severity_level: 'mild' | 'moderate' | 'severe' | 'life_threatening';
+    description?: string;
+    created_at: string;
+  };
+}
+
+interface DetailedChild {
+  id: string;
+  tenant_id: string;
+  first_name: string;
+  last_name: string;
+  date_of_birth: string;
+  gender?: string;
+  class_id?: string;
+  photo_url?: string;
+  blood_type?: string;
+  emergency_contact_name: string;
+  emergency_contact_phone: string;
+  emergency_contact_relation: string;
+  notes?: string;
+  is_archived: boolean;
+  created_at: string;
+  updated_at: string;
+  allergies: ChildAllergyRow['allergies'][];
+  medications: ChildMedicationRow['medications'][];
+  visits: any[];
+  lastVisit?: any;
 }
 
 const containerVariants = {
@@ -89,9 +110,9 @@ export default function ChildDetailPage() {
         setLoading(true);
         setError(null);
 
-        const childData = await apiGet<any>(`/api/v1/children/${childId}`);
-        const visitsData = await apiGet<Visit[]>(
-          `/api/v1/visits?child_id=${childId}`
+        const childData = await apiGet<DetailedChild>(`/api/v1/children/${childId}`);
+        const visitsData = await apiGet<any[]>(
+          `/api/v1/visits?child_id=${childId}&limit=10`
         );
 
         setChild({
@@ -140,8 +161,8 @@ export default function ChildDetailPage() {
     );
   }
 
-  const age = calculateAge(child.dateOfBirth);
-  const initials = getInitials(child.firstName, child.lastName);
+  const age = calculateAge(child.date_of_birth);
+  const initials = getInitials(child.first_name, child.last_name);
   const recentVisits = (child.visits || []).slice(0, 5);
 
   return (
@@ -168,14 +189,14 @@ export default function ChildDetailPage() {
             <div className="flex items-start gap-6 mb-6">
               <Avatar
                 initials={initials}
-                src={child.photoUrl}
-                colorSeed={child.firstName + child.lastName}
+                src={child.photo_url}
+                colorSeed={child.first_name + child.last_name}
                 size="lg"
-                alt={`${child.firstName} ${child.lastName}`}
+                alt={`${child.first_name} ${child.last_name}`}
               />
               <div className="flex-1">
                 <h1 className="text-3xl font-bold text-foreground mb-2">
-                  {child.firstName} {child.lastName}
+                  {child.first_name} {child.last_name}
                 </h1>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   <div>
@@ -191,16 +212,16 @@ export default function ChildDetailPage() {
                       Class
                     </span>
                     <p className="font-semibold text-foreground">
-                      {child.classId || 'Not assigned'}
+                      {child.class_id || 'Not assigned'}
                     </p>
                   </div>
-                  {child.bloodType && (
+                  {child.blood_type && (
                     <div>
                       <span className="text-muted-foreground">
                         Blood Type
                       </span>
                       <p className="font-semibold text-foreground">
-                        {child.bloodType}
+                        {child.blood_type}
                       </p>
                     </div>
                   )}
@@ -209,7 +230,7 @@ export default function ChildDetailPage() {
                       Date of Birth
                     </span>
                     <p className="font-semibold text-foreground">
-                      {formatDate(child.dateOfBirth)}
+                      {formatDate(child.date_of_birth)}
                     </p>
                   </div>
                 </div>
@@ -227,7 +248,7 @@ export default function ChildDetailPage() {
                     Name:
                   </span>
                   <span className="ml-2 font-medium">
-                    {child.emergencyContactName}
+                    {child.emergency_contact_name}
                   </span>
                 </p>
                 <p>
@@ -235,7 +256,7 @@ export default function ChildDetailPage() {
                     Relation:
                   </span>
                   <span className="ml-2 font-medium">
-                    {child.emergencyContactRelation}
+                    {child.emergency_contact_relation}
                   </span>
                 </p>
                 <p>
@@ -243,7 +264,7 @@ export default function ChildDetailPage() {
                     Phone:
                   </span>
                   <span className="ml-2 font-medium">
-                    {child.emergencyContactPhone}
+                    {child.emergency_contact_phone}
                   </span>
                 </p>
               </div>
@@ -284,7 +305,7 @@ export default function ChildDetailPage() {
                   </div>
                   <div className="font-semibold text-foreground">
                     {child.lastVisit
-                      ? formatDate(child.lastVisit.startedAt)
+                      ? formatDate(child.lastVisit.started_at)
                       : 'None'}
                   </div>
                 </CardContent>

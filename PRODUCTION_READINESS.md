@@ -205,10 +205,26 @@ Before going live, ensure:
 | Unit tests: token verification (27 tests) | **Written** |
 | Unit tests: validation schemas (135+ tests) | **Written** |
 
+### Round 4 — Admin Pages, Profile, Settings, Data Flow Fixes
+
+| Item | Status |
+|------|--------|
+| Profile page with password change | **Built** |
+| User settings page (language, theme, notifications) | **Built** |
+| Admin/users page: fixed API URLs, snake_case mapping, role fetching | **Fixed** |
+| Admin/settings page: fixed API URLs, snake_case mapping, added address fields | **Fixed** |
+| Admin/tenant backend GET + PATCH endpoint | **Built** |
+| Admin/users backend GET + POST endpoint (invite user) | **Built** |
+| Admin/roles backend GET endpoint (list tenant roles) | **Built** |
+| Parent portal child detail + report: snake_case fixes | **Fixed** |
+| GraphQL dead code removed | **Removed** |
+| tRPC scaffolding cleaned up | **Cleaned** |
+| Loading.tsx route transitions (5 files) | **Built** |
+
 ---
 
 ## Commits (Latest, Ready to Push)
 
 | Hash | Description |
 |------|-------------|
-| `596cddd` | Complete feature expansion — new pages, tests, error handling, navigation |
+| `a593862` | Complete feature expansion — new pages, tests, error handling, navigation |

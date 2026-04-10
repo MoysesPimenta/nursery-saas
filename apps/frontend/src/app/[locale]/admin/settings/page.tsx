@@ -4,10 +4,8 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ColorPicker } from '@/components/ui/color-picker';
 import { motion } from 'framer-motion';
 import { AlertCircle, Loader, CheckCircle, Upload } from 'lucide-react';
-import { Tenant } from '@nursery-saas/shared';
 import { apiGet, apiPatch } from '@/lib/api';
 
 const containerVariants = {
@@ -23,18 +21,47 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
+interface TenantData {
+  id: string;
+  name: string;
+  slug?: string;
+  logo_url?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip_code?: string;
+  phone?: string;
+  email?: string;
+  subscription_tier?: string;
+  max_children?: number;
+  max_employees?: number;
+  max_storage_mb?: number;
+  created_at: string;
+  updated_at: string;
+}
+
 interface TenantSettings {
   name: string;
-  themeColor: string;
-  logoUrl?: string;
+  logo_url?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip_code?: string;
+  phone?: string;
+  email?: string;
 }
 
 export default function TenantSettingsPage() {
-  const [tenant, setTenant] = React.useState<Tenant | null>(null);
+  const [tenant, setTenant] = React.useState<TenantData | null>(null);
   const [settings, setSettings] = React.useState<TenantSettings>({
     name: '',
-    themeColor: '#10b981',
-    logoUrl: '',
+    logo_url: '',
+    address: '',
+    city: '',
+    state: '',
+    zip_code: '',
+    phone: '',
+    email: '',
   });
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
@@ -49,35 +76,44 @@ export default function TenantSettingsPage() {
 
         // Try to load tenant, fallback to demo data
         try {
-          const data = await apiGet<Tenant>('/api/v1/admin/tenant');
+          const data = await apiGet<TenantData>('/api/v1/admin/tenant');
           setTenant(data);
           setSettings({
             name: data.name,
-            themeColor: data.themeColor,
-            logoUrl: data.logoUrl,
+            logo_url: data.logo_url,
+            address: data.address,
+            city: data.city,
+            state: data.state,
+            zip_code: data.zip_code,
+            phone: data.phone,
+            email: data.email,
           });
         } catch {
           // Demo data
-          const demoTenant: Tenant = {
+          const demoTenant: TenantData = {
             id: '1',
             name: 'Demo School',
             slug: 'demo-school',
-            logoUrl: '',
-            themeColor: '#10b981',
-            subscriptionTier: 'professional',
-            maxChildren: 100,
-            maxEmployees: 20,
-            maxStorageMb: 51200,
-            isActive: true,
-            settings: {},
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            logo_url: '',
+            address: '123 Main St',
+            city: 'Springfield',
+            state: 'IL',
+            zip_code: '62701',
+            phone: '(217) 555-0100',
+            email: 'info@demo-school.com',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           };
           setTenant(demoTenant);
           setSettings({
             name: demoTenant.name,
-            themeColor: demoTenant.themeColor,
-            logoUrl: demoTenant.logoUrl,
+            logo_url: demoTenant.logo_url,
+            address: demoTenant.address,
+            city: demoTenant.city,
+            state: demoTenant.state,
+            zip_code: demoTenant.zip_code,
+            phone: demoTenant.phone,
+            email: demoTenant.email,
           });
         }
       } catch (err) {
@@ -101,8 +137,13 @@ export default function TenantSettingsPage() {
     try {
       await apiPatch('/api/v1/admin/tenant', {
         name: settings.name,
-        themeColor: settings.themeColor,
-        logoUrl: settings.logoUrl,
+        logo_url: settings.logo_url,
+        address: settings.address,
+        city: settings.city,
+        state: settings.state,
+        zip_code: settings.zip_code,
+        phone: settings.phone,
+        email: settings.email,
       });
 
       setSuccess(true);
@@ -169,13 +210,13 @@ export default function TenantSettingsPage() {
       )}
 
       <form onSubmit={handleSave} className="space-y-6">
-        {/* Branding Section */}
+        {/* School Information Section */}
         <motion.div variants={itemVariants}>
           <Card>
             <CardHeader>
-              <CardTitle>Branding</CardTitle>
+              <CardTitle>School Information</CardTitle>
               <CardDescription>
-                Customize your school's appearance and identity
+                Manage your school's basic details and contact information
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -196,21 +237,100 @@ export default function TenantSettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-3">
-                  Theme Color
+                <label className="block text-sm font-semibold mb-2">
+                  Address
                 </label>
-                <ColorPicker
-                  value={settings.themeColor}
-                  onChange={(color) =>
+                <Input
+                  value={settings.address || ''}
+                  onChange={(e) =>
                     setSettings((prev) => ({
                       ...prev,
-                      themeColor: color,
+                      address: e.target.value,
                     }))
                   }
+                  placeholder="e.g., 123 Main Street"
                 />
-                <p className="text-xs text-muted-foreground mt-2">
-                  This color will be used for buttons, links, and highlights throughout the app.
-                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2">
+                    City
+                  </label>
+                  <Input
+                    value={settings.city || ''}
+                    onChange={(e) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        city: e.target.value,
+                      }))
+                    }
+                    placeholder="e.g., Springfield"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">
+                    State
+                  </label>
+                  <Input
+                    value={settings.state || ''}
+                    onChange={(e) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        state: e.target.value,
+                      }))
+                    }
+                    placeholder="e.g., IL"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">
+                    ZIP Code
+                  </label>
+                  <Input
+                    value={settings.zip_code || ''}
+                    onChange={(e) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        zip_code: e.target.value,
+                      }))
+                    }
+                    placeholder="e.g., 62701"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2">
+                    Phone
+                  </label>
+                  <Input
+                    value={settings.phone || ''}
+                    onChange={(e) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        phone: e.target.value,
+                      }))
+                    }
+                    placeholder="e.g., (217) 555-0100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">
+                    Email
+                  </label>
+                  <Input
+                    value={settings.email || ''}
+                    onChange={(e) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        email: e.target.value,
+                      }))
+                    }
+                    placeholder="e.g., info@school.com"
+                  />
+                </div>
               </div>
 
               <div>
@@ -219,9 +339,9 @@ export default function TenantSettingsPage() {
                 </label>
                 <div className="flex items-center gap-4">
                   <div className="w-24 h-24 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center bg-muted">
-                    {settings.logoUrl ? (
+                    {settings.logo_url ? (
                       <img
-                        src={settings.logoUrl}
+                        src={settings.logo_url}
                         alt="Logo"
                         className="w-full h-full object-contain"
                       />
@@ -248,54 +368,62 @@ export default function TenantSettingsPage() {
           </Card>
         </motion.div>
 
-        {/* Subscription Info */}
-        <motion.div variants={itemVariants}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Subscription Information</CardTitle>
-              <CardDescription>
-                Your current plan and usage limits
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {tenant && (
+        {/* Subscription Info - Optional */}
+        {tenant?.subscription_tier && (
+          <motion.div variants={itemVariants}>
+            <Card>
+              <CardHeader>
+                <CardTitle>Subscription Information</CardTitle>
+                <CardDescription>
+                  Your current plan and usage limits
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Current Plan
-                      </p>
-                      <p className="text-lg font-semibold text-foreground capitalize">
-                        {tenant.subscriptionTier}
-                      </p>
-                    </div>
+                    {tenant.subscription_tier && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Current Plan
+                        </p>
+                        <p className="text-lg font-semibold text-foreground capitalize">
+                          {tenant.subscription_tier}
+                        </p>
+                      </div>
+                    )}
 
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Max Children
-                      </p>
-                      <p className="text-lg font-semibold text-foreground">
-                        {tenant.maxChildren}
-                      </p>
-                    </div>
+                    {tenant.max_children !== undefined && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Max Children
+                        </p>
+                        <p className="text-lg font-semibold text-foreground">
+                          {tenant.max_children}
+                        </p>
+                      </div>
+                    )}
 
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Max Employees
-                      </p>
-                      <p className="text-lg font-semibold text-foreground">
-                        {tenant.maxEmployees}
-                      </p>
-                    </div>
+                    {tenant.max_employees !== undefined && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Max Employees
+                        </p>
+                        <p className="text-lg font-semibold text-foreground">
+                          {tenant.max_employees}
+                        </p>
+                      </div>
+                    )}
 
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Storage Limit
-                      </p>
-                      <p className="text-lg font-semibold text-foreground">
-                        {(tenant.maxStorageMb / 1024).toFixed(1)} GB
-                      </p>
-                    </div>
+                    {tenant.max_storage_mb !== undefined && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Storage Limit
+                        </p>
+                        <p className="text-lg font-semibold text-foreground">
+                          {(tenant.max_storage_mb / 1024).toFixed(1)} GB
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="border-t border-border pt-4">
@@ -304,10 +432,10 @@ export default function TenantSettingsPage() {
                     </Button>
                   </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Feature Toggles */}
         <motion.div variants={itemVariants}>
@@ -372,7 +500,7 @@ export default function TenantSettingsPage() {
                     </p>
                   </div>
                   <div className="text-sm font-medium text-muted-foreground">
-                    {tenant?.subscriptionTier === 'enterprise'
+                    {tenant?.subscription_tier === 'enterprise'
                       ? 'Enabled'
                       : 'Upgrade to Professional+'}
                   </div>
@@ -386,7 +514,7 @@ export default function TenantSettingsPage() {
         <motion.div variants={itemVariants} className="flex gap-3">
           <Button
             type="submit"
-            variant="primary"
+            variant="default"
             disabled={saving}
             className="gap-2"
           >

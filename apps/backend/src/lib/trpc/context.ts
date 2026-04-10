@@ -3,6 +3,14 @@ import { getSupabaseClientWithAuth } from '@/lib/supabase/server';
 import { decodeJWTPayload } from '@/lib/auth/verify-token';
 
 /**
+ * SCAFFOLDING FOR FUTURE USE
+ *
+ * This tRPC context is currently not used in the application.
+ * Context creation and authentication are handled by REST API endpoints.
+ * This file is preserved for future tRPC migration.
+ */
+
+/**
  * tRPC context creation
  * Extracts auth information from request headers and makes it available to tRPC procedures
  */
