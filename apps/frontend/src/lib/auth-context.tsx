@@ -10,8 +10,11 @@ interface UserProfile {
   email: string;
   firstName?: string;
   lastName?: string;
+  fullName?: string;
   role: string;
+  roles?: string[];
   tenantId?: string;
+  permissions?: string[];
 }
 
 interface AuthContextType {
@@ -60,7 +63,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (res.ok) {
         const data = await res.json();
-        setUserProfile(data.user || data as unknown as UserProfile);
+        const userInfo = data.user || (data as unknown as UserProfile);
+        // Convert roles array to single role string (use first role, typically there's only one)
+        const role = Array.isArray(userInfo.roles) ? userInfo.roles[0] : (userInfo.role || 'read_only');
+        setUserProfile({
+          ...userInfo,
+          role,
+        });
       } else {
         // Fallback to minimal profile
         setUserProfile({ id: userId, email, role: 'read_only' });

@@ -82,16 +82,23 @@ export function VisitForm({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.childId && !formData.employeeId) {
+    // Either child_id or employee_id must be provided
+    if (!formData.childId?.trim() && !formData.employeeId?.trim()) {
       newErrors.child = 'Child or employee must be selected';
     }
-    if (!formData.chiefComplaint.trim()) {
+
+    // Chief complaint is required
+    if (!formData.chiefComplaint?.trim()) {
       newErrors.chiefComplaint = 'Chief complaint is required';
     }
-    if (!formData.assessment.trim()) {
+
+    // Assessment is required
+    if (!formData.assessment?.trim()) {
       newErrors.assessment = 'Assessment is required';
     }
-    if (!formData.treatment.trim()) {
+
+    // Treatment is required
+    if (!formData.treatment?.trim()) {
       newErrors.treatment = 'Treatment is required';
     }
 
@@ -299,9 +306,9 @@ export function VisitForm({
               Disposition *
             </label>
             <select
-              value={formData.disposition}
+              value={formData.disposition || 'returned_to_class'}
               onChange={(e) =>
-                handleFieldChange('disposition', e.target.value)
+                handleFieldChange('disposition', e.target.value as any)
               }
               disabled={readOnly}
               className="w-full mt-1 px-3 py-2 border border-border rounded-md text-sm bg-white dark:border-slate-800 dark:bg-slate-950"

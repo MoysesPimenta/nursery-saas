@@ -67,9 +67,11 @@ export default function ChildrenPage() {
     {
       key: 'date_of_birth' as const,
       label: t('dateOfBirth'),
-      render: (value: string) => (
-        <span className="text-muted-foreground">{value ? new Date(value).toLocaleDateString() : '—'}</span>
-      ),
+      render: (value: string) => {
+        if (!value) return <span className="text-muted-foreground">—</span>;
+        const [year, month, day] = value.split('T')[0].split('-');
+        return <span className="text-muted-foreground">{month}/{day}/{year}</span>;
+      },
     },
     {
       key: 'class_name' as const,

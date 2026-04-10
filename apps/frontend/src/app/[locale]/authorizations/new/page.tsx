@@ -57,7 +57,7 @@ export default function NewAuthorizationPage() {
 
   // Create authorization mutation
   const { execute: createAuth, loading: isCreating, error: createError } =
-    useApiMutation<{ data: { id: string } }>('/api/v1/authorizations', 'POST');
+    useApiMutation<{ id: string }>('/api/v1/authorizations', 'POST');
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -99,7 +99,7 @@ export default function NewAuthorizationPage() {
       };
 
       const result = await createAuth(payload);
-      setSuccessId(result.data.id);
+      setSuccessId(result.id);
     } catch (error) {
       const message = error instanceof Error ? error.message : t('createError', { defaultValue: 'Failed to create authorization' });
       setErrors({ submit: message });

@@ -79,7 +79,20 @@ export default function ChildDetailPage() {
     );
   }
 
-  const age = new Date().getFullYear() - new Date(child.date_of_birth).getFullYear();
+  // Calculate age correctly, handling timezone issues
+  const calculateAge = (dateStr: string): number => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const birthDate = new Date(year, month - 1, day);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  const age = calculateAge(child.date_of_birth);
 
   return (
     <motion.div
@@ -140,7 +153,12 @@ export default function ChildDetailPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">{t('dateOfBirth')}</p>
                   <p className="text-lg font-semibold">
-                    {new Date(child.date_of_birth).toLocaleDateString()}
+                    {(() => {
+                      const dateStr = child.date_of_birth;
+                      if (!dateStr) return '—';
+                      const [year, month, day] = dateStr.split('T')[0].split('-');
+                      return `${month}/${day}/${year}`;
+                    })()}
                   </p>
                 </div>
                 <div>
