@@ -12,6 +12,11 @@ const updateChildSchema = z.object({
   notes: z.string().optional(),
   photo_url: z.string().url().nullable().optional(),
   is_archived: z.boolean().optional(),
+  gender: z.string().optional(),
+  blood_type: z.string().optional(),
+  emergency_contact_name: z.string().optional(),
+  emergency_contact_phone: z.string().optional(),
+  emergency_contact_relation: z.string().optional(),
 });
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {

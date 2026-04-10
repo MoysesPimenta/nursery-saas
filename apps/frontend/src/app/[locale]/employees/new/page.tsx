@@ -18,10 +18,8 @@ const employeeSchema = z.object({
   lastName: z.string().min(1, 'Last name is required'),
   email: z.string().email('Valid email is required'),
   phone: z.string().optional(),
-  position: z.string().min(1, 'Position is required'),
   departmentId: z.string().optional(),
   hireDate: z.string().min(1, 'Hire date is required'),
-  certifications: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -42,9 +40,7 @@ export default function NewEmployeePage() {
   const locale = params.locale as string;
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState('');
-  const [formData, setFormData] = useState<Partial<EmployeeFormData>>({
-    position: 'nurse',
-  });
+  const [formData, setFormData] = useState<Partial<EmployeeFormData>>({});
 
   const { execute: createEmployee, loading } = useApiMutation<{ id: string }>(
     '/api/v1/employees',
@@ -75,10 +71,8 @@ export default function NewEmployeePage() {
         lastName: formData.lastName || '',
         email: formData.email || '',
         phone: formData.phone || '',
-        position: formData.position || '',
         departmentId: formData.departmentId || '',
         hireDate: formData.hireDate || '',
-        certifications: formData.certifications || '',
         notes: formData.notes || '',
       };
       employeeSchema.parse(dataToValidate);
@@ -107,12 +101,9 @@ export default function NewEmployeePage() {
         last_name: formData.lastName,
         email: formData.email,
         phone: formData.phone || undefined,
-        position: formData.position,
         department_id: formData.departmentId || undefined,
         hire_date: formData.hireDate,
-        notes: formData.certifications
-          ? `Certifications: ${formData.certifications}${formData.notes ? '\n' + formData.notes : ''}`
-          : formData.notes || undefined,
+        notes: formData.notes || undefined,
       };
       const result = await createEmployee(payload);
       router.push(`/${locale}/employees/${result.id}`);
@@ -199,20 +190,6 @@ export default function NewEmployeePage() {
               />
             </FormField>
 
-            <FormField label="Position" error={errors.position} required>
-              <Select
-                name="position"
-                value={formData.position || 'nurse'}
-                onChange={handleChange}
-              >
-                <option value="nurse">Nurse</option>
-                <option value="teacher">Teacher</option>
-                <option value="administrator">Administrator</option>
-                <option value="assistant">Assistant</option>
-                <option value="maintenance">Maintenance</option>
-              </Select>
-            </FormField>
-
             <FormField label="Department">
               <Select
                 name="departmentId"
@@ -234,16 +211,6 @@ export default function NewEmployeePage() {
                 type="date"
                 value={formData.hireDate || ''}
                 onChange={handleChange}
-              />
-            </FormField>
-
-            <FormField label="Certifications">
-              <Textarea
-                name="certifications"
-                placeholder="List any relevant certifications..."
-                value={formData.certifications || ''}
-                onChange={handleChange}
-                className="min-h-[100px]"
               />
             </FormField>
 

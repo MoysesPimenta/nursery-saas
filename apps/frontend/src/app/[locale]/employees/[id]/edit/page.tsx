@@ -19,7 +19,6 @@ const employeeSchema = z.object({
   lastName: z.string().min(1, 'Last name is required'),
   email: z.string().email('Valid email is required'),
   phone: z.string().optional(),
-  position: z.string().optional(),
   departmentId: z.string().optional(),
   hireDate: z.string().optional(),
   notes: z.string().optional(),
@@ -72,7 +71,6 @@ export default function EditEmployeePage() {
       lastName: employee.last_name,
       email: employee.email,
       phone: employee.phone,
-      position: employee.position,
       departmentId: employee.department_id,
       hireDate: employee.hire_date,
       notes: employee.notes,
@@ -117,7 +115,6 @@ export default function EditEmployeePage() {
         last_name: formData.lastName,
         email: formData.email,
         phone: formData.phone || null,
-        position: formData.position || null,
         department_id: formData.departmentId || null,
         hire_date: formData.hireDate || null,
         notes: formData.notes || null,
@@ -224,21 +221,6 @@ export default function EditEmployeePage() {
                 value={formData.phone || ''}
                 onChange={handleChange}
               />
-            </FormField>
-
-            <FormField label="Position">
-              <Select
-                name="position"
-                value={formData.position || ''}
-                onChange={handleChange}
-              >
-                <option value="">Select a position</option>
-                <option value="nurse">Nurse</option>
-                <option value="teacher">Teacher</option>
-                <option value="administrator">Administrator</option>
-                <option value="assistant">Assistant</option>
-                <option value="maintenance">Maintenance</option>
-              </Select>
             </FormField>
 
             <FormField label="Department">

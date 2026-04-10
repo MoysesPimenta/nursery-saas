@@ -11,6 +11,11 @@ const createChildSchema = z.object({
   class_id: z.string().uuid().optional(),
   notes: z.string().optional(),
   photo_url: z.string().url().optional(),
+  gender: z.string().optional(),
+  blood_type: z.string().optional(),
+  emergency_contact_name: z.string().min(1, 'Emergency contact name required'),
+  emergency_contact_phone: z.string().min(1, 'Emergency contact phone required'),
+  emergency_contact_relation: z.string().optional(),
 });
 
 export const GET = requireAuth(async (req: NextRequest, user) => {

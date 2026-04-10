@@ -19,6 +19,7 @@ import {
   AlertTriangle,
   Download,
   GraduationCap,
+  Building2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,7 @@ const navItems: NavItem[] = [
   { href: '/children', label: 'Children', icon: Baby },
   { href: '/classes', label: 'Classes', icon: GraduationCap },
   { href: '/employees', label: 'Employees', icon: Users, roles: ['admin', 'manager'] },
+  { href: '/departments', label: 'Departments', icon: Building2, roles: ['admin', 'manager'] },
   { href: '/visits', label: 'Visits', icon: CalendarCheck },
   { href: '/authorizations', label: 'Authorizations', icon: Shield },
   { href: '/medications', label: 'Medications', icon: Pill },
