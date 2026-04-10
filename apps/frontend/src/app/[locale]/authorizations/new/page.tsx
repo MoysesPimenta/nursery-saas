@@ -18,13 +18,12 @@ import { z } from 'zod';
 
 const authorizationSchema = z.object({
   childId: z.string().min(1, 'Child is required'),
-  type: z.enum(['pickup', 'medical', 'field_trip', 'medication_administration']),
-  authorizedPersonName: z.string().min(1, 'Authorized person name is required'),
-  authorizedPersonPhone: z.string().min(1, 'Phone number is required'),
-  relationship: z.enum(['parent', 'guardian', 'relative', 'emergency_contact', 'other']),
-  notes: z.string().optional(),
-  expiresAt: z.string().optional(),
+  authorizationType: z.enum(['medication_administration', 'treatment', 'emergency_care', 'field_trip_medical']),
+  medicationName: z.string().optional(),
+  dosageInfo: z.string().optional(),
+  specialInstructions: z.string().optional(),
   priority: z.enum(['normal', 'urgent']),
+  expiresAt: z.string().optional(),
 });
 
 type AuthorizationFormData = z.infer<typeof authorizationSchema>;
@@ -73,12 +72,7 @@ export default function NewAuthorizationPage() {
     const newErrors: Record<string, string> = {};
 
     if (!formData.childId) newErrors.childId = 'Child is required';
-    if (!formData.type) newErrors.type = 'Authorization type is required';
-    if (!formData.authorizedPersonName)
-      newErrors.authorizedPersonName = 'Authorized person name is required';
-    if (!formData.authorizedPersonPhone)
-      newErrors.authorizedPersonPhone = 'Phone number is required';
-    if (!formData.relationship) newErrors.relationship = 'Relationship is required';
+    if (!formData.authorizationType) newErrors.authorizationType = 'Authorization type is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -90,12 +84,18 @@ export default function NewAuthorizationPage() {
     if (!validate()) return;
 
     try {
-      // Transform camelCase to snake_case for API
+      // Build notes from treatment details
+      const treatmentDetails = [];
+      if (formData.medicationName) treatmentDetails.push(`Medication: ${formData.medicationName}`);
+      if (formData.dosageInfo) treatmentDetails.push(`Dosage: ${formData.dosageInfo}`);
+      if (formData.specialInstructions) treatmentDetails.push(`Instructions: ${formData.specialInstructions}`);
+
       const payload = {
         child_id: formData.childId!,
-        symptoms: formData.type!,
-        notes: formData.notes,
+        symptoms: formData.authorizationType!,
+        notes: treatmentDetails.join('\n'),
         priority: formData.priority!,
+        expires_at: formData.expiresAt || null,
       };
 
       const result = await createAuth(payload);
@@ -155,77 +155,73 @@ export default function NewAuthorizationPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <FormField label={t('selectChild')} error={errors.childId} required>
-                <Select
-                  name="childId"
-                  value={formData.childId || ''}
-                  onChange={handleChange}
-                  disabled={childrenLoading}
-                >
-                  <option value="">
-                    {childrenLoading ? t('loading', { defaultValue: 'Loading...' }) : t('selectChildOption', { defaultValue: 'Select a child' })}
+            <FormField label={t('selectChild')} error={errors.childId} required>
+              <Select
+                name="childId"
+                value={formData.childId || ''}
+                onChange={handleChange}
+                disabled={childrenLoading}
+              >
+                <option value="">
+                  {childrenLoading ? t('loading', { defaultValue: 'Loading...' }) : t('selectChildOption', { defaultValue: 'Select a child' })}
+                </option>
+                {children.map((child) => (
+                  <option key={child.id} value={child.id}>
+                    {child.first_name} {child.last_name}
+                    {child.class_name && ` (${child.class_name})`}
                   </option>
-                  {children.map((child) => (
-                    <option key={child.id} value={child.id}>
-                      {child.first_name} {child.last_name}
-                      {child.class_name && ` (${child.class_name})`}
-                    </option>
-                  ))}
-                </Select>
-              </FormField>
+                ))}
+              </Select>
+            </FormField>
 
-              <FormField label={t('authorizationType')} error={errors.type} required>
-                <Select name="type" value={formData.type || ''} onChange={handleChange}>
-                  <option value="">{t('selectType', { defaultValue: 'Select type' })}</option>
-                  <option value="pickup">Pickup</option>
-                  <option value="medical">Medical</option>
-                  <option value="field_trip">Field Trip</option>
-                  <option value="medication_administration">Medication Administration</option>
-                </Select>
-              </FormField>
-            </div>
+            <FormField label={t('authorizationType')} error={errors.authorizationType} required>
+              <Select name="authorizationType" value={formData.authorizationType || ''} onChange={handleChange}>
+                <option value="">{t('selectType', { defaultValue: 'Select type' })}</option>
+                <option value="medication_administration">{t('medicationAdministration', { defaultValue: 'Medication Administration' })}</option>
+                <option value="treatment">{t('treatment', { defaultValue: 'Treatment' })}</option>
+                <option value="emergency_care">{t('emergencyCare', { defaultValue: 'Emergency Care' })}</option>
+                <option value="field_trip_medical">{t('fieldTripMedical', { defaultValue: 'Field Trip Medical' })}</option>
+              </Select>
+            </FormField>
           </form>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>{t('authorizedPersonDetails')}</CardTitle>
+          <CardTitle>{t('treatmentDetails')}</CardTitle>
           <CardDescription>
-            {t('infoAboutPerson')}
+            {t('treatmentDetailsDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <FormField label={t('authorizedPersonName')} error={errors.authorizedPersonName} required>
+            <FormField label={t('medicationName', { defaultValue: 'Medication/Treatment Name' })}>
               <Input
-                name="authorizedPersonName"
-                placeholder={t('fullNamePlaceholder', { defaultValue: 'Full name' })}
-                value={formData.authorizedPersonName || ''}
+                name="medicationName"
+                placeholder={t('enterMedicationName', { defaultValue: 'e.g., Ibuprofen, Physical Therapy' })}
+                value={formData.medicationName || ''}
                 onChange={handleChange}
               />
             </FormField>
 
-            <FormField label={t('phoneNumber')} error={errors.authorizedPersonPhone} required>
+            <FormField label={t('dosageInfo', { defaultValue: 'Dosage/Administration Info' })}>
               <Input
-                name="authorizedPersonPhone"
-                type="tel"
-                placeholder="+1 (555) 123-4567"
-                value={formData.authorizedPersonPhone || ''}
+                name="dosageInfo"
+                placeholder={t('enterDosageInfo', { defaultValue: 'e.g., 200mg twice daily' })}
+                value={formData.dosageInfo || ''}
                 onChange={handleChange}
               />
             </FormField>
 
-            <FormField label={t('relationship')} error={errors.relationship} required>
-              <Select name="relationship" value={formData.relationship || ''} onChange={handleChange}>
-                <option value="">{t('selectRelationship', { defaultValue: 'Select relationship' })}</option>
-                <option value="parent">Parent</option>
-                <option value="guardian">Guardian</option>
-                <option value="relative">Relative</option>
-                <option value="emergency_contact">Emergency Contact</option>
-                <option value="other">Other</option>
-              </Select>
+            <FormField label={t('specialInstructions', { defaultValue: 'Special Instructions' })}>
+              <Textarea
+                name="specialInstructions"
+                placeholder={t('enterInstructions', { defaultValue: 'Any special instructions or notes...' })}
+                value={formData.specialInstructions || ''}
+                onChange={handleChange}
+                className="min-h-[80px]"
+              />
             </FormField>
           </form>
         </CardContent>
@@ -235,19 +231,16 @@ export default function NewAuthorizationPage() {
         <CardHeader>
           <CardTitle>{t('additionalInfo')}</CardTitle>
           <CardDescription>
-            {t('notesAndExpiration')}
+            {t('priorityAndExpiration')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <FormField label={t('notes')}>
-              <Textarea
-                name="notes"
-                placeholder="Any additional information or special instructions..."
-                value={formData.notes || ''}
-                onChange={handleChange}
-                className="min-h-[100px]"
-              />
+            <FormField label={t('priority')}>
+              <Select name="priority" value={formData.priority || 'normal'} onChange={handleChange}>
+                <option value="normal">{t('normal')}</option>
+                <option value="urgent">{t('urgent')}</option>
+              </Select>
             </FormField>
 
             <FormField label={t('expirationDate')}>
@@ -257,13 +250,6 @@ export default function NewAuthorizationPage() {
                 value={formData.expiresAt || ''}
                 onChange={handleChange}
               />
-            </FormField>
-
-            <FormField label={t('priority')}>
-              <Select name="priority" value={formData.priority || 'normal'} onChange={handleChange}>
-                <option value="normal">{t('normal')}</option>
-                <option value="urgent">{t('urgent')}</option>
-              </Select>
             </FormField>
           </form>
         </CardContent>

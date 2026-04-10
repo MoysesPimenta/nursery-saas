@@ -2,15 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { AuthorizationCard } from '@/components/authorization-card';
+import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/modal';
 import { Textarea } from '@/components/ui/textarea';
 import { useApiQuery } from '@/lib/hooks/use-api';
 import { api } from '@/lib/api';
-import { Plus, AlertCircle, RefreshCw } from 'lucide-react';
+import { Plus, AlertCircle, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Authorization {
@@ -21,12 +22,17 @@ interface Authorization {
   requested_by: string;
   created_at: string;
   status: 'pending' | 'accepted' | 'rejected';
+  children?: {
+    first_name: string;
+    last_name: string;
+  };
 }
 
 export default function AuthorizationsPage() {
   const router = useRouter();
   const params = useParams();
   const locale = params.locale as string;
+  const t = useTranslations('authorizations');
 
   const [activeTab, setActiveTab] = useState<'pending' | 'accepted' | 'rejected' | 'all'>(
     'pending'
@@ -50,8 +56,6 @@ export default function AuthorizationsPage() {
         body: JSON.stringify({ status: 'accepted' }),
       });
       await refetch();
-      // Redirect to create visit with authorization
-      router.push(`/${locale}/visits/new?authorizationId=${id}`);
     } catch (error) {
       console.error('Failed to accept authorization:', error);
       setProcessingId(null);
@@ -67,7 +71,7 @@ export default function AuthorizationsPage() {
         method: 'PATCH',
         body: JSON.stringify({
           status: 'rejected',
-          rejectionReason: rejectReason,
+          notes: rejectReason,
         }),
       });
       await refetch();
@@ -103,9 +107,9 @@ export default function AuthorizationsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Authorization Queue</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
           <p className="text-muted-foreground mt-1">
-            Manage parent authorization requests for pickup
+            {t('subtitle')}
           </p>
         </div>
         <div className="flex gap-2">
@@ -122,7 +126,7 @@ export default function AuthorizationsPage() {
             className="gap-2"
           >
             <Plus className="w-4 h-4" />
-            New Request
+            {t('newAuth')}
           </Button>
         </div>
       </div>
@@ -138,9 +142,9 @@ export default function AuthorizationsPage() {
             >
               <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-semibold text-red-900 dark:text-red-50">Urgent Authorizations</h3>
+                <h3 className="font-semibold text-red-900 dark:text-red-50">{t('urgentAuthorizations')}</h3>
                 <p className="text-sm text-red-800 dark:text-red-200">
-                  {urgentCount} urgent request{urgentCount !== 1 ? 's' : ''} awaiting action
+                  {urgentCount} {urgentCount === 1 ? t('urgentRequest') : t('urgentRequests')} {t('awaitingAction')}
                 </p>
               </div>
             </motion.div>
@@ -150,7 +154,7 @@ export default function AuthorizationsPage() {
             animate={{ y: 0, opacity: 1 }}
             className="border-2 border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950 rounded-lg p-4"
           >
-            <h3 className="font-semibold text-blue-900 dark:text-blue-50">Pending Requests</h3>
+            <h3 className="font-semibold text-blue-900 dark:text-blue-50">{t('pendingRequests')}</h3>
             <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{pendingCount}</p>
           </motion.div>
         </div>
@@ -172,7 +176,7 @@ export default function AuthorizationsPage() {
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-center py-8">
-                    <div className="text-muted-foreground">Loading...</div>
+                    <div className="text-muted-foreground">{t('loading', { defaultValue: 'Loading...' })}</div>
                   </div>
                 </CardContent>
               </Card>
@@ -182,36 +186,78 @@ export default function AuthorizationsPage() {
                   <div className="flex flex-col items-center justify-center py-8 text-center">
                     <AlertCircle className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
                     <h3 className="font-semibold text-foreground mb-1">
-                      No {tab === 'all' ? 'authorizations' : tab} authorizations
+                      {t('noAuthorizations')}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      {tab === 'pending' ? 'Check back soon for new requests' : 'Nothing to show here'}
+                      {tab === 'pending' ? t('checkBackSoon') : t('nothingToShow')}
                     </p>
                   </div>
                 </CardContent>
               </Card>
             ) : (
               <div className="space-y-3">
-                {sortedAuthorizations.map((auth, idx) => (
-                  <motion.div
-                    key={auth.id}
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: idx * 0.05 }}
-                  >
-                    <AuthorizationCard
-                      id={auth.id}
-                      childName={auth.child_id}
-                      symptoms={auth.symptoms}
-                      priority={auth.priority}
-                      teacherName={auth.requested_by}
-                      timestamp={auth.created_at}
-                      onAccept={handleAccept}
-                      onReject={(id) => setRejectingId(id)}
-                      loading={processingId === auth.id}
-                    />
-                  </motion.div>
-                ))}
+                {sortedAuthorizations.map((auth, idx) => {
+                  const childName = auth.children
+                    ? `${auth.children.first_name} ${auth.children.last_name}`
+                    : auth.child_id;
+                  const authTypeLabel = auth.symptoms || 'Treatment';
+                  const statusColor = auth.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                      auth.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                                      'bg-red-100 text-red-800';
+
+                  return (
+                    <motion.div
+                      key={auth.id}
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: idx * 0.05 }}
+                    >
+                      <Card className="hover:shadow-md transition-shadow">
+                        <CardContent className="pt-6">
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <h3 className="font-semibold text-lg">{childName}</h3>
+                                {auth.priority === 'urgent' && (
+                                  <Badge variant="destructive">{t('urgent')}</Badge>
+                                )}
+                                <Badge className={statusColor}>
+                                  {t(auth.status)}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground mb-2">
+                                {t('authType', { defaultValue: 'Treatment Type' })}: {authTypeLabel}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {t('requestedBy', { defaultValue: 'Requested by' })}: {auth.requested_by}
+                              </p>
+                            </div>
+                          </div>
+
+                          {auth.status === 'pending' && (
+                            <div className="flex gap-2 justify-end pt-4 border-t">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setRejectingId(auth.id)}
+                                disabled={processingId === auth.id}
+                              >
+                                {processingId === auth.id ? t('rejecting', { defaultValue: 'Rejecting...' }) : t('reject', { defaultValue: 'Reject' })}
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => handleAccept(auth.id)}
+                                disabled={processingId === auth.id}
+                              >
+                                {processingId === auth.id ? t('accepting', { defaultValue: 'Accepting...' }) : t('accept', { defaultValue: 'Accept' })}
+                              </Button>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  );
+                })}
               </div>
             )}
           </TabsContent>
@@ -222,28 +268,28 @@ export default function AuthorizationsPage() {
       <Dialog open={!!rejectingId} onOpenChange={(open) => !open && setRejectingId(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reject Authorization</DialogTitle>
+            <DialogTitle>{t('rejectAuthorization')}</DialogTitle>
             <DialogDescription>
-              Please provide a reason for rejecting this authorization request
+              {t('rejectReason')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <Textarea
-              placeholder="Enter reason for rejection (optional)..."
+              placeholder={t('enterReason')}
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
               rows={3}
             />
             <div className="flex gap-2 justify-end">
               <Button variant="outline" onClick={() => setRejectingId(null)}>
-                Cancel
+                {t('cancel', { defaultValue: 'Cancel' })}
               </Button>
               <Button
                 onClick={handleReject}
                 disabled={processingId === rejectingId}
                 variant="destructive"
               >
-                {processingId === rejectingId ? 'Rejecting...' : 'Reject'}
+                {processingId === rejectingId ? t('rejecting', { defaultValue: 'Rejecting...' }) : t('reject', { defaultValue: 'Reject' })}
               </Button>
             </div>
           </div>

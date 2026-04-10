@@ -156,10 +156,20 @@ export default function VisitsPage() {
           <h1 className="text-2xl font-bold tracking-tight">{t('title')}</h1>
           <p className="text-muted-foreground mt-1">{t('subtitle')}</p>
         </div>
-        <Button onClick={() => router.push(`/${locale}/visits/new`)} className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
-          <Plus className="w-4 h-4" />
-          {t('newVisit')}
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            onClick={() => router.push(`/${locale}/visits/calendar`)}
+            variant="outline"
+            className="gap-2"
+          >
+            <Calendar className="w-4 h-4" />
+            {t('viewCalendar')}
+          </Button>
+          <Button onClick={() => router.push(`/${locale}/visits/new`)} className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
+            <Plus className="w-4 h-4" />
+            {t('newVisit')}
+          </Button>
+        </div>
       </motion.div>
 
       {/* Stats */}
