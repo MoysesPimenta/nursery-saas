@@ -12,7 +12,7 @@ const PUBLIC_ROUTES = ['/auth/login', '/auth/signup', '/auth/reset-password', '/
 
 const ROLE_PROTECTED_ROUTES: Record<string, string[]> = {
   '/admin': ['super_admin', 'school_admin'],
-  '/parent': ['parent'],
+  '/parent': ['parent', 'super_admin', 'school_admin', 'nurse'],
   '/profile': [], // Accessible to all authenticated users
   '/settings': [], // Accessible to all authenticated users
 };

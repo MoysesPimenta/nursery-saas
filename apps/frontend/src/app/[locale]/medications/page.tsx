@@ -21,9 +21,9 @@ interface Medication {
   name: string;
   generic_name?: string;
   dosage_form?: string;
-  strength?: string;
-  manufacturer?: string;
-  notes?: string;
+  default_dosage?: string;
+  instructions?: string;
+  requires_authorization?: boolean;
   is_active: boolean;
 }
 
@@ -47,9 +47,8 @@ export default function MedicationsPage() {
     name: '',
     generic_name: '',
     dosage_form: '',
-    strength: '',
-    manufacturer: '',
-    notes: '',
+    default_dosage: '',
+    instructions: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const router = useRouter();
@@ -98,9 +97,8 @@ export default function MedicationsPage() {
         name: formData.name,
         generic_name: formData.generic_name || undefined,
         dosage_form: formData.dosage_form || undefined,
-        strength: formData.strength || undefined,
-        manufacturer: formData.manufacturer || undefined,
-        notes: formData.notes || undefined,
+        default_dosage: formData.default_dosage || undefined,
+        instructions: formData.instructions || undefined,
       };
 
       await createMedication(payload);
@@ -109,9 +107,8 @@ export default function MedicationsPage() {
         name: '',
         generic_name: '',
         dosage_form: '',
-        strength: '',
-        manufacturer: '',
-        notes: '',
+        default_dosage: '',
+        instructions: '',
       });
       await refetch();
     } catch (err) {
@@ -147,8 +144,8 @@ export default function MedicationsPage() {
       ),
     },
     {
-      key: 'strength' as const,
-      label: t('strength') || 'Strength',
+      key: 'default_dosage' as const,
+      label: t('defaultDosage') || 'Default Dosage',
       render: (value: string) => (
         <span className="text-sm">{value || '—'}</span>
       ),
@@ -312,37 +309,25 @@ export default function MedicationsPage() {
             </FormField>
 
             <FormField
-              label={t('strength') || 'Strength'}
-              error={errors.strength}
+              label={t('defaultDosage') || 'Default Dosage'}
+              error={errors.default_dosage}
             >
               <Input
-                name="strength"
-                placeholder="e.g., 500mg"
-                value={formData.strength}
+                name="default_dosage"
+                placeholder="e.g., 500mg twice daily"
+                value={formData.default_dosage}
                 onChange={handleInputChange}
               />
             </FormField>
 
             <FormField
-              label={t('manufacturer') || 'Manufacturer'}
-              error={errors.manufacturer}
-            >
-              <Input
-                name="manufacturer"
-                placeholder="e.g., Pharma Corp"
-                value={formData.manufacturer}
-                onChange={handleInputChange}
-              />
-            </FormField>
-
-            <FormField
-              label={tc('notes')}
-              error={errors.notes}
+              label={t('instructions') || 'Instructions'}
+              error={errors.instructions}
             >
               <Textarea
-                name="notes"
-                placeholder="Additional notes about this medication"
-                value={formData.notes}
+                name="instructions"
+                placeholder="Administration instructions and notes"
+                value={formData.instructions}
                 onChange={handleInputChange}
                 rows={3}
               />
