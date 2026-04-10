@@ -24,7 +24,7 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
 
     let query = supabase
       .from('employees')
-      .select('*', { count: 'exact' });
+      .select('*, departments(name)', { count: 'exact' });
 
     // Apply search filter
     if (search) {
@@ -51,7 +51,14 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
       return errorResponse(error.message, 400);
     }
 
-    return paginatedResponse(data || [], page, limit, count || 0);
+    // Flatten the joined department name into the response
+    const enriched = (data || []).map((emp: Record<string, unknown>) => ({
+      ...emp,
+      department_name: (emp.departments as { name: string } | null)?.name || null,
+      departments: undefined,
+    }));
+
+    return paginatedResponse(enriched, page, limit, count || 0);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal server error';
     return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);

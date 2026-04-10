@@ -100,7 +100,7 @@ export default function ChildDetailPage() {
               {child.first_name} {child.last_name}
             </h1>
             <p className="text-muted-foreground mt-1">
-              Age: {age} years • {child.class_id ? 'Class assigned' : 'No class assigned'}
+              Age: {age} years • {(child as Record<string, unknown>).class_name ? String((child as Record<string, unknown>).class_name) : 'No class assigned'}
             </p>
           </div>
         </div>

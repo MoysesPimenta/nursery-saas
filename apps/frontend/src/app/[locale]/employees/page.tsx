@@ -17,6 +17,7 @@ interface Employee {
   last_name: string;
   position?: string;
   department_id?: string;
+  department_name?: string;
   hire_date?: string;
   is_archived: boolean;
   email?: string;
@@ -62,6 +63,15 @@ export default function EmployeesPage() {
       key: 'position' as const,
       label: 'Position',
       render: (value: string) => <span className="text-sm capitalize">{value || '—'}</span>,
+    },
+    {
+      key: 'department_name' as const,
+      label: 'Department',
+      render: (value: string) => value ? (
+        <Badge variant="secondary">{value}</Badge>
+      ) : (
+        <span className="text-muted-foreground/50">—</span>
+      ),
     },
     {
       key: 'hire_date' as const,

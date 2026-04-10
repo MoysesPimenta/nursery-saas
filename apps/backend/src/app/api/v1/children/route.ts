@@ -22,7 +22,7 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
 
     let query = supabase
       .from('children')
-      .select('*', { count: 'exact' });
+      .select('*, classes(name)', { count: 'exact' });
 
     // Apply search filter
     if (search) {
@@ -49,7 +49,14 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
       return errorResponse(error.message, 400);
     }
 
-    return paginatedResponse(data || [], page, limit, count || 0);
+    // Flatten the joined class name into the response
+    const enriched = (data || []).map((child: Record<string, unknown>) => ({
+      ...child,
+      class_name: (child.classes as { name: string } | null)?.name || null,
+      classes: undefined,
+    }));
+
+    return paginatedResponse(enriched, page, limit, count || 0);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal server error';
     return errorResponse(message, error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500);

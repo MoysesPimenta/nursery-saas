@@ -17,6 +17,7 @@ interface Child {
   last_name: string;
   date_of_birth: string;
   class_id?: string;
+  class_name?: string;
   allergies?: Array<{ name: string }> | string[];
   is_archived: boolean;
 }
@@ -69,9 +70,9 @@ export default function ChildrenPage() {
       ),
     },
     {
-      key: 'class_id' as const,
+      key: 'class_name' as const,
       label: 'Class',
-      render: (value: string) => value ? 'Assigned' : <span className="text-muted-foreground/50">—</span>,
+      render: (value: string) => value ? <Badge variant="secondary">{value}</Badge> : <span className="text-muted-foreground/50">—</span>,
     },
     {
       key: 'is_archived' as const,

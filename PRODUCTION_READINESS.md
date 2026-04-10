@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-MyNurse has been significantly improved toward production readiness. Two comprehensive audits and implementation rounds have addressed critical auth bugs, security gaps, missing pages, data flow mismatches, and backend feature gaps. The app now has **26 frontend pages**, **15 REST API resource routes**, proper RBAC, tenant isolation via RLS, and working export/import functionality.
+MyNurse has been significantly improved toward production readiness. Three comprehensive audit and implementation rounds have addressed critical auth bugs, security gaps, missing pages, data flow mismatches, and backend feature gaps. The app now has **32 frontend pages**, **15+ REST API resource routes**, proper RBAC, tenant isolation via RLS, working export/import, 1,892 lines of tests, error boundaries, and a complete sidebar navigation.
 
 ---
 
@@ -188,10 +188,27 @@ Before going live, ensure:
 
 ---
 
-## Commits (Local, Ready to Push)
+### Round 3 — Feature Expansion
+
+| Item | Status |
+|------|--------|
+| Medications management page (inline CRUD modal) | **Built** |
+| Allergies management page (severity color coding) | **Built** |
+| Employee edit page | **Built** |
+| Data export page UI (CSV/JSON) | **Built** |
+| Error boundaries (error.tsx, not-found.tsx, auth/error.tsx) | **Built** |
+| Sidebar navigation (added Medications, Allergies, Export links) | **Updated** |
+| Children list: show class name via join | **Fixed** |
+| Employees list: show department name via join | **Fixed** |
+| Backend env validation module (Zod-based) | **Built** |
+| Unit tests: signup handler (14 tests) | **Written** |
+| Unit tests: token verification (27 tests) | **Written** |
+| Unit tests: validation schemas (135+ tests) | **Written** |
+
+---
+
+## Commits (Latest, Ready to Push)
 
 | Hash | Description |
 |------|-------------|
-| `e218b6c` | Fix signup fetch failed — API URL resolution |
-| `4c8f030` | Align migration 00016 with actual DB schema |
-| `22eb5c3` | Major production readiness — missing pages, data flow, export/import |
+| `596cddd` | Complete feature expansion — new pages, tests, error handling, navigation |

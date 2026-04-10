@@ -15,6 +15,9 @@ import {
   Settings,
   LogOut,
   Heart,
+  Pill,
+  AlertTriangle,
+  Download,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -32,7 +35,11 @@ const navItems: NavItem[] = [
   { href: '/children', label: 'Children', icon: Baby },
   { href: '/employees', label: 'Employees', icon: Users, roles: ['admin', 'manager'] },
   { href: '/visits', label: 'Visits', icon: CalendarCheck },
+  { href: '/authorizations', label: 'Authorizations', icon: Shield },
+  { href: '/medications', label: 'Medications', icon: Pill },
+  { href: '/allergies', label: 'Allergies', icon: AlertTriangle },
   { href: '/admin', label: 'Admin', icon: Shield, roles: ['admin'] },
+  { href: '/parent', label: 'Parent Portal', icon: Users },
 ];
 
 export function Sidebar() {
@@ -100,28 +107,43 @@ export function Sidebar() {
       </nav>
 
       {/* Bottom Section */}
-      <div className="border-t border-sidebar-border px-3 py-3 space-y-1">
-        <Link
-          href={getLocalizedHref('/profile')}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200"
-        >
-          <UserCircle className="w-[18px] h-[18px]" />
-          <span>Profile</span>
-        </Link>
-        <Link
-          href={getLocalizedHref('/settings')}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200"
-        >
-          <Settings className="w-[18px] h-[18px]" />
-          <span>Settings</span>
-        </Link>
-        <button
-          onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-200"
-        >
-          <LogOut className="w-[18px] h-[18px]" />
-          <span>Logout</span>
-        </button>
+      <div className="border-t border-sidebar-border px-3 py-3 space-y-4">
+        {/* Tools Section */}
+        <div className="space-y-1">
+          <p className="text-xs font-semibold text-muted-foreground px-3 py-2">TOOLS</p>
+          <Link
+            href={getLocalizedHref('/export')}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200"
+          >
+            <Download className="w-[18px] h-[18px]" />
+            <span>Export</span>
+          </Link>
+        </div>
+
+        {/* Account Section */}
+        <div className="space-y-1">
+          <Link
+            href={getLocalizedHref('/profile')}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200"
+          >
+            <UserCircle className="w-[18px] h-[18px]" />
+            <span>Profile</span>
+          </Link>
+          <Link
+            href={getLocalizedHref('/settings')}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200"
+          >
+            <Settings className="w-[18px] h-[18px]" />
+            <span>Settings</span>
+          </Link>
+          <button
+            onClick={handleSignOut}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-200"
+          >
+            <LogOut className="w-[18px] h-[18px]" />
+            <span>Logout</span>
+          </button>
+        </div>
       </div>
     </div>
   );
