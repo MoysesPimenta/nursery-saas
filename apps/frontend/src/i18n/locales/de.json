@@ -292,7 +292,8 @@
     "system": "System",
     "notifications": "Benachrichtigungen",
     "emailNotifications": "E-Mail-Benachrichtigungen",
-    "pushNotifications": "Push-Benachrichtigungen"
+    "pushNotifications": "Push-Benachrichtigungen",
+    "savedSuccessfully": "Einstellungen erfolgreich gespeichert!"
   },
   "export": {
     "title": "Daten exportieren",
@@ -301,7 +302,8 @@
     "csv": "CSV",
     "json": "JSON",
     "dataType": "Datentyp",
-    "exportButton": "Exportieren"
+    "exportButton": "Exportieren",
+    "downloadedSuccessfully": "Export erfolgreich heruntergeladen!"
   },
   "errors": {
     "generic": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",

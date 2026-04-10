@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,15 +31,16 @@ type AuthorizationFormData = z.infer<typeof authorizationSchema>;
 
 interface Child {
   id: string;
-  firstName: string;
-  lastName: string;
-  className?: string;
+  first_name: string;
+  last_name: string;
+  class_name?: string;
 }
 
 export default function NewAuthorizationPage() {
   const router = useRouter();
   const params = useParams();
   const locale = params.locale as string;
+  const t = useTranslations('authorizations');
 
   const [formData, setFormData] = useState<Partial<AuthorizationFormData>>({
     priority: 'normal',
@@ -91,15 +93,15 @@ export default function NewAuthorizationPage() {
       // Transform camelCase to snake_case for API
       const payload = {
         child_id: formData.childId!,
-        title: formData.type!,
-        description: formData.notes,
+        symptoms: formData.type!,
+        notes: formData.notes,
         priority: formData.priority!,
       };
 
       const result = await createAuth(payload);
       setSuccessId(result.data.id);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to create authorization';
+      const message = error instanceof Error ? error.message : t('createError', { defaultValue: 'Failed to create authorization' });
       setErrors({ submit: message });
     }
   };
@@ -120,9 +122,9 @@ export default function NewAuthorizationPage() {
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Create Authorization</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('title')}</h1>
           <p className="text-muted-foreground mt-1">
-            Grant authorization for a person to perform an action for a child
+            {t('subtitle')}
           </p>
         </div>
       </div>
@@ -132,7 +134,7 @@ export default function NewAuthorizationPage() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            {createError.message || 'Failed to create authorization'}
+            {createError.message || t('createError', { defaultValue: 'Failed to create authorization' })}
           </AlertDescription>
         </Alert>
       )}
@@ -140,21 +142,21 @@ export default function NewAuthorizationPage() {
       {errors.submit && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{errors.submit}</AlertDescription>
+          <AlertDescription>{errors.submit || t('createError', { defaultValue: 'An error occurred' })}</AlertDescription>
         </Alert>
       )}
 
       <Card>
         <CardHeader>
-          <CardTitle>Child & Authorization Type</CardTitle>
+          <CardTitle>{t('childAuthType')}</CardTitle>
           <CardDescription>
-            Select the child and the type of authorization
+            {t('selectChildDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
-              <FormField label="Child" error={errors.childId} required>
+              <FormField label={t('selectChild')} error={errors.childId} required>
                 <Select
                   name="childId"
                   value={formData.childId || ''}
@@ -162,20 +164,20 @@ export default function NewAuthorizationPage() {
                   disabled={childrenLoading}
                 >
                   <option value="">
-                    {childrenLoading ? 'Loading...' : 'Select a child'}
+                    {childrenLoading ? t('loading', { defaultValue: 'Loading...' }) : t('selectChildOption', { defaultValue: 'Select a child' })}
                   </option>
                   {children.map((child) => (
                     <option key={child.id} value={child.id}>
-                      {child.firstName} {child.lastName}
-                      {child.className && ` (${child.className})`}
+                      {child.first_name} {child.last_name}
+                      {child.class_name && ` (${child.class_name})`}
                     </option>
                   ))}
                 </Select>
               </FormField>
 
-              <FormField label="Authorization Type" error={errors.type} required>
+              <FormField label={t('authorizationType')} error={errors.type} required>
                 <Select name="type" value={formData.type || ''} onChange={handleChange}>
-                  <option value="">Select type</option>
+                  <option value="">{t('selectType', { defaultValue: 'Select type' })}</option>
                   <option value="pickup">Pickup</option>
                   <option value="medical">Medical</option>
                   <option value="field_trip">Field Trip</option>
@@ -189,23 +191,23 @@ export default function NewAuthorizationPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Authorized Person Details</CardTitle>
+          <CardTitle>{t('authorizedPersonDetails')}</CardTitle>
           <CardDescription>
-            Information about the person being authorized
+            {t('infoAboutPerson')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <FormField label="Authorized Person Name" error={errors.authorizedPersonName} required>
+            <FormField label={t('authorizedPersonName')} error={errors.authorizedPersonName} required>
               <Input
                 name="authorizedPersonName"
-                placeholder="Full name"
+                placeholder={t('fullNamePlaceholder', { defaultValue: 'Full name' })}
                 value={formData.authorizedPersonName || ''}
                 onChange={handleChange}
               />
             </FormField>
 
-            <FormField label="Phone Number" error={errors.authorizedPersonPhone} required>
+            <FormField label={t('phoneNumber')} error={errors.authorizedPersonPhone} required>
               <Input
                 name="authorizedPersonPhone"
                 type="tel"
@@ -215,9 +217,9 @@ export default function NewAuthorizationPage() {
               />
             </FormField>
 
-            <FormField label="Relationship" error={errors.relationship} required>
+            <FormField label={t('relationship')} error={errors.relationship} required>
               <Select name="relationship" value={formData.relationship || ''} onChange={handleChange}>
-                <option value="">Select relationship</option>
+                <option value="">{t('selectRelationship', { defaultValue: 'Select relationship' })}</option>
                 <option value="parent">Parent</option>
                 <option value="guardian">Guardian</option>
                 <option value="relative">Relative</option>
@@ -231,14 +233,14 @@ export default function NewAuthorizationPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Additional Information</CardTitle>
+          <CardTitle>{t('additionalInfo')}</CardTitle>
           <CardDescription>
-            Notes and expiration details
+            {t('notesAndExpiration')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <FormField label="Notes">
+            <FormField label={t('notes')}>
               <Textarea
                 name="notes"
                 placeholder="Any additional information or special instructions..."
@@ -248,7 +250,7 @@ export default function NewAuthorizationPage() {
               />
             </FormField>
 
-            <FormField label="Expiration Date">
+            <FormField label={t('expirationDate')}>
               <Input
                 name="expiresAt"
                 type="date"
@@ -257,10 +259,10 @@ export default function NewAuthorizationPage() {
               />
             </FormField>
 
-            <FormField label="Priority">
+            <FormField label={t('priority')}>
               <Select name="priority" value={formData.priority || 'normal'} onChange={handleChange}>
-                <option value="normal">Normal</option>
-                <option value="urgent">Urgent</option>
+                <option value="normal">{t('normal')}</option>
+                <option value="urgent">{t('urgent')}</option>
               </Select>
             </FormField>
           </form>
@@ -273,10 +275,10 @@ export default function NewAuthorizationPage() {
           onClick={() => router.push(`/${locale}/authorizations`)}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Cancel
+          {t('cancel', { defaultValue: 'Cancel' })}
         </Button>
         <Button onClick={handleSubmit} disabled={isCreating}>
-          {isCreating ? 'Creating...' : 'Create Authorization'}
+          {isCreating ? t('creating', { defaultValue: 'Creating...' }) : t('createButton', { defaultValue: 'Create Authorization' })}
         </Button>
       </div>
 
@@ -286,18 +288,18 @@ export default function NewAuthorizationPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
               <Check className="w-5 h-5" />
-              Authorization Created
+              {t('successTitle', { defaultValue: 'Authorization Created' })}
             </DialogTitle>
             <DialogDescription>
-              The authorization has been successfully created.
+              {t('successDesc', { defaultValue: 'The authorization has been successfully created.' })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-muted-foreground">
-              The authorized person has been added to the system.
+              {t('successMessage', { defaultValue: 'The authorized person has been added to the system.' })}
             </p>
             <div className="p-3 bg-muted rounded-lg">
-              <p className="text-xs text-muted-foreground">Authorization ID:</p>
+              <p className="text-xs text-muted-foreground">{t('idLabel', { defaultValue: 'Authorization ID:' })}</p>
               <p className="font-mono text-sm font-medium text-foreground">
                 {successId}
               </p>
@@ -306,7 +308,7 @@ export default function NewAuthorizationPage() {
               onClick={() => router.push(`/${locale}/authorizations`)}
               className="w-full"
             >
-              View All Authorizations
+              {t('viewAll', { defaultValue: 'View All Authorizations' })}
             </Button>
           </div>
         </DialogContent>

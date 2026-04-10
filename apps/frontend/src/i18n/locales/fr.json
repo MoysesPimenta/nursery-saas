@@ -292,7 +292,8 @@
     "system": "Système",
     "notifications": "Notifications",
     "emailNotifications": "Notifications par email",
-    "pushNotifications": "Notifications push"
+    "pushNotifications": "Notifications push",
+    "savedSuccessfully": "Paramètres enregistrés avec succès !"
   },
   "export": {
     "title": "Exporter les données",
@@ -301,7 +302,8 @@
     "csv": "CSV",
     "json": "JSON",
     "dataType": "Type de données",
-    "exportButton": "Exporter"
+    "exportButton": "Exporter",
+    "downloadedSuccessfully": "Export téléchargé avec succès !"
   },
   "errors": {
     "generic": "Quelque chose s'est mal passé. Veuillez réessayer.",

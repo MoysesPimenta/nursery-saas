@@ -274,34 +274,36 @@
   },
   "profile": {
     "title": "Profile",
-    "subtitle": "Manage your account settings",
+    "subtitle": "Manage your account information and security settings.",
     "changePassword": "Change Password",
     "currentPassword": "Current Password",
     "newPassword": "New Password",
     "confirmNewPassword": "Confirm New Password",
-    "passwordChanged": "Password changed successfully",
-    "accountInfo": "Account Information"
+    "passwordChanged": "Password updated successfully!",
+    "accountInfo": "Personal Information"
   },
   "settings": {
     "title": "Settings",
-    "subtitle": "Customize your experience",
-    "language": "Language",
-    "theme": "Theme",
+    "subtitle": "Customize your preferences and application behavior.",
+    "language": "Language & Locale",
+    "theme": "Appearance",
     "light": "Light",
     "dark": "Dark",
     "system": "System",
     "notifications": "Notifications",
     "emailNotifications": "Email Notifications",
-    "pushNotifications": "Push Notifications"
+    "pushNotifications": "Push Notifications",
+    "savedSuccessfully": "Settings saved successfully!"
   },
   "export": {
     "title": "Export Data",
-    "subtitle": "Export your data in various formats",
+    "subtitle": "Download your nursery data in CSV or JSON format",
     "format": "Format",
     "csv": "CSV",
     "json": "JSON",
     "dataType": "Data Type",
-    "exportButton": "Export"
+    "exportButton": "Export",
+    "downloadedSuccessfully": "Export downloaded successfully!"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ type ExportType = 'children' | 'employees' | 'visits' | 'authorizations';
 type ExportFormat = 'json' | 'csv';
 
 export default function ExportPage() {
+  const t = useTranslations('export');
   const params = useParams();
   const locale = params.locale as string;
   const [exportType, setExportType] = useState<ExportType>('children');
@@ -79,9 +81,9 @@ export default function ExportPage() {
       transition={{ duration: 0.3 }}
     >
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Export Data</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{t('title')}</h1>
         <p className="text-muted-foreground mt-1">
-          Download your nursery data in CSV or JSON format
+          {t('subtitle')}
         </p>
       </div>
 
@@ -106,11 +108,11 @@ export default function ExportPage() {
             {success && (
               <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-200 px-4 py-3 rounded text-sm flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" />
-                Export downloaded successfully!
+                {t('downloadedSuccessfully')}
               </div>
             )}
 
-            <FormField label="Data Type" required>
+            <FormField label={t('dataType')} required>
               <Select
                 name="type"
                 value={exportType}
@@ -127,7 +129,7 @@ export default function ExportPage() {
               </p>
             </FormField>
 
-            <FormField label="Format" required>
+            <FormField label={t('format')} required>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
@@ -172,7 +174,7 @@ export default function ExportPage() {
               ) : (
                 <>
                   <Download className="w-4 h-4 mr-2" />
-                  Export {exportOptions.find((o) => o.value === exportType)?.label} as {exportFormat.toUpperCase()}
+                  {t('exportButton')} {exportOptions.find((o) => o.value === exportType)?.label} as {exportFormat.toUpperCase()}
                 </>
               )}
             </Button>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,6 +31,8 @@ interface ClassesResponse {
 }
 
 export default function ClassesPage() {
+  const t = useTranslations('classes');
+  const tc = useTranslations('common');
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -72,7 +75,7 @@ export default function ClassesPage() {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
     if (!formData.name.trim()) {
-      newErrors.name = 'Class name is required';
+      newErrors.name = t('classNameRequired');
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -104,7 +107,7 @@ export default function ClassesPage() {
   const columns = [
     {
       key: 'name' as const,
-      label: 'Name',
+      label: tc('name'),
       render: (value: string, item: Class) => (
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white text-xs font-bold">
@@ -116,14 +119,14 @@ export default function ClassesPage() {
     },
     {
       key: 'description' as const,
-      label: 'Description',
+      label: tc('description'),
       render: (value: string) => (
         <span className="text-sm text-muted-foreground max-w-xs truncate">{value || '—'}</span>
       ),
     },
     {
       key: 'capacity' as const,
-      label: 'Max Capacity',
+      label: t('maxCapacity'),
       render: (value: number) => (
         <span className="text-sm">{value || '—'}</span>
       ),
@@ -158,15 +161,15 @@ export default function ClassesPage() {
     >
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Classes</h1>
-          <p className="text-muted-foreground mt-1">Manage classes in your nursery</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('subtitle')}</p>
         </div>
         <Button
           onClick={() => setIsDialogOpen(true)}
           className="gap-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
         >
           <Plus className="w-4 h-4" />
-          Add Class
+          {t('addClass')}
         </Button>
       </div>
 
@@ -190,7 +193,7 @@ export default function ClassesPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search by name..."
+                placeholder={t('searchPlaceholder')}
                 className="pl-10"
                 value={search}
                 onChange={(e) => {
@@ -213,7 +216,7 @@ export default function ClassesPage() {
                 loading={loading}
                 pagination={response?.pagination}
                 onPageChange={setPage}
-                emptyMessage="No classes found"
+                emptyMessage={t('noClasses')}
                 rowKey={(classItem) => classItem.id}
               />
             )}
@@ -225,15 +228,15 @@ export default function ClassesPage() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Add Class</DialogTitle>
+            <DialogTitle>{t('addClass')}</DialogTitle>
             <DialogDescription>
-              Add a new class to your nursery
+              {t('addClassDescription')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <FormField
-              label="Class Name"
+              label={t('className')}
               required
               error={errors.name}
             >
@@ -246,7 +249,7 @@ export default function ClassesPage() {
             </FormField>
 
             <FormField
-              label="Description"
+              label={tc('description')}
               error={errors.description}
             >
               <Textarea
@@ -259,7 +262,7 @@ export default function ClassesPage() {
             </FormField>
 
             <FormField
-              label="Max Capacity"
+              label={t('maxCapacity')}
               error={errors.max_capacity}
             >
               <Input
@@ -285,14 +288,14 @@ export default function ClassesPage() {
               onClick={() => setIsDialogOpen(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {tc('cancel')}
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting}
               className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
             >
-              {isSubmitting ? 'Creating...' : 'Add Class'}
+              {isSubmitting ? t('creating') : t('addClass')}
             </Button>
           </DialogFooter>
         </DialogContent>

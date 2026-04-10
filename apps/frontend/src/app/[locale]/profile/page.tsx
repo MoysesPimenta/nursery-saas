@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,7 @@ const itemVariants = {
 };
 
 export default function ProfilePage() {
+  const t = useTranslations('profile');
   const params = useParams();
   const locale = params.locale as string;
   const router = useRouter();
@@ -109,10 +111,10 @@ export default function ProfilePage() {
       <motion.div variants={itemVariants}>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            Profile
+            {t('title')}
           </h1>
           <p className="text-muted-foreground mt-2">
-            Manage your account information and security settings.
+            {t('subtitle')}
           </p>
         </div>
       </motion.div>
@@ -135,7 +137,7 @@ export default function ProfilePage() {
             <CardContent className="pt-6 flex items-center gap-3">
               <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
               <p className="text-green-900 dark:text-green-100">
-                Password updated successfully!
+                {t('passwordChanged')}
               </p>
             </CardContent>
           </Card>
@@ -146,7 +148,7 @@ export default function ProfilePage() {
       <motion.div variants={itemVariants}>
         <Card>
           <CardHeader>
-            <CardTitle>Personal Information</CardTitle>
+            <CardTitle>{t('accountInfo')}</CardTitle>
             <CardDescription>
               Your account details
             </CardDescription>
@@ -215,7 +217,7 @@ export default function ProfilePage() {
       <motion.div variants={itemVariants}>
         <Card>
           <CardHeader>
-            <CardTitle>Change Password</CardTitle>
+            <CardTitle>{t('changePassword')}</CardTitle>
             <CardDescription>
               Update your password to keep your account secure
             </CardDescription>
@@ -224,7 +226,7 @@ export default function ProfilePage() {
             <form onSubmit={handlePasswordChange} className="space-y-6">
               <div>
                 <label className="block text-sm font-semibold mb-2">
-                  Current Password
+                  {t('currentPassword')}
                 </label>
                 <div className="relative">
                   <Input
@@ -261,7 +263,7 @@ export default function ProfilePage() {
 
               <div>
                 <label className="block text-sm font-semibold mb-2">
-                  New Password
+                  {t('newPassword')}
                 </label>
                 <div className="relative">
                   <Input
@@ -298,7 +300,7 @@ export default function ProfilePage() {
 
               <div>
                 <label className="block text-sm font-semibold mb-2">
-                  Confirm New Password
+                  {t('confirmNewPassword')}
                 </label>
                 <div className="relative">
                   <Input
@@ -345,7 +347,7 @@ export default function ProfilePage() {
                       Updating...
                     </>
                   ) : (
-                    'Update Password'
+                    t('changePassword')
                   )}
                 </Button>
                 <Button

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,7 @@ interface NotificationSettings {
 }
 
 export default function SettingsPage() {
+  const t = useTranslations('settings');
   const params = useParams();
   const locale = params.locale as string;
   const router = useRouter();
@@ -118,10 +120,10 @@ export default function SettingsPage() {
       <motion.div variants={itemVariants}>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            Settings
+            {t('title')}
           </h1>
           <p className="text-muted-foreground mt-2">
-            Customize your preferences and application behavior.
+            {t('subtitle')}
           </p>
         </div>
       </motion.div>
@@ -138,7 +140,7 @@ export default function SettingsPage() {
             <CardContent className="pt-6 flex items-center gap-3">
               <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
               <p className="text-green-900 dark:text-green-100">
-                Settings saved successfully!
+                {t('savedSuccessfully')}
               </p>
             </CardContent>
           </Card>
@@ -149,7 +151,7 @@ export default function SettingsPage() {
       <motion.div variants={itemVariants}>
         <Card>
           <CardHeader>
-            <CardTitle>Language & Locale</CardTitle>
+            <CardTitle>{t('language')}</CardTitle>
             <CardDescription>
               Choose your preferred language for the application
             </CardDescription>
@@ -157,7 +159,7 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             <div>
               <label className="block text-sm font-semibold mb-3">
-                Language
+                {t('language')}
               </label>
               <div className="grid grid-cols-1 gap-2">
                 {SUPPORTED_LOCALES.map((localeOption) => (
@@ -188,7 +190,7 @@ export default function SettingsPage() {
       <motion.div variants={itemVariants}>
         <Card>
           <CardHeader>
-            <CardTitle>Appearance</CardTitle>
+            <CardTitle>{t('theme')}</CardTitle>
             <CardDescription>
               Customize how the application looks
             </CardDescription>
@@ -196,7 +198,7 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             <div>
               <label className="block text-sm font-semibold mb-3">
-                Theme
+                {t('theme')}
               </label>
               <div className="grid grid-cols-3 gap-3">
                 {/* Light Theme */}
@@ -209,7 +211,7 @@ export default function SettingsPage() {
                   }`}
                 >
                   <Sun className="w-6 h-6" />
-                  <span className="text-sm font-medium">Light</span>
+                  <span className="text-sm font-medium">{t('light')}</span>
                 </button>
 
                 {/* Dark Theme */}
@@ -222,7 +224,7 @@ export default function SettingsPage() {
                   }`}
                 >
                   <Moon className="w-6 h-6" />
-                  <span className="text-sm font-medium">Dark</span>
+                  <span className="text-sm font-medium">{t('dark')}</span>
                 </button>
 
                 {/* System Theme */}
@@ -235,7 +237,7 @@ export default function SettingsPage() {
                   }`}
                 >
                   <Monitor className="w-6 h-6" />
-                  <span className="text-sm font-medium">System</span>
+                  <span className="text-sm font-medium">{t('system')}</span>
                 </button>
               </div>
             </div>
@@ -247,7 +249,7 @@ export default function SettingsPage() {
       <motion.div variants={itemVariants}>
         <Card>
           <CardHeader>
-            <CardTitle>Notifications</CardTitle>
+            <CardTitle>{t('notifications')}</CardTitle>
             <CardDescription>
               Manage how you receive alerts and updates
             </CardDescription>
@@ -259,7 +261,7 @@ export default function SettingsPage() {
                 <Mail className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                 <div>
                   <h4 className="font-medium text-foreground">
-                    Email Notifications
+                    {t('emailNotifications')}
                   </h4>
                   <p className="text-xs text-muted-foreground mt-1">
                     Receive updates via email

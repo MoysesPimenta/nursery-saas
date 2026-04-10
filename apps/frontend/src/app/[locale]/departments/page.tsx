@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +30,8 @@ interface DepartmentsResponse {
 }
 
 export default function DepartmentsPage() {
+  const t = useTranslations('departments');
+  const tc = useTranslations('common');
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -70,7 +73,7 @@ export default function DepartmentsPage() {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
     if (!formData.name.trim()) {
-      newErrors.name = 'Department name is required';
+      newErrors.name = t('departmentNameRequired');
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -100,7 +103,7 @@ export default function DepartmentsPage() {
   const columns = [
     {
       key: 'name' as const,
-      label: 'Name',
+      label: tc('name'),
       render: (value: string, item: Department) => (
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-xs font-bold">
@@ -112,7 +115,7 @@ export default function DepartmentsPage() {
     },
     {
       key: 'description' as const,
-      label: 'Description',
+      label: tc('description'),
       render: (value: string) => (
         <span className="text-sm text-muted-foreground max-w-xs truncate">{value || '—'}</span>
       ),
@@ -147,15 +150,15 @@ export default function DepartmentsPage() {
     >
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Departments</h1>
-          <p className="text-muted-foreground mt-1">Manage departments in your nursery</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('subtitle')}</p>
         </div>
         <Button
           onClick={() => setIsDialogOpen(true)}
           className="gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
         >
           <Plus className="w-4 h-4" />
-          Add Department
+          {t('addDepartment')}
         </Button>
       </div>
 
@@ -179,7 +182,7 @@ export default function DepartmentsPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search by name..."
+                placeholder={t('searchPlaceholder')}
                 className="pl-10"
                 value={search}
                 onChange={(e) => {
@@ -202,7 +205,7 @@ export default function DepartmentsPage() {
                 loading={loading}
                 pagination={response?.pagination}
                 onPageChange={setPage}
-                emptyMessage="No departments found"
+                emptyMessage={t('noDepartments')}
                 rowKey={(departmentItem) => departmentItem.id}
               />
             )}
@@ -214,15 +217,15 @@ export default function DepartmentsPage() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Add Department</DialogTitle>
+            <DialogTitle>{t('addDepartment')}</DialogTitle>
             <DialogDescription>
-              Add a new department to your nursery
+              {t('addDepartmentDescription')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <FormField
-              label="Department Name"
+              label={t('departmentName')}
               required
               error={errors.name}
             >
@@ -235,7 +238,7 @@ export default function DepartmentsPage() {
             </FormField>
 
             <FormField
-              label="Description"
+              label={tc('description')}
               error={errors.description}
             >
               <Textarea
@@ -260,14 +263,14 @@ export default function DepartmentsPage() {
               onClick={() => setIsDialogOpen(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {tc('cancel')}
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting}
               className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
             >
-              {isSubmitting ? 'Creating...' : 'Add Department'}
+              {isSubmitting ? t('creating') : t('addDepartment')}
             </Button>
           </DialogFooter>
         </DialogContent>

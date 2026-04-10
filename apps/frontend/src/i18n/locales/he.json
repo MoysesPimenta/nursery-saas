@@ -292,7 +292,8 @@
     "system": "מערכת",
     "notifications": "התראות",
     "emailNotifications": "התראות דוא״ל",
-    "pushNotifications": "התראות דחיפה"
+    "pushNotifications": "התראות דחיפה",
+    "savedSuccessfully": "ההגדרות נשמרו בהצלחה!"
   },
   "export": {
     "title": "ייצוא נתונים",
@@ -301,7 +302,8 @@
     "csv": "CSV",
     "json": "JSON",
     "dataType": "סוג נתונים",
-    "exportButton": "ייצוא"
+    "exportButton": "ייצוא",
+    "downloadedSuccessfully": "הייצוא הורד בהצלחה!"
   },
   "errors": {
     "generic": "משהו השתבש. אנא נסה שוב.",
