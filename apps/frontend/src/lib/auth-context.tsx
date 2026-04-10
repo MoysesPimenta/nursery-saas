@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from './supabase/client';
 import { api } from './api';
@@ -34,6 +34,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const fetchingProfile = useRef(false);
+
+  // Fetch user profile using a provided token directly (avoids calling getSession again)
+  const fetchProfile = async (accessToken: string, userId: string, email: string) => {
+    // Guard against re-entrant calls that can cause infinite loops
+    if (fetchingProfile.current) return;
+    fetchingProfile.current = true;
+
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined'
+        ? window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'http://localhost:3001'
+          : window.location.hostname.includes('vercel.app')
+            ? `https://${window.location.hostname.replace('-frontend', '-backend')}`
+            : `https://api.${window.location.hostname}`
+        : 'http://localhost:3001');
+
+      const res = await fetch(`${API_URL}/api/v1/auth/me`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setUserProfile(data.user || data as unknown as UserProfile);
+      } else {
+        // Fallback to minimal profile
+        setUserProfile({ id: userId, email, role: 'read_only' });
+      }
+    } catch (err) {
+      console.error('Failed to fetch user profile:', err);
+      setUserProfile({ id: userId, email, role: 'read_only' });
+    } finally {
+      fetchingProfile.current = false;
+    }
+  };
 
   useEffect(() => {
     const initAuth = async () => {
@@ -46,19 +84,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (currentSession) {
           setSession(currentSession);
           setUser(currentSession.user);
-
-          try {
-            const response = await api<{ user: UserProfile }>('/api/v1/auth/me');
-            setUserProfile(response.user || response as unknown as UserProfile);
-          } catch (err) {
-            console.error('Failed to fetch user profile:', err);
-            // Set a minimal profile from the session so the app doesn't break
-            setUserProfile({
-              id: currentSession.user.id,
-              email: currentSession.user.email || '',
-              role: currentSession.user.user_metadata?.role || 'read_only',
-            });
-          }
+          await fetchProfile(
+            currentSession.access_token,
+            currentSession.user.id,
+            currentSession.user.email || ''
+          );
         }
 
         const {
@@ -68,18 +98,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(newSession?.user || null);
 
           if (newSession?.user) {
-            try {
-              const response = await api<{ user: UserProfile }>('/api/v1/auth/me');
-              setUserProfile(response.user || response as unknown as UserProfile);
-            } catch (err) {
-              console.error('Failed to fetch user profile:', err);
-              // Set a minimal profile from the session so the app doesn't break
-              setUserProfile({
-                id: newSession.user.id,
-                email: newSession.user.email || '',
-                role: newSession.user.user_metadata?.role || 'read_only',
-              });
-            }
+            // Use the token from the event directly — do NOT call getSession()
+            // inside onAuthStateChange, as it can trigger another auth state
+            // change and create an infinite loop
+            await fetchProfile(
+              newSession.access_token,
+              newSession.user.id,
+              newSession.user.email || ''
+            );
           } else {
             setUserProfile(null);
           }
@@ -184,18 +210,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (refreshedSession) {
         setSession(refreshedSession);
         setUser(refreshedSession.user);
-
-        try {
-          const response = await api<{ user: UserProfile }>('/api/v1/auth/me');
-          setUserProfile(response.user || response as unknown as UserProfile);
-        } catch (err) {
-          console.error('Failed to fetch user profile after refresh:', err);
-          setUserProfile({
-            id: refreshedSession.user.id,
-            email: refreshedSession.user.email || '',
-            role: refreshedSession.user.user_metadata?.role || 'read_only',
-          });
-        }
+        await fetchProfile(
+          refreshedSession.access_token,
+          refreshedSession.user.id,
+          refreshedSession.user.email || ''
+        );
       }
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Session refresh failed');
