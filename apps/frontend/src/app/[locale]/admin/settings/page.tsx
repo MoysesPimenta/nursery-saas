@@ -181,7 +181,7 @@ export default function TenantSettingsPage() {
             {t('tenantSettings')}
           </h1>
           <p className="text-muted-foreground mt-2">
-            Manage your school's branding and configuration.
+            {t('configureBranding')}
           </p>
         </div>
       </motion.div>
@@ -204,7 +204,7 @@ export default function TenantSettingsPage() {
             <CardContent className="pt-6 flex items-center gap-3">
               <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
               <p className="text-green-900 dark:text-green-100">
-                Settings saved successfully!
+                {t('settingsSavedSuccessfully')}
               </p>
             </CardContent>
           </Card>
@@ -216,15 +216,15 @@ export default function TenantSettingsPage() {
         <motion.div variants={itemVariants}>
           <Card>
             <CardHeader>
-              <CardTitle>School Information</CardTitle>
+              <CardTitle>{t('schoolInformation')}</CardTitle>
               <CardDescription>
-                Manage your school's basic details and contact information
+                {t('manageSchoolDetails')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
                 <label className="block text-sm font-semibold mb-2">
-                  School Name
+                  {t('schoolName')}
                 </label>
                 <Input
                   value={settings.name}
@@ -240,7 +240,7 @@ export default function TenantSettingsPage() {
 
               <div>
                 <label className="block text-sm font-semibold mb-2">
-                  Address
+                  {t('address')}
                 </label>
                 <Input
                   value={settings.address || ''}
@@ -257,7 +257,7 @@ export default function TenantSettingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-semibold mb-2">
-                    City
+                    {t('city')}
                   </label>
                   <Input
                     value={settings.city || ''}
@@ -272,7 +272,7 @@ export default function TenantSettingsPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2">
-                    State
+                    {t('state')}
                   </label>
                   <Input
                     value={settings.state || ''}
@@ -287,7 +287,7 @@ export default function TenantSettingsPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2">
-                    ZIP Code
+                    {t('zipCode')}
                   </label>
                   <Input
                     value={settings.zip_code || ''}
@@ -305,7 +305,7 @@ export default function TenantSettingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold mb-2">
-                    Phone
+                    {t('phone')}
                   </label>
                   <Input
                     value={settings.phone || ''}
@@ -320,7 +320,7 @@ export default function TenantSettingsPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2">
-                    Email
+                    {t('email')}
                   </label>
                   <Input
                     value={settings.email || ''}
@@ -337,7 +337,7 @@ export default function TenantSettingsPage() {
 
               <div>
                 <label className="block text-sm font-semibold mb-2">
-                  School Logo
+                  {t('schoolLogo')}
                 </label>
                 <div className="flex items-center gap-4">
                   <div className="w-24 h-24 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center bg-muted">
@@ -358,10 +358,10 @@ export default function TenantSettingsPage() {
                       className="mb-2"
                       disabled
                     >
-                      Upload Logo
+                      {t('uploadLogo')}
                     </Button>
                     <p className="text-xs text-muted-foreground">
-                      PNG, JPG up to 5MB. Recommended: 200x200px
+                      {t('logoFormat')}. Recommended: 200x200px
                     </p>
                   </div>
                 </div>
@@ -443,9 +443,9 @@ export default function TenantSettingsPage() {
         <motion.div variants={itemVariants}>
           <Card>
             <CardHeader>
-              <CardTitle>Features</CardTitle>
+              <CardTitle>{t('features')}</CardTitle>
               <CardDescription>
-                Enable or disable features for your school
+                {t('enableDisableFeatures')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -453,58 +453,58 @@ export default function TenantSettingsPage() {
                 <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div>
                     <h4 className="font-medium text-foreground">
-                      Health Records
+                      {t('healthRecords')}
                     </h4>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Store and manage child health records
+                      {t('storeManageHealth')}
                     </p>
                   </div>
                   <div className="text-sm font-medium text-primary">
-                    Enabled
+                    {t('enabled')}
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div>
                     <h4 className="font-medium text-foreground">
-                      Medication Tracking
+                      {t('medicationTracking')}
                     </h4>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Track medications and allergies
+                      {t('trackMedications')}
                     </p>
                   </div>
                   <div className="text-sm font-medium text-primary">
-                    Enabled
+                    {t('enabled')}
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div>
                     <h4 className="font-medium text-foreground">
-                      Parent Portal
+                      {t('parentPortal')}
                     </h4>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Allow parents to view child health information
+                      {t('allowParents')}
                     </p>
                   </div>
                   <div className="text-sm font-medium text-primary">
-                    Enabled
+                    {t('enabled')}
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div>
                     <h4 className="font-medium text-foreground">
-                      Advanced Analytics
+                      {t('advancedAnalytics')}
                     </h4>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Access health trends and reporting
+                      {t('accessHealthTrends')}
                     </p>
                   </div>
                   <div className="text-sm font-medium text-muted-foreground">
                     {tenant?.subscription_tier === 'enterprise'
-                      ? 'Enabled'
-                      : 'Upgrade to Professional+'}
+                      ? t('enabled')
+                      : t('upgradeToProPlus')}
                   </div>
                 </div>
               </div>
@@ -530,7 +530,7 @@ export default function TenantSettingsPage() {
             )}
           </Button>
           <Button type="button" variant="ghost" disabled={saving}>
-            Cancel
+            {t('common.cancel')}
           </Button>
         </motion.div>
       </form>

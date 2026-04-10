@@ -54,17 +54,17 @@ export default function ProfilePage() {
 
     // Validation
     if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
-      setError('All password fields are required');
+      setError(t('allPasswordFieldsRequired'));
       return;
     }
 
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setError('New passwords do not match');
+      setError(t('passwordsDoNotMatch'));
       return;
     }
 
     if (passwordForm.newPassword.length < 6) {
-      setError('New password must be at least 6 characters');
+      setError(t('passwordMinimum'));
       return;
     }
 
@@ -150,14 +150,14 @@ export default function ProfilePage() {
           <CardHeader>
             <CardTitle>{t('accountInfo')}</CardTitle>
             <CardDescription>
-              Your account details
+              {t('accountDetails')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">
-                  Name
+                  {t('name')}
                 </p>
                 <p className="text-lg font-semibold text-foreground">
                   {displayName}
@@ -166,10 +166,10 @@ export default function ProfilePage() {
 
               <div>
                 <p className="text-sm text-muted-foreground mb-1">
-                  Email
+                  {t('email')}
                 </p>
                 <p className="text-lg font-semibold text-foreground">
-                  {userProfile?.email || 'Not available'}
+                  {userProfile?.email || t('notAvailable')}
                 </p>
               </div>
             </div>
@@ -181,31 +181,31 @@ export default function ProfilePage() {
       <motion.div variants={itemVariants}>
         <Card>
           <CardHeader>
-            <CardTitle>Role & Permissions</CardTitle>
+            <CardTitle>{t('rolePermissions')}</CardTitle>
             <CardDescription>
-              Your account role and access level
+              {t('yourAccountRole')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">
-                  Role
+                  {t('role')}
                 </p>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                   <p className="text-lg font-semibold text-foreground capitalize">
-                    {userProfile?.role || 'User'}
+                    {userProfile?.role || t('user')}
                   </p>
                 </div>
               </div>
 
               <div>
                 <p className="text-sm text-muted-foreground mb-1">
-                  Tenant
+                  {t('tenant')}
                 </p>
                 <p className="text-lg font-semibold text-foreground">
-                  {userProfile?.tenantId ? `Org ${userProfile.tenantId.substring(0, 8)}...` : 'Default'}
+                  {userProfile?.tenantId ? `Org ${userProfile.tenantId.substring(0, 8)}...` : t('default')}
                 </p>
               </div>
             </div>
@@ -219,7 +219,7 @@ export default function ProfilePage() {
           <CardHeader>
             <CardTitle>{t('changePassword')}</CardTitle>
             <CardDescription>
-              Update your password to keep your account secure
+              {t('keepAccountSecure')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -238,7 +238,7 @@ export default function ProfilePage() {
                         currentPassword: e.target.value,
                       }))
                     }
-                    placeholder="Enter your current password"
+                    placeholder={t('enterCurrentPassword')}
                     disabled={loading}
                   />
                   <button
@@ -275,7 +275,7 @@ export default function ProfilePage() {
                         newPassword: e.target.value,
                       }))
                     }
-                    placeholder="Enter your new password"
+                    placeholder={t('enterNewPassword')}
                     disabled={loading}
                   />
                   <button
@@ -312,7 +312,7 @@ export default function ProfilePage() {
                         confirmPassword: e.target.value,
                       }))
                     }
-                    placeholder="Confirm your new password"
+                    placeholder={t('confirmYourNewPassword')}
                     disabled={loading}
                   />
                   <button
@@ -344,7 +344,7 @@ export default function ProfilePage() {
                   {loading ? (
                     <>
                       <Loader className="w-4 h-4 animate-spin" />
-                      Updating...
+                      {t('updating')}
                     </>
                   ) : (
                     t('changePassword')
@@ -362,7 +362,7 @@ export default function ProfilePage() {
                     })
                   }
                 >
-                  Clear
+                  {t('clear')}
                 </Button>
               </div>
             </form>

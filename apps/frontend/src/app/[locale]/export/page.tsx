@@ -67,10 +67,10 @@ export default function ExportPage() {
   };
 
   const exportOptions = [
-    { value: 'children', label: 'Children', description: 'All enrolled children and their details' },
-    { value: 'employees', label: 'Employees', description: 'Staff members and employment records' },
-    { value: 'visits', label: 'Visits', description: 'Health visit logs and records' },
-    { value: 'authorizations', label: 'Authorizations', description: 'Authorization requests and approvals' },
+    { value: 'children', label: t('children'), description: t('childrenDescription') },
+    { value: 'employees', label: t('employees'), description: t('employeesDescription') },
+    { value: 'visits', label: t('visits'), description: t('visitsDescription') },
+    { value: 'authorizations', label: t('authorizations'), description: t('authorizationsDescription') },
   ];
 
   return (
@@ -91,10 +91,10 @@ export default function ExportPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Download className="w-5 h-5 text-indigo-600" />
-            Export Configuration
+            {t('exportConfiguration')}
           </CardTitle>
           <CardDescription>
-            Select the data type and format to export
+            {t('selectDataTypeFormat')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -143,7 +143,7 @@ export default function ExportPage() {
                   <FileSpreadsheet className={`w-6 h-6 ${exportFormat === 'csv' ? 'text-indigo-600' : 'text-muted-foreground'}`} />
                   <div className="text-left">
                     <p className="font-medium text-sm">CSV</p>
-                    <p className="text-xs text-muted-foreground">Spreadsheet compatible</p>
+                    <p className="text-xs text-muted-foreground">{t('spreadsheetCompatible')}</p>
                   </div>
                 </button>
                 <button
@@ -158,7 +158,7 @@ export default function ExportPage() {
                   <FileJson className={`w-6 h-6 ${exportFormat === 'json' ? 'text-indigo-600' : 'text-muted-foreground'}`} />
                   <div className="text-left">
                     <p className="font-medium text-sm">JSON</p>
-                    <p className="text-xs text-muted-foreground">Developer friendly</p>
+                    <p className="text-xs text-muted-foreground">{t('developerFriendly')}</p>
                   </div>
                 </button>
               </div>
@@ -170,7 +170,7 @@ export default function ExportPage() {
               className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
             >
               {loading ? (
-                'Exporting...'
+                t('exporting')
               ) : (
                 <>
                   <Download className="w-4 h-4 mr-2" />

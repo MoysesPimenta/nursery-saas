@@ -9,7 +9,7 @@ export interface UseApiQueryResult<T> {
 }
 
 export interface UseApiMutationResult<T> {
-  execute: (data?: unknown) => Promise<T>;
+  execute: (data?: unknown, overridePath?: string) => Promise<T>;
   loading: boolean;
   error: Error | null;
   data: T | null;
@@ -63,18 +63,19 @@ export function useApiMutation<T>(
   const [data, setData] = useState<T | null>(null);
 
   const execute = useCallback(
-    async (requestData?: unknown): Promise<T> => {
+    async (requestData?: unknown, overridePath?: string): Promise<T> => {
       try {
         setLoading(true);
         setError(null);
 
+        const targetPath = overridePath || path;
         let result: T;
         if (method === 'POST') {
-          result = await apiPost<T>(path, requestData);
+          result = await apiPost<T>(targetPath, requestData);
         } else if (method === 'PATCH') {
-          result = await apiPatch<T>(path, requestData);
+          result = await apiPatch<T>(targetPath, requestData);
         } else if (method === 'DELETE') {
-          result = await apiDelete<T>(path);
+          result = await apiDelete<T>(targetPath);
         } else {
           throw new Error(`Unsupported HTTP method: ${method}`);
         }

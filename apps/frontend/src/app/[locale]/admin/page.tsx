@@ -6,13 +6,15 @@ import { StatCard } from '@/components/ui/stat-card';
 import { motion } from 'framer-motion';
 import { BarChart3, Users, Building2, FileText, Settings, ArrowRight, Shield, Activity, CheckCircle2 } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useApiQuery } from '@/lib/hooks/use-api';
 
 interface AdminStats {
-  totalUsers: number;
-  activeChildren: number;
-  activeEmployees: number;
-  visitsThisMonth: number;
+  childrenCount: number;
+  staffCount: number;
+  visitsToday: number;
+  pendingAuthorizations: number;
+  allergyAlerts: number;
 }
 
 const container = {
@@ -25,37 +27,39 @@ const item = {
 };
 
 export default function AdminPage() {
+  const t = useTranslations('admin');
   const router = useRouter();
   const params = useParams();
   const locale = params.locale as string;
 
-  const { data: statsData } = useApiQuery<{ data: AdminStats }>('/api/v1/dashboard');
-  const stats = statsData?.data || {
-    totalUsers: 0,
-    activeChildren: 0,
-    activeEmployees: 0,
-    visitsThisMonth: 0,
+  const { data: stats } = useApiQuery<AdminStats>('/api/v1/dashboard');
+  const statsData = stats || {
+    childrenCount: 0,
+    staffCount: 0,
+    visitsToday: 0,
+    pendingAuthorizations: 0,
+    allergyAlerts: 0,
   };
 
   const quickLinks = [
     {
       icon: Users,
-      label: 'User Management',
-      description: 'Manage users, roles, and permissions',
+      label: t('users'),
+      description: t('manageUsersRoles'),
       href: `/${locale}/admin/users`,
       gradient: 'from-indigo-500 to-purple-500',
     },
     {
       icon: Settings,
-      label: 'Tenant Settings',
-      description: 'Configure branding and features',
+      label: t('tenantSettings'),
+      description: t('configureBranding'),
       href: `/${locale}/admin/tenants`,
       gradient: 'from-violet-500 to-pink-500',
     },
     {
       icon: FileText,
-      label: 'Audit Logs',
-      description: 'View system activity and changes',
+      label: t('auditLogs'),
+      description: t('viewSystemActivity'),
       href: `/${locale}/admin/audit-logs`,
       gradient: 'from-blue-500 to-cyan-500',
     },
@@ -75,22 +79,22 @@ export default function AdminPage() {
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
             <Shield className="w-4 h-4 text-white" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Admin Console</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('adminConsole')}</h1>
         </div>
-        <p className="text-muted-foreground ml-11">System administration and monitoring</p>
+        <p className="text-muted-foreground ml-11">{t('systemAdministration')}</p>
       </motion.div>
 
       {/* Stats */}
       <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total Users" value={stats.totalUsers} icon={<Users className="w-5 h-5" />} />
-        <StatCard title="Active Children" value={stats.activeChildren} icon={<Building2 className="w-5 h-5" />} />
-        <StatCard title="Active Employees" value={stats.activeEmployees} icon={<Users className="w-5 h-5" />} />
-        <StatCard title="Visits This Month" value={stats.visitsThisMonth} icon={<BarChart3 className="w-5 h-5" />} />
+        <StatCard title={t('activeChildren')} value={statsData.childrenCount} icon={<Building2 className="w-5 h-5" />} />
+        <StatCard title={t('activeEmployees')} value={statsData.staffCount} icon={<Users className="w-5 h-5" />} />
+        <StatCard title={t('todaysVisits')} value={statsData.visitsToday} icon={<BarChart3 className="w-5 h-5" />} />
+        <StatCard title={t('pendingAuth')} value={statsData.pendingAuthorizations} icon={<FileText className="w-5 h-5" />} />
       </motion.div>
 
       {/* Quick Access */}
       <motion.div variants={item}>
-        <h2 className="text-lg font-semibold mb-3">Quick Access</h2>
+        <h2 className="text-lg font-semibold mb-3">{t('quickAccess')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {quickLinks.map((link) => {
             const Icon = link.icon;
@@ -124,9 +128,9 @@ export default function AdminPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Activity className="w-4 h-4 text-indigo-600" />
-              System Status
+              {t('systemStatus')}
             </CardTitle>
-            <CardDescription>All systems operational</CardDescription>
+            <CardDescription>{t('allSystemsOperational')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -135,7 +139,7 @@ export default function AdminPage() {
                   <span className="text-sm font-medium">{s.label}</span>
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                    <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">Operational</span>
+                    <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">{t('operational')}</span>
                   </div>
                 </div>
               ))}

@@ -11,12 +11,21 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
+interface RecentActivityItem {
+  id: string;
+  action: string;
+  entity_type: string;
+  entity_id: string;
+  created_at: string;
+}
+
 interface DashboardStats {
   childrenCount: number;
   staffCount: number;
   visitsToday: number;
   pendingAuthorizations: number;
   allergyAlerts: number;
+  recentActivity: RecentActivityItem[];
 }
 
 const container = {
@@ -32,6 +41,33 @@ const item = {
   show: { opacity: 1, y: 0 },
 };
 
+// Helper function to format relative time
+function formatRelativeTime(dateString: string, locale: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMins < 1) return 'just now';
+  if (diffMins < 60) return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+  if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+
+  return date.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+}
+
+// Helper function to format action label
+function formatActionLabel(action: string, entityType: string): string {
+  const actionText = action.charAt(0).toUpperCase() + action.slice(1);
+  const entityText = entityType
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+  return `${actionText} ${entityText}`;
+}
+
 export default function DashboardPage() {
   const params = useParams();
   const locale = params.locale as string;
@@ -39,7 +75,7 @@ export default function DashboardPage() {
   const t = useTranslations('dashboard');
   const tCommon = useTranslations('common');
 
-  const today = new Date().toLocaleDateString('en-US', {
+  const today = new Date().toLocaleDateString(locale, {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -141,7 +177,7 @@ export default function DashboardPage() {
                 <Sparkles className="w-4 h-4 text-indigo-600" />
                 <CardTitle>{t('quickActions')}</CardTitle>
               </div>
-              <CardDescription>Jump to common tasks</CardDescription>
+              <CardDescription>{t('quickActionsDesc')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-3">
@@ -169,41 +205,42 @@ export default function DashboardPage() {
         <motion.div variants={item} className="lg:col-span-2">
           <Card className="h-full">
             <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Latest updates from your nursery</CardDescription>
+              <CardTitle>{t('recentActivity')}</CardTitle>
+              <CardDescription>{t('recentActivityDesc')}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-3">
-                  <Activity className="w-5 h-5 text-muted-foreground" />
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <p className="text-sm text-muted-foreground">Loading...</p>
                 </div>
-                <p className="text-sm font-medium text-muted-foreground">No recent activity</p>
-                <p className="text-xs text-muted-foreground/60 mt-1">Activity will appear here as you use the app</p>
-              </div>
+              ) : stats?.recentActivity && stats.recentActivity.length > 0 ? (
+                <div className="space-y-3">
+                  {stats.recentActivity.slice(0, 10).map((item) => (
+                    <div key={item.id} className="flex items-start gap-3 pb-3 border-b border-border/50 last:border-b-0 last:pb-0">
+                      <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0 mt-1">
+                        <Activity className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground">{formatActionLabel(item.action, item.entity_type)}</p>
+                        <p className="text-xs text-muted-foreground">{formatRelativeTime(item.created_at, locale)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-3">
+                    <Activity className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm font-medium text-muted-foreground">No recent activity</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">Activity will appear here as you use the app</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </motion.div>
       </div>
 
-      {/* System Health */}
-      <motion.div variants={item}>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">System Health</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <div className="flex gap-2">
-                <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-sm" />
-                <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-sm" />
-                <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-sm" />
-              </div>
-              <p className="text-sm font-medium">All systems operational</p>
-              <p className="text-xs text-muted-foreground ml-auto">Last checked just now</p>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
     </motion.div>
   );
 }

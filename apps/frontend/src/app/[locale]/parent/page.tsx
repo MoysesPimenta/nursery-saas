@@ -30,7 +30,7 @@ const itemVariants = {
 };
 
 export default function ParentPortalPage() {
-  const t = useTranslations('common');
+  const t = useTranslations();
   const params = useParams();
   const locale = params.locale as string;
   const [children, setChildren] = useState<ChildWithAllergies[]>([]);
@@ -44,7 +44,8 @@ export default function ParentPortalPage() {
         setLoading(true);
         setError(null);
 
-        const childrenData = await apiGet<Child[]>('/api/v1/children');
+        const response = await apiGet<{ data: Child[] }>('/api/v1/children');
+        const childrenData = response.data;
 
         // Enrich children with allergies and last visit info
         const enrichedChildren = await Promise.all(
@@ -65,10 +66,10 @@ export default function ParentPortalPage() {
 
             // Get latest visit
             try {
-              const visits = await apiGet<any[]>(
+              const visitsResponse = await apiGet<{ data: any[] }>(
                 `/api/v1/visits?child_id=${child.id}&limit=1`
               );
-              lastVisitDate = visits?.[0]?.startedAt;
+              lastVisitDate = visitsResponse.data?.[0]?.startedAt;
             } catch (err) {
               console.error(`Failed to load visits for child ${child.id}:`, err);
               lastVisitDate = undefined;
@@ -95,7 +96,7 @@ export default function ParentPortalPage() {
         }
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : 'Failed to load children'
+          err instanceof Error ? err.message : t('parent.errorLoadingChildren')
         );
       } finally {
         setLoading(false);
@@ -103,7 +104,7 @@ export default function ParentPortalPage() {
     }
 
     loadChildren();
-  }, []);
+  }, [t]);
 
   return (
     <motion.div
@@ -116,10 +117,10 @@ export default function ParentPortalPage() {
       <motion.div variants={itemVariants}>
         <div className="space-y-2">
           <h1 className="text-4xl font-bold tracking-tight text-foreground">
-            Welcome back, {parentName}!
+            {t('parent.welcomeBack', { name: parentName })}
           </h1>
           <p className="text-lg text-muted-foreground">
-            {t('viewChildHealth')}
+            {t('parent.viewChildHealth')}
           </p>
         </div>
       </motion.div>
@@ -132,7 +133,7 @@ export default function ParentPortalPage() {
               <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
               <div>
                 <p className="font-medium text-red-900 dark:text-red-100">
-                  Error loading children
+                  {t('parent.errorLoadingChildren')}
                 </p>
                 <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
               </div>
@@ -157,18 +158,18 @@ export default function ParentPortalPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg text-foreground mb-1">
-                    {t('noChildren')}
+                    {t('parent.noChildrenLinked')}
                   </h3>
                   <p className="text-muted-foreground max-w-sm mx-auto">
-                    You don't have any children linked to your account yet. Contact your nursery administrator to get started.
+                    {t('parent.noChildrenLinked')}
                   </p>
                 </div>
                 <Button
-                  variant="primary"
+                  variant="default"
                   className="mt-4"
                   disabled
                 >
-                  {t('linkChild')}
+                  {t('parent.linkChild')}
                 </Button>
               </div>
             </CardContent>
@@ -198,14 +199,14 @@ export default function ParentPortalPage() {
         <motion.div variants={itemVariants}>
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">{t('quickLinks')}</CardTitle>
+              <CardTitle className="text-lg">{t('parent.quickLinks')}</CardTitle>
               <CardDescription>
-                {t('quickAccess')}
+                {t('parent.quickAccess')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
               <p className="text-sm text-muted-foreground">
-                Click on any child card above to view detailed health information, visit history, medications, and allergies.
+                {t('parent.clickCardInfo')}
               </p>
             </CardContent>
           </Card>
