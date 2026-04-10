@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { requireAuth } from '@/lib/auth/rbac';
 import { getUserClient, errorResponse, successResponse } from '@/lib/api/helpers';
