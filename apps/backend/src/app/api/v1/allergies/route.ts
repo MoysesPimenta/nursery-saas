@@ -38,7 +38,7 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
   }
 });
 
-export const POST = requirePermission('manage:allergies', async (req: NextRequest, user) => {
+export const POST = requirePermission('manage_allergies', async (req: NextRequest, user) => {
   try {
     const supabase = getUserClient(req);
     const body = await req.json();

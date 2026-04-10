@@ -7,33 +7,29 @@ import { verifyToken, extractBearerToken, AuthUser } from './verify-token';
  */
 
 export type Permission =
-  | 'read:children'
-  | 'write:children'
-  | 'delete:children'
-  | 'create:children'
-  | 'manage:children'
-  | 'read:employees'
-  | 'write:employees'
-  | 'delete:employees'
-  | 'create:employees'
-  | 'manage:employees'
-  | 'read:visits'
-  | 'write:visits'
-  | 'delete:visits'
-  | 'create:visits'
-  | 'manage:visits'
-  | 'read:authorizations'
-  | 'write:authorizations'
-  | 'delete:authorizations'
-  | 'manage:authorizations'
-  | 'manage:tenant'
-  | 'manage:billing'
-  | 'manage:users'
-  | 'manage:classes'
-  | 'manage:departments'
-  | 'manage:allergies'
-  | 'manage:medications'
-  | 'manage:reports';
+  | 'manage_children'
+  | 'view_children'
+  | 'manage_employees'
+  | 'view_employees'
+  | 'manage_visits'
+  | 'view_visits'
+  | 'manage_authorizations'
+  | 'view_authorizations'
+  | 'manage_classes'
+  | 'view_classes'
+  | 'manage_departments'
+  | 'view_departments'
+  | 'manage_allergies'
+  | 'view_allergies'
+  | 'manage_medications'
+  | 'view_medications'
+  | 'manage_users'
+  | 'view_users'
+  | 'manage_user_roles'
+  | 'manage_custom_fields'
+  | 'view_custom_fields'
+  | 'view_audit_logs'
+  | 'view_reports';
 
 /**
  * Requires authentication on an API handler
@@ -89,8 +85,8 @@ export function requireAuth(
  * First verifies authentication, then checks permission
  *
  * @example
- * export const DELETE = requirePermission('delete:children', async (req, user) => {
- *   // user is guaranteed to have 'delete:children' permission
+ * export const DELETE = requirePermission('manage_children', async (req, user) => {
+ *   // user is guaranteed to have 'manage_children' permission
  *   return NextResponse.json({ success: true });
  * });
  */

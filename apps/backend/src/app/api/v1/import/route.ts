@@ -6,7 +6,7 @@ import { getUserClient, errorResponse } from '@/lib/api/helpers';
 /**
  * POST /api/v1/import
  * Handles bulk data import for children, employees, visits, and authorizations
- * Requires manage:reports permission
+ * Requires view_reports permission
  */
 
 const importPayloadSchema = z.object({
@@ -62,7 +62,7 @@ const SCHEMA_MAP = {
   authorizations: authorizationRecordSchema,
 };
 
-export const POST = requirePermission('manage:reports', async (req: NextRequest, user) => {
+export const POST = requirePermission('view_reports', async (req: NextRequest, user) => {
   try {
     const body = await req.json();
 

@@ -73,7 +73,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  return requirePermission('manage:employees', async (req: NextRequest, user) => {
+  return requirePermission('manage_employees', async (req: NextRequest, user) => {
   try {
     const { id } = params;
 
@@ -112,7 +112,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-  return requirePermission('manage:employees', async (req: NextRequest, user) => {
+  return requirePermission('manage_employees', async (req: NextRequest, user) => {
   try {
     const { id } = params;
 

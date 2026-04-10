@@ -22,7 +22,7 @@ type UpdateTenantInput = z.infer<typeof updateTenantSchema>;
  * Get the authenticated user's tenant details
  * Requires: manage:tenant permission
  */
-export const GET = requirePermission('manage:tenant', async (req: NextRequest, user) => {
+export const GET = requirePermission('manage_users', async (req: NextRequest, user) => {
   try {
     const supabase = getSupabaseServerClient();
 
@@ -52,7 +52,7 @@ export const GET = requirePermission('manage:tenant', async (req: NextRequest, u
  * Update tenant settings
  * Requires: manage:tenant permission
  */
-export const PATCH = requirePermission('manage:tenant', async (req: NextRequest, user) => {
+export const PATCH = requirePermission('manage_users', async (req: NextRequest, user) => {
   try {
     const body = await req.json();
     const validatedData = updateTenantSchema.parse(body);

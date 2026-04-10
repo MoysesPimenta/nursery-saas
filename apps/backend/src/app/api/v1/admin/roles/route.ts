@@ -8,7 +8,7 @@ import { getSupabaseServerClient } from '@/lib/supabase/server';
  * List all roles for the tenant
  * Requires: manage:users permission
  */
-export const GET = requirePermission('manage:users', async (req: NextRequest, user) => {
+export const GET = requirePermission('manage_users', async (req: NextRequest, user) => {
   try {
     const supabase = getSupabaseServerClient();
 

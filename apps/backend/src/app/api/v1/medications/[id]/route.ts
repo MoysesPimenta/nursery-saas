@@ -81,7 +81,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-  return requirePermission('manage:medications', async (req: NextRequest, user) => {
+  return requirePermission('manage_medications', async (req: NextRequest, user) => {
   try {
     const { id } = params;
 

@@ -24,7 +24,7 @@ type InviteUserInput = z.infer<typeof inviteUserSchema>;
  * List all users in the tenant with their roles
  * Requires: manage:users permission
  */
-export const GET = requirePermission('manage:users', async (req: NextRequest, user) => {
+export const GET = requirePermission('manage_users', async (req: NextRequest, user) => {
   try {
     const supabase = getSupabaseServerClient();
     const { from, to, page, limit } = parsePagination(req);
@@ -87,7 +87,7 @@ export const GET = requirePermission('manage:users', async (req: NextRequest, us
  * Invite a new user (create auth user + assign role)
  * Requires: manage:users permission
  */
-export const POST = requirePermission('manage:users', async (req: NextRequest, user) => {
+export const POST = requirePermission('manage_users', async (req: NextRequest, user) => {
   try {
     const body = await req.json();
     const validatedData = inviteUserSchema.parse(body);

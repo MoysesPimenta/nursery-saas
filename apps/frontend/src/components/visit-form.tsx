@@ -27,12 +27,19 @@ export interface VisitFormData {
   notifyParent: boolean;
 }
 
+interface ChildOption {
+  id: string;
+  first_name: string;
+  last_name: string;
+}
+
 interface VisitFormProps {
   onSubmit: (data: VisitFormData) => Promise<void>;
   initialValues?: Partial<VisitFormData>;
   childName?: string;
   loading?: boolean;
   availableMedications?: Array<{ id: string; name: string }>;
+  availableChildren?: ChildOption[];
   readOnly?: boolean;
 }
 
@@ -52,6 +59,7 @@ export function VisitForm({
   childName,
   loading = false,
   availableMedications = [],
+  availableChildren = [],
   readOnly = false,
 }: VisitFormProps) {
   const [formData, setFormData] = useState<VisitFormData>({
@@ -140,18 +148,29 @@ export function VisitForm({
         <CardContent className="space-y-4">
           <div>
             <label className="text-sm font-medium text-foreground">
-              Child Name
+              Child *
             </label>
             {childName ? (
               <div className="mt-1 p-2 bg-muted rounded-md text-foreground">
                 {childName}
               </div>
             ) : (
-              <Input
-                type="text"
-                placeholder="Enter child name"
+              <select
+                value={formData.childId}
+                onChange={(e) => handleFieldChange('childId', e.target.value)}
                 disabled={readOnly}
-              />
+                className={`w-full mt-1 px-3 py-2 border border-border rounded-md text-sm bg-white dark:border-slate-800 dark:bg-slate-950 ${errors.child ? 'border-red-500' : ''}`}
+              >
+                <option value="">Select a child...</option>
+                {availableChildren.map((child) => (
+                  <option key={child.id} value={child.id}>
+                    {child.first_name} {child.last_name}
+                  </option>
+                ))}
+              </select>
+            )}
+            {errors.child && (
+              <p className="text-xs text-red-600 mt-1">{errors.child}</p>
             )}
           </div>
 
@@ -201,7 +220,7 @@ export function VisitForm({
         <CardContent>
           <VitalsForm
             initialValues={formData.vitals}
-            onSubmit={(vitals) => handleFieldChange('vitals', vitals)}
+            onChange={(vitals) => handleFieldChange('vitals', vitals)}
             readOnly={readOnly}
           />
         </CardContent>

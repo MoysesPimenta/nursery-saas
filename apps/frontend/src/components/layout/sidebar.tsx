@@ -18,6 +18,7 @@ import {
   Pill,
   AlertTriangle,
   Download,
+  GraduationCap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { href: '', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/children', label: 'Children', icon: Baby },
+  { href: '/classes', label: 'Classes', icon: GraduationCap },
   { href: '/employees', label: 'Employees', icon: Users, roles: ['admin', 'manager'] },
   { href: '/visits', label: 'Visits', icon: CalendarCheck },
   { href: '/authorizations', label: 'Authorizations', icon: Shield },

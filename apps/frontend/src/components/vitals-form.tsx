@@ -7,6 +7,7 @@ import { Thermometer } from 'lucide-react';
 
 interface VitalsFormProps {
   onSubmit?: (vitals: Vitals) => void;
+  onChange?: (vitals: Vitals) => void;
   initialValues?: Partial<Vitals>;
   readOnly?: boolean;
 }
@@ -23,6 +24,7 @@ export interface Vitals {
 
 export function VitalsForm({
   onSubmit,
+  onChange,
   initialValues,
   readOnly = false,
 }: VitalsFormProps) {
@@ -37,10 +39,13 @@ export function VitalsForm({
   });
 
   const handleChange = (field: keyof Vitals, value: any) => {
-    setVitals((prev) => ({
-      ...prev,
+    const updated = {
+      ...vitals,
       [field]: value === '' ? null : value,
-    }));
+    };
+    setVitals(updated);
+    // Notify parent immediately when used inline (onChange mode)
+    onChange?.(updated);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -73,8 +78,11 @@ export function VitalsForm({
   const isDiastolicBPUnusual = vitals.diastolicBP !== null && !validateDiastolicBP(vitals.diastolicBP);
   const isWeightUnusual = vitals.weight !== null && !validateWeight(vitals.weight);
 
+  const Wrapper = onChange ? 'div' : 'form';
+  const wrapperProps = onChange ? {} : { onSubmit: handleSubmit };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <Wrapper {...wrapperProps as any} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Temperature */}
         <div className="space-y-2">
@@ -197,7 +205,7 @@ export function VitalsForm({
         </div>
       </div>
 
-      {onSubmit && (
+      {onSubmit && !onChange && (
         <Button
           type="submit"
           disabled={readOnly}
@@ -206,6 +214,6 @@ export function VitalsForm({
           Save Vitals
         </Button>
       )}
-    </form>
+    </Wrapper>
   );
 }

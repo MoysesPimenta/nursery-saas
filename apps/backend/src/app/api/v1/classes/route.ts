@@ -39,7 +39,7 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
   }
 });
 
-export const POST = requirePermission('manage:classes', async (req: NextRequest, user) => {
+export const POST = requirePermission('manage_classes', async (req: NextRequest, user) => {
   try {
     const supabase = getUserClient(req);
     const body = await req.json();

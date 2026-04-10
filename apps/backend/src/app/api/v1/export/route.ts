@@ -9,7 +9,7 @@ import { getUserClient, errorResponse } from '@/lib/api/helpers';
  *   - type: 'children' | 'employees' | 'visits' | 'authorizations'
  *   - format: 'json' | 'csv'
  *
- * Requires manage:reports permission
+ * Requires view_reports permission
  */
 
 const VALID_TYPES = ['children', 'employees', 'visits', 'authorizations'] as const;
@@ -54,7 +54,7 @@ function convertToCSV(records: Record<string, any>[]): string {
   return [header, ...rows].join('\n');
 }
 
-export const GET = requirePermission('manage:reports', async (req: NextRequest, user) => {
+export const GET = requirePermission('view_reports', async (req: NextRequest, user) => {
   try {
     const searchParams = req.nextUrl.searchParams;
     const type = searchParams.get('type');

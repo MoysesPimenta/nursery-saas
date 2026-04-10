@@ -13,6 +13,8 @@ const PUBLIC_ROUTES = ['/auth/login', '/auth/signup', '/auth/reset-password', '/
 const ROLE_PROTECTED_ROUTES: Record<string, string[]> = {
   '/admin': ['super_admin', 'school_admin'],
   '/parent': ['parent'],
+  '/profile': [], // Accessible to all authenticated users
+  '/settings': [], // Accessible to all authenticated users
 };
 
 function isPublicRoute(pathname: string): boolean {
@@ -25,6 +27,11 @@ function checkRouteAccess(pathname: string, userRole?: string): boolean {
 
   for (const [protectedRoute, allowedRoles] of Object.entries(ROLE_PROTECTED_ROUTES)) {
     if (pathWithoutLocale.startsWith(protectedRoute)) {
+      // If allowedRoles is empty, route is accessible to all authenticated users
+      if (allowedRoles.length === 0) {
+        return true;
+      }
+      // Otherwise, check if user's role is in the allowed list
       return userRole ? allowedRoles.includes(userRole) : false;
     }
   }

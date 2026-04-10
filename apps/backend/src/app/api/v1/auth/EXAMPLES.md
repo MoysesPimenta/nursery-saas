@@ -56,8 +56,8 @@ import { requirePermission, hasPermission } from '@/lib/auth/rbac';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 
-// Only users with 'delete:children' permission can delete
-export const DELETE = requirePermission('delete:children', async (req, user) => {
+// Only users with 'manage_children' permission can delete
+export const DELETE = requirePermission('manage_children', async (req, user) => {
   const { searchParams } = new URL(req.url);
   const childId = searchParams.get('id');
 
@@ -87,8 +87,8 @@ export const DELETE = requirePermission('delete:children', async (req, user) => 
   return NextResponse.json({ success: true, message: 'Child deleted' });
 });
 
-// Update requires 'write:children' permission
-export const PATCH = requirePermission('write:children', async (req, user) => {
+// Update requires 'manage_children' permission
+export const PATCH = requirePermission('manage_children', async (req, user) => {
   const { searchParams } = new URL(req.url);
   const childId = searchParams.get('id');
   const body = await req.json();
@@ -295,7 +295,7 @@ import { requirePermission } from '@/lib/auth/rbac';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 
-export const PUT = requirePermission('write:children', async (req, user) => {
+export const PUT = requirePermission('manage_children', async (req, user) => {
   try {
     const { searchParams } = new URL(req.url);
     const childId = searchParams.get('id');
@@ -509,7 +509,7 @@ async function auditLog(
     .catch(console.error); // Don't fail if logging fails
 }
 
-export const DELETE = requirePermission('delete:children', async (req, user) => {
+export const DELETE = requirePermission('manage_children', async (req, user) => {
   const { searchParams } = new URL(req.url);
   const childId = searchParams.get('id');
 
