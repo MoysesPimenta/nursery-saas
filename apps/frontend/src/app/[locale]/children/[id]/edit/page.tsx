@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,6 +48,7 @@ interface ChildDetail {
 export default function EditChildPage() {
   const router = useRouter();
   const params = useParams();
+  const t = useTranslations('children');
   const locale = params.locale as string;
   const childId = params.id as string;
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -170,18 +172,18 @@ export default function EditChildPage() {
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Edit Child</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('editChild')}</h1>
           <p className="text-muted-foreground mt-1">
-            Update {child.firstName} {child.lastName}'s information
+            {t('updateInfo', { name: `${child.first_name} ${child.last_name}` })}
           </p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Personal Information</CardTitle>
+          <CardTitle>{t('personalInfo')}</CardTitle>
           <CardDescription>
-            Update the child's profile details
+            {t('updateChildProfile')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -193,7 +195,7 @@ export default function EditChildPage() {
             )}
 
             <div className="grid grid-cols-2 gap-4">
-              <FormField label="First Name" error={errors.firstName} required>
+              <FormField label={t('firstName')} error={errors.firstName} required>
                 <Input
                   name="firstName"
                   placeholder="John"
@@ -201,7 +203,7 @@ export default function EditChildPage() {
                   onChange={handleChange}
                 />
               </FormField>
-              <FormField label="Last Name" error={errors.lastName} required>
+              <FormField label={t('lastName')} error={errors.lastName} required>
                 <Input
                   name="lastName"
                   placeholder="Doe"
@@ -211,7 +213,7 @@ export default function EditChildPage() {
               </FormField>
             </div>
 
-            <FormField label="Date of Birth" error={errors.dateOfBirth} required>
+            <FormField label={t('dateOfBirth')} error={errors.dateOfBirth} required>
               <Input
                 name="dateOfBirth"
                 type="date"
@@ -220,30 +222,30 @@ export default function EditChildPage() {
               />
             </FormField>
 
-            <FormField label="Gender" error={errors.gender} required>
+            <FormField label={t('gender')} error={errors.gender} required>
               <Select
                 name="gender"
                 value={formData.gender || 'male'}
                 onChange={handleChange}
               >
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
+                <option value="male">{t('male')}</option>
+                <option value="female">{t('female')}</option>
+                <option value="other">{t('other')}</option>
               </Select>
             </FormField>
 
-            <FormField label="Class">
+            <FormField label={t('class')}>
               <Select name="classId" value={formData.classId || ''} onChange={handleChange}>
-                <option value="">Select a class</option>
+                <option value="">{t('selectClass')}</option>
                 {classes.map((cls) => (
                   <option key={cls.id} value={cls.id}>{cls.name}</option>
                 ))}
               </Select>
             </FormField>
 
-            <FormField label="Blood Type">
+            <FormField label={t('bloodType')}>
               <Select name="bloodType" value={formData.bloodType || ''} onChange={handleChange}>
-                <option value="">Select blood type</option>
+                <option value="">{t('selectBloodType')}</option>
                 <option value="A+">A+</option>
                 <option value="A-">A-</option>
                 <option value="B+">B+</option>
@@ -260,15 +262,15 @@ export default function EditChildPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Emergency Contact & Medical</CardTitle>
+          <CardTitle>{t('emergencyContactMedical')}</CardTitle>
           <CardDescription>
-            Emergency contact information and medical notes
+            {t('emergencyContactDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
             <FormField
-              label="Emergency Contact Name"
+              label={t('emergencyContactName')}
               error={errors.emergencyContactName}
               required
             >
@@ -281,7 +283,7 @@ export default function EditChildPage() {
             </FormField>
 
             <FormField
-              label="Emergency Contact Phone"
+              label={t('emergencyContactPhone')}
               error={errors.emergencyContactPhone}
               required
             >
@@ -294,7 +296,7 @@ export default function EditChildPage() {
               />
             </FormField>
 
-            <FormField label="Relationship">
+            <FormField label={t('relationship')}>
               <Input
                 name="emergencyContactRelation"
                 placeholder="e.g., Mother, Father, Guardian"
@@ -303,7 +305,7 @@ export default function EditChildPage() {
               />
             </FormField>
 
-            <FormField label="Additional Notes">
+            <FormField label={t('additionalNotes')}>
               <Textarea
                 name="notes"
                 placeholder="Any additional medical information or special notes..."
@@ -322,13 +324,13 @@ export default function EditChildPage() {
           onClick={() => router.push(`/${locale}/children/${childId}`)}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
+          {t('back')}
         </Button>
         <Button
           onClick={handleSubmit}
           disabled={saving}
         >
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? t('saving') : t('saveChanges')}
         </Button>
       </div>
     </motion.div>

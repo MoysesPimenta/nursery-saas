@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,6 +48,7 @@ interface Department {
 export default function EditEmployeePage() {
   const router = useRouter();
   const params = useParams();
+  const t = useTranslations('employees');
   const locale = params.locale as string;
   const employeeId = params.id as string;
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -162,18 +164,18 @@ export default function EditEmployeePage() {
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Edit Employee</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('editEmployee')}</h1>
           <p className="text-muted-foreground mt-1">
-            Update {employee.first_name} {employee.last_name}'s information
+            {t('updateInfo', { name: `${employee.first_name} ${employee.last_name}` })}
           </p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Personal Information</CardTitle>
+          <CardTitle>{t('personalInfo')}</CardTitle>
           <CardDescription>
-            Update the employee's profile details
+            {t('updateEmployeeProfile')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -185,7 +187,7 @@ export default function EditEmployeePage() {
             )}
 
             <div className="grid grid-cols-2 gap-4">
-              <FormField label="First Name" error={errors.firstName} required>
+              <FormField label={t('firstName')} error={errors.firstName} required>
                 <Input
                   name="firstName"
                   placeholder="John"
@@ -193,7 +195,7 @@ export default function EditEmployeePage() {
                   onChange={handleChange}
                 />
               </FormField>
-              <FormField label="Last Name" error={errors.lastName} required>
+              <FormField label={t('lastName')} error={errors.lastName} required>
                 <Input
                   name="lastName"
                   placeholder="Doe"
@@ -203,7 +205,7 @@ export default function EditEmployeePage() {
               </FormField>
             </div>
 
-            <FormField label="Email" error={errors.email} required>
+            <FormField label={t('email')} error={errors.email} required>
               <Input
                 name="email"
                 type="email"
@@ -213,7 +215,7 @@ export default function EditEmployeePage() {
               />
             </FormField>
 
-            <FormField label="Phone">
+            <FormField label={t('phone')}>
               <Input
                 name="phone"
                 type="tel"
@@ -223,20 +225,20 @@ export default function EditEmployeePage() {
               />
             </FormField>
 
-            <FormField label="Department">
+            <FormField label={t('department')}>
               <Select
                 name="departmentId"
                 value={formData.departmentId || ''}
                 onChange={handleChange}
               >
-                <option value="">Select a department</option>
+                <option value="">{t('selectDepartment')}</option>
                 {departments.map((dept) => (
                   <option key={dept.id} value={dept.id}>{dept.name}</option>
                 ))}
               </Select>
             </FormField>
 
-            <FormField label="Hire Date">
+            <FormField label={t('hireDate')}>
               <Input
                 name="hireDate"
                 type="date"
@@ -245,7 +247,7 @@ export default function EditEmployeePage() {
               />
             </FormField>
 
-            <FormField label="Notes">
+            <FormField label={t('notes')}>
               <Textarea
                 name="notes"
                 placeholder="Any additional notes about the employee..."
@@ -264,13 +266,13 @@ export default function EditEmployeePage() {
           onClick={() => router.push(`/${locale}/employees/${employeeId}`)}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
+          {t('back')}
         </Button>
         <Button
           onClick={handleSubmit}
           disabled={saving}
         >
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? t('saving') : t('saveChanges')}
         </Button>
       </div>
     </motion.div>

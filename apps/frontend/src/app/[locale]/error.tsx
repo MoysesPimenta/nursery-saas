@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
 
@@ -12,6 +13,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations('errors');
+
   useEffect(() => {
     console.error('Page error:', error);
   }, [error]);
@@ -22,7 +25,7 @@ export default function Error({
         <AlertTriangle className="w-8 h-8 text-destructive" />
       </div>
       <div className="text-center">
-        <h2 className="text-2xl font-semibold mb-2">Something went wrong</h2>
+        <h2 className="text-2xl font-semibold mb-2">{t('generic')}</h2>
         <p className="text-muted-foreground max-w-md">
           An unexpected error occurred. Please try again or contact support if the problem persists.
         </p>

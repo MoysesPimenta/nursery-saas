@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChildCard } from '@/components/child-card';
@@ -29,6 +30,7 @@ const itemVariants = {
 };
 
 export default function ParentPortalPage() {
+  const t = useTranslations('common');
   const params = useParams();
   const locale = params.locale as string;
   const [children, setChildren] = useState<ChildWithAllergies[]>([]);
@@ -117,7 +119,7 @@ export default function ParentPortalPage() {
             Welcome back, {parentName}!
           </h1>
           <p className="text-lg text-muted-foreground">
-            View your child's health information and visit history.
+            {t('viewChildHealth')}
           </p>
         </div>
       </motion.div>
@@ -155,7 +157,7 @@ export default function ParentPortalPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg text-foreground mb-1">
-                    No Children Registered
+                    {t('noChildren')}
                   </h3>
                   <p className="text-muted-foreground max-w-sm mx-auto">
                     You don't have any children linked to your account yet. Contact your nursery administrator to get started.
@@ -166,7 +168,7 @@ export default function ParentPortalPage() {
                   className="mt-4"
                   disabled
                 >
-                  Link Child
+                  {t('linkChild')}
                 </Button>
               </div>
             </CardContent>
@@ -196,9 +198,9 @@ export default function ParentPortalPage() {
         <motion.div variants={itemVariants}>
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Quick Links</CardTitle>
+              <CardTitle className="text-lg">{t('quickLinks')}</CardTitle>
               <CardDescription>
-                Quick access to common actions
+                {t('quickAccess')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">

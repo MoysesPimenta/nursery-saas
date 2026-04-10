@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Mail, Lock, User, Heart, ArrowRight } from 'lucide-react';
@@ -20,6 +21,7 @@ export default function SignupPage() {
   const router = useRouter();
   const params = useParams();
   const { session } = useAuth();
+  const t = useTranslations('auth');
 
   useEffect(() => {
     if (session) {
@@ -100,7 +102,7 @@ export default function SignupPage() {
           </div>
 
           <div className="mb-8">
-            <h1 className="text-2xl font-bold tracking-tight">Create your account</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{t('signUp')}</h1>
             <p className="text-muted-foreground mt-2">Get started with MyNurse in minutes</p>
           </div>
 
@@ -113,7 +115,7 @@ export default function SignupPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <label className="text-sm font-medium">First Name</label>
+                <label className="text-sm font-medium">{t('fullName')}</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
@@ -128,7 +130,7 @@ export default function SignupPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Last Name</label>
+                <label className="text-sm font-medium">{t('schoolName')}</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
@@ -145,7 +147,7 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Email</label>
+              <label className="text-sm font-medium">{t('email')}</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -161,7 +163,7 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Password</label>
+              <label className="text-sm font-medium">{t('password')}</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -177,7 +179,7 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Confirm Password</label>
+              <label className="text-sm font-medium">{t('confirmPassword')}</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -197,12 +199,12 @@ export default function SignupPage() {
               className="w-full h-11 gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700"
               disabled={loading}
             >
-              Create Account
+              {t('signUp')}
               {!loading && <ArrowRight className="w-4 h-4" />}
             </Button>
 
             <p className="text-center text-sm text-muted-foreground">
-              Already have an account?{' '}
+              {t('hasAccount')}{' '}
               <a href={`/${params.locale}/auth/login`} className="text-indigo-600 font-medium hover:underline">
                 Sign in
               </a>

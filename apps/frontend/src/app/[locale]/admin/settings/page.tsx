@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,6 +53,7 @@ interface TenantSettings {
 }
 
 export default function TenantSettingsPage() {
+  const t = useTranslations('admin');
   const [tenant, setTenant] = React.useState<TenantData | null>(null);
   const [settings, setSettings] = React.useState<TenantSettings>({
     name: '',
@@ -176,7 +178,7 @@ export default function TenantSettingsPage() {
       <motion.div variants={itemVariants}>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            Tenant Settings
+            {t('tenantSettings')}
           </h1>
           <p className="text-muted-foreground mt-2">
             Manage your school's branding and configuration.
@@ -521,10 +523,10 @@ export default function TenantSettingsPage() {
             {saving ? (
               <>
                 <Loader className="w-4 h-4 animate-spin" />
-                Saving...
+                {t('saving')}
               </>
             ) : (
-              'Save Settings'
+              t('saveSettings')
             )}
           </Button>
           <Button type="button" variant="ghost" disabled={saving}>

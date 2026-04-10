@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,13 +55,13 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-const ROLE_CONFIG: { name: string; label: string; variant: 'success' | 'info' | 'warning' | 'purple' | 'default' | 'secondary' | 'destructive' | 'outline' }[] = [
-  { name: 'school_admin', label: 'School Admin', variant: 'purple' },
-  { name: 'nurse', label: 'Nurse', variant: 'success' },
-  { name: 'teacher', label: 'Teacher', variant: 'info' },
-  { name: 'inspector', label: 'Inspector', variant: 'warning' },
-  { name: 'parent', label: 'Parent', variant: 'default' },
-  { name: 'read_only', label: 'Read Only', variant: 'secondary' },
+const ROLE_CONFIG: { name: string; labelKey: string; variant: 'success' | 'info' | 'warning' | 'purple' | 'default' | 'secondary' | 'destructive' | 'outline' }[] = [
+  { name: 'school_admin', labelKey: 'schoolAdmin', variant: 'purple' },
+  { name: 'nurse', labelKey: 'nurse', variant: 'success' },
+  { name: 'teacher', labelKey: 'teacher', variant: 'info' },
+  { name: 'inspector', labelKey: 'inspector', variant: 'warning' },
+  { name: 'parent', labelKey: 'parent', variant: 'default' },
+  { name: 'read_only', labelKey: 'readOnly', variant: 'secondary' },
 ];
 
 interface InviteForm {
@@ -83,12 +84,13 @@ function getRoleVariant(roleName: string): 'success' | 'info' | 'warning' | 'pur
   return config?.variant || 'default';
 }
 
-function getRoleLabel(roleName: string): string {
+function getRoleLabel(roleName: string, t: any): string {
   const config = ROLE_CONFIG.find((r) => r.name === roleName);
-  return config?.label || roleName;
+  return config?.labelKey ? t(config.labelKey) : roleName;
 }
 
 export default function UserManagementPage() {
+  const t = useTranslations('admin');
   const [users, setUsers] = React.useState<BackendUser[]>([]);
   const [availableRoles, setAvailableRoles] = React.useState<BackendRole[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -188,7 +190,7 @@ export default function UserManagementPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">
-              User Management
+              {t('users')}
             </h1>
             <p className="text-muted-foreground mt-2">
               Manage users, roles, and access permissions.
@@ -198,12 +200,12 @@ export default function UserManagementPage() {
             <DialogTrigger asChild>
               <Button variant="default" className="gap-2">
                 <Plus className="w-4 h-4" />
-                Invite User
+                {t('inviteUser')}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Invite New User</DialogTitle>
+                <DialogTitle>{t('inviteNewUser')}</DialogTitle>
                 <DialogDescription>
                   Send an invitation to a new user to join the system.
                 </DialogDescription>
@@ -262,7 +264,7 @@ export default function UserManagementPage() {
                     <option value="">Select a role...</option>
                     {availableRoles.map((role) => (
                       <option key={role.id} value={role.id}>
-                        {getRoleLabel(role.name)}
+                        {getRoleLabel(role.name, t)}
                       </option>
                     ))}
                   </select>
@@ -285,10 +287,10 @@ export default function UserManagementPage() {
                     {isSubmitting ? (
                       <>
                         <Loader className="w-4 h-4 animate-spin" />
-                        Sending...
+                        {t('sending')}
                       </>
                     ) : (
-                      'Send Invite'
+                      t('sendInvite')
                     )}
                   </Button>
                 </div>
@@ -348,7 +350,7 @@ export default function UserManagementPage() {
                     size="sm"
                     onClick={() => setRoleFilter(role.name)}
                   >
-                    {role.label}
+                    {t(role.labelKey)}
                   </Button>
                 ))}
               </div>
@@ -453,7 +455,7 @@ export default function UserManagementPage() {
                             <div className="flex gap-1 flex-wrap">
                               {user.roles.map((role) => (
                                 <Badge key={role.id} variant={getRoleVariant(role.name)}>
-                                  {getRoleLabel(role.name)}
+                                  {getRoleLabel(role.name, t)}
                                 </Badge>
                               ))}
                             </div>
@@ -467,7 +469,7 @@ export default function UserManagementPage() {
                               user.is_active ? 'success' : 'secondary'
                             }
                           >
-                            {user.is_active ? 'Active' : 'Inactive'}
+                            {user.is_active ? t('active') : t('inactive')}
                           </Badge>
                         </td>
                         <td className="py-3 px-4 text-muted-foreground">

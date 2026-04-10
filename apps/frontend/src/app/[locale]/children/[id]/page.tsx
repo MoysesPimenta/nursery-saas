@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { useApiQuery, useApiMutation } from '@/lib/hooks/use-api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,6 +40,7 @@ interface ChildDetail {
 export default function ChildDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const t = useTranslations('children');
   const locale = params.locale as string;
   const childId = params.id as string;
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -125,29 +127,29 @@ export default function ChildDetailPage() {
           {/* Personal Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
+              <CardTitle>{t('personalInfo')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <p className="text-sm text-muted-foreground">Full Name</p>
+                  <p className="text-sm text-muted-foreground">{t('firstName')}</p>
                   <p className="text-lg font-semibold">
                     {child.first_name} {child.last_name}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Date of Birth</p>
+                  <p className="text-sm text-muted-foreground">{t('dateOfBirth')}</p>
                   <p className="text-lg font-semibold">
                     {new Date(child.date_of_birth).toLocaleDateString()}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Gender</p>
+                  <p className="text-sm text-muted-foreground">{t('gender')}</p>
                   <p className="text-lg font-semibold capitalize">{child.gender}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Blood Type</p>
-                  <p className="text-lg font-semibold">{child.blood_type || 'Not specified'}</p>
+                  <p className="text-sm text-muted-foreground">{t('bloodType')}</p>
+                  <p className="text-lg font-semibold">{child.blood_type || t('notSpecified')}</p>
                 </div>
               </div>
             </CardContent>
@@ -156,12 +158,12 @@ export default function ChildDetailPage() {
           {/* Medical Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Medical Information</CardTitle>
+              <CardTitle>{t('medicalInfo')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-2">Allergies</p>
+                  <p className="text-sm text-muted-foreground mb-2">{t('allergies')}</p>
                   {child.allergies && child.allergies.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {child.allergies.map((allergy, index) => (
@@ -174,12 +176,12 @@ export default function ChildDetailPage() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-muted-foreground">No allergies recorded</p>
+                    <p className="text-muted-foreground">{t('noAllergiesRecorded')}</p>
                   )}
                 </div>
                 {child.notes && (
                   <div>
-                    <p className="text-sm text-muted-foreground mb-2">Additional Notes</p>
+                    <p className="text-sm text-muted-foreground mb-2">{t('additionalNotes')}</p>
                     <p className="text-foreground">{child.notes}</p>
                   </div>
                 )}
@@ -190,22 +192,22 @@ export default function ChildDetailPage() {
           {/* Emergency Contact */}
           <Card>
             <CardHeader>
-              <CardTitle>Emergency Contact</CardTitle>
+              <CardTitle>{t('emergencyContact')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <p className="text-sm text-muted-foreground">Name</p>
+                  <p className="text-sm text-muted-foreground">{t('name')}</p>
                   <p className="text-lg font-semibold">{child.emergency_contact_name}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Relationship</p>
+                  <p className="text-sm text-muted-foreground">{t('relationship')}</p>
                   <p className="text-lg font-semibold">
-                    {child.emergency_contact_relation || 'Not specified'}
+                    {child.emergency_contact_relation || t('notSpecified')}
                   </p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-sm text-muted-foreground">Phone</p>
+                  <p className="text-sm text-muted-foreground">{t('phone')}</p>
                   <p className="text-lg font-semibold">{child.emergency_contact_phone}</p>
                 </div>
               </div>
@@ -218,7 +220,7 @@ export default function ChildDetailPage() {
           {/* Status */}
           <Card>
             <CardHeader>
-              <CardTitle>Status</CardTitle>
+              <CardTitle>{t('status')}</CardTitle>
             </CardHeader>
             <CardContent>
               <span
@@ -228,7 +230,7 @@ export default function ChildDetailPage() {
                     : 'bg-muted text-foreground'
                 }`}
               >
-                {child.is_archived ? 'Archived' : 'Active'}
+                {child.is_archived ? t('archived') : t('active')}
               </span>
             </CardContent>
           </Card>
@@ -236,25 +238,25 @@ export default function ChildDetailPage() {
           {/* Class Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Class</CardTitle>
+              <CardTitle>{t('class')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-lg font-semibold">{child.class_id ? 'Assigned' : 'Not assigned'}</p>
+              <p className="text-lg font-semibold">{child.class_id ? t('assigned') : t('notAssigned')}</p>
             </CardContent>
           </Card>
 
           {/* Dates */}
           <Card>
             <CardHeader>
-              <CardTitle>Record Dates</CardTitle>
+              <CardTitle>{t('recordDates')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div>
-                <p className="text-muted-foreground">Created</p>
+                <p className="text-muted-foreground">{t('created')}</p>
                 <p>{new Date(child.created_at).toLocaleDateString()}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Last Updated</p>
+                <p className="text-muted-foreground">{t('lastUpdated')}</p>
                 <p>{new Date(child.updated_at).toLocaleDateString()}</p>
               </div>
             </CardContent>
@@ -266,22 +268,21 @@ export default function ChildDetailPage() {
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Child</DialogTitle>
+            <DialogTitle>{t('deleteChild')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete {child.first_name} {child.last_name}? This action cannot
-              be undone.
+              {t('deleteConfirmation', { name: `${child.first_name} ${child.last_name}` })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={deleting}
             >
-              {deleting ? 'Deleting...' : 'Delete'}
+              {deleting ? t('deleting') : t('delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

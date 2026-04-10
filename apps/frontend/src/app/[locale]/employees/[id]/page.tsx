@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { useApiQuery, useApiMutation } from '@/lib/hooks/use-api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -37,6 +38,7 @@ interface EmployeeDetail {
 export default function EmployeeDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const t = useTranslations('employees');
   const locale = params.locale as string;
   const employeeId = params.id as string;
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -123,27 +125,27 @@ export default function EmployeeDetailPage() {
           {/* Personal Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
+              <CardTitle>{t('personalInfo')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <p className="text-sm text-muted-foreground">Full Name</p>
+                  <p className="text-sm text-muted-foreground">{t('firstName')}</p>
                   <p className="text-lg font-semibold">
                     {employee.first_name} {employee.last_name}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Position</p>
-                  <p className="text-lg font-semibold capitalize">{employee.position || 'Not set'}</p>
+                  <p className="text-sm text-muted-foreground">{t('position')}</p>
+                  <p className="text-lg font-semibold capitalize">{employee.position || t('notSet')}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Email</p>
-                  <p className="text-lg font-semibold">{employee.email || 'Not provided'}</p>
+                  <p className="text-sm text-muted-foreground">{t('email')}</p>
+                  <p className="text-lg font-semibold">{employee.email || t('notProvided')}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Phone</p>
-                  <p className="text-lg font-semibold">{employee.phone || 'Not provided'}</p>
+                  <p className="text-sm text-muted-foreground">{t('phone')}</p>
+                  <p className="text-lg font-semibold">{employee.phone || t('notProvided')}</p>
                 </div>
               </div>
             </CardContent>
@@ -152,17 +154,17 @@ export default function EmployeeDetailPage() {
           {/* Employment Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Employment Information</CardTitle>
+              <CardTitle>{t('employmentInfo')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Department</p>
-                  <p className="text-lg font-semibold">{employee.department_id ? 'Assigned' : 'Not assigned'}</p>
+                  <p className="text-sm text-muted-foreground">{t('department')}</p>
+                  <p className="text-lg font-semibold">{employee.department_id ? t('assigned') : t('notAssigned')}</p>
                 </div>
                 {employee.hire_date && (
                   <div>
-                    <p className="text-sm text-muted-foreground">Hire Date</p>
+                    <p className="text-sm text-muted-foreground">{t('hireDate')}</p>
                     <p className="text-lg font-semibold">
                       {new Date(employee.hire_date).toLocaleDateString()}
                     </p>
@@ -176,7 +178,7 @@ export default function EmployeeDetailPage() {
           {employee.notes && (
             <Card>
               <CardHeader>
-                <CardTitle>Notes</CardTitle>
+                <CardTitle>{t('notes')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-foreground whitespace-pre-wrap">{employee.notes}</p>
@@ -190,11 +192,11 @@ export default function EmployeeDetailPage() {
           {/* Status */}
           <Card>
             <CardHeader>
-              <CardTitle>Status</CardTitle>
+              <CardTitle>{t('status')}</CardTitle>
             </CardHeader>
             <CardContent>
               <Badge variant={!employee.is_archived ? 'success' : 'secondary'}>
-                {employee.is_archived ? 'Archived' : 'Active'}
+                {employee.is_archived ? t('archived') : t('active')}
               </Badge>
             </CardContent>
           </Card>
@@ -202,15 +204,15 @@ export default function EmployeeDetailPage() {
           {/* Dates */}
           <Card>
             <CardHeader>
-              <CardTitle>Record Dates</CardTitle>
+              <CardTitle>{t('recordDates')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div>
-                <p className="text-muted-foreground">Created</p>
+                <p className="text-muted-foreground">{t('created')}</p>
                 <p>{new Date(employee.created_at).toLocaleDateString()}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Last Updated</p>
+                <p className="text-muted-foreground">{t('lastUpdated')}</p>
                 <p>{new Date(employee.updated_at).toLocaleDateString()}</p>
               </div>
             </CardContent>
@@ -222,22 +224,21 @@ export default function EmployeeDetailPage() {
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Employee</DialogTitle>
+            <DialogTitle>{t('deleteEmployee')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete {employee.first_name} {employee.last_name}? This action cannot
-              be undone.
+              {t('deleteConfirmation', { name: `${employee.first_name} ${employee.last_name}` })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={deleting}
             >
-              {deleting ? 'Deleting...' : 'Delete'}
+              {deleting ? t('deleting') : t('delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

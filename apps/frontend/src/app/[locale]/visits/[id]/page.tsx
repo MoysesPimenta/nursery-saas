@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,6 +46,7 @@ const dispositionConfig = {
 export default function VisitDetailPage() {
   const router = useRouter();
   const params = useParams();
+  const t = useTranslations('visits');
   const locale = params.locale as string;
   const visitId = params.id as string;
 
@@ -222,31 +224,31 @@ export default function VisitDetailPage() {
         <CardContent className="pt-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <p className="text-xs text-muted-foreground">Visit ID</p>
+              <p className="text-xs text-muted-foreground">{t('visitID')}</p>
               <p className="font-mono text-sm font-medium">{visit.id}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Date</p>
+              <p className="text-xs text-muted-foreground">{t('date')}</p>
               <p className="text-sm font-medium">
                 {new Date(visit.started_at).toLocaleDateString()}
               </p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Start Time</p>
+              <p className="text-xs text-muted-foreground">{t('startTime')}</p>
               <p className="text-sm font-medium">
                 {new Date(visit.started_at).toLocaleTimeString()}
               </p>
             </div>
             {visit.ended_at && (
               <div>
-                <p className="text-xs text-muted-foreground">Duration</p>
-                <p className="text-sm font-medium">{duration} minutes</p>
+                <p className="text-xs text-muted-foreground">{t('duration')}</p>
+                <p className="text-sm font-medium">{duration} {t('minutes')}</p>
               </div>
             )}
             {!visit.ended_at && (
               <div>
-                <p className="text-xs text-muted-foreground">Status</p>
-                <Badge variant="warning">Ongoing</Badge>
+                <p className="text-xs text-muted-foreground">{t('status')}</p>
+                <Badge variant="warning">{t('ongoing')}</Badge>
               </div>
             )}
           </div>
@@ -256,7 +258,7 @@ export default function VisitDetailPage() {
       {/* Chief Complaint */}
       <Card>
         <CardHeader>
-          <CardTitle>Chief Complaint</CardTitle>
+          <CardTitle>{t('chiefComplaint')}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-foreground">{visit.chief_complaint}</p>
@@ -267,13 +269,13 @@ export default function VisitDetailPage() {
       {visit.vitals && (
         <Card>
           <CardHeader>
-            <CardTitle>Vital Signs</CardTitle>
+            <CardTitle>{t('vitals')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {visit.vitals.temperature && (
                 <div>
-                  <p className="text-xs text-muted-foreground">Temperature</p>
+                  <p className="text-xs text-muted-foreground">{t('temperature')}</p>
                   <p className="text-sm font-medium">
                     {visit.vitals.temperature}°{visit.vitals.temperatureUnit}
                   </p>
@@ -281,7 +283,7 @@ export default function VisitDetailPage() {
               )}
               {visit.vitals.systolicBP && (
                 <div>
-                  <p className="text-xs text-muted-foreground">Blood Pressure</p>
+                  <p className="text-xs text-muted-foreground">{t('bloodPressure')}</p>
                   <p className="text-sm font-medium">
                     {visit.vitals.systolicBP}/{visit.vitals.diastolicBP} mmHg
                   </p>
@@ -289,13 +291,13 @@ export default function VisitDetailPage() {
               )}
               {visit.vitals.heartRate && (
                 <div>
-                  <p className="text-xs text-muted-foreground">Heart Rate</p>
+                  <p className="text-xs text-muted-foreground">{t('heartRate')}</p>
                   <p className="text-sm font-medium">{visit.vitals.heartRate} bpm</p>
                 </div>
               )}
               {visit.vitals.weight && (
                 <div>
-                  <p className="text-xs text-muted-foreground">Weight</p>
+                  <p className="text-xs text-muted-foreground">{t('weight')}</p>
                   <p className="text-sm font-medium">
                     {visit.vitals.weight} {visit.vitals.weightUnit}
                   </p>
@@ -310,7 +312,7 @@ export default function VisitDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Assessment</CardTitle>
+            <CardTitle>{t('assessment')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-foreground whitespace-pre-wrap">
@@ -321,7 +323,7 @@ export default function VisitDetailPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Treatment</CardTitle>
+            <CardTitle>{t('treatment')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-foreground whitespace-pre-wrap">
@@ -335,7 +337,7 @@ export default function VisitDetailPage() {
       {visit.medications_administered && visit.medications_administered.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Medications Administered</CardTitle>
+            <CardTitle>{t('medicationsAdministered')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -365,11 +367,11 @@ export default function VisitDetailPage() {
       {/* Follow-up Info */}
       <Card>
         <CardHeader>
-          <CardTitle>Disposition & Follow-up</CardTitle>
+          <CardTitle>{t('dispositionFollowup')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
-            <p className="text-xs text-muted-foreground">Disposition</p>
+            <p className="text-xs text-muted-foreground">{t('disposition')}</p>
             <Badge variant={dispositionConfig[visit.disposition]?.color || 'default'}>
               {dispositionConfig[visit.disposition]?.label}
             </Badge>
@@ -377,7 +379,7 @@ export default function VisitDetailPage() {
           {visit.parent_notified && (
             <div className="p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl">
               <p className="text-sm text-blue-900 dark:text-blue-100">
-                Parent notification has been sent about this visit.
+                {t('parentNotificationSent')}
               </p>
             </div>
           )}

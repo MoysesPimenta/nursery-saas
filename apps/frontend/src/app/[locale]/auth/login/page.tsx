@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Mail, Lock, Heart, ArrowRight } from 'lucide-react';
@@ -17,6 +18,7 @@ export default function LoginPage() {
   const router = useRouter();
   const params = useParams();
   const { signIn, session } = useAuth();
+  const t = useTranslations('auth');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -103,7 +105,7 @@ export default function LoginPage() {
           </div>
 
           <div className="mb-8">
-            <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{t('signIn')}</h1>
             <p className="text-muted-foreground mt-2">Enter your credentials to access your account</p>
           </div>
 
@@ -121,7 +123,7 @@ export default function LoginPage() {
             )}
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Email</label>
+              <label className="text-sm font-medium">{t('email')}</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -138,9 +140,9 @@ export default function LoginPage() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Password</label>
+                <label className="text-sm font-medium">{t('password')}</label>
                 <a href={`/${params.locale}/auth/reset-password`} className="text-xs text-indigo-600 hover:underline">
-                  Forgot password?
+                  {t('forgotPassword')}
                 </a>
               </div>
               <div className="relative">
@@ -162,12 +164,12 @@ export default function LoginPage() {
               className="w-full h-11 gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700"
               disabled={loading}
             >
-              Sign In
+              {t('signIn')}
               {!loading && <ArrowRight className="w-4 h-4" />}
             </Button>
 
             <p className="text-center text-sm text-muted-foreground">
-              Don't have an account?{' '}
+              {t('noAccount')}{' '}
               <a href={`/${params.locale}/auth/signup`} className="text-indigo-600 font-medium hover:underline">
                 Create one
               </a>

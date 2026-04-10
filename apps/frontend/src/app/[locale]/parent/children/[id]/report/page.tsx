@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -82,6 +83,7 @@ function formatDateTime(dateString: string): string {
 }
 
 export default function ChildHealthReportPage() {
+  const t = useTranslations('children');
   const params = useParams();
   const childId = params.id as string;
   const locale = params.locale as string;
@@ -130,7 +132,7 @@ export default function ChildHealthReportPage() {
         <Link href={`/${locale}/parent/children/${childId}`}>
           <Button variant="ghost" className="gap-2 print-hide">
             <ArrowLeft className="w-4 h-4" />
-            Back to Child Details
+            {t('backToDetails')}
           </Button>
         </Link>
         <Card className="border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-900/10 rounded-xl">
@@ -164,7 +166,7 @@ export default function ChildHealthReportPage() {
         <Link href={`/${locale}/parent/children/${childId}`}>
           <Button variant="ghost" className="gap-2">
             <ArrowLeft className="w-4 h-4" />
-            Back to Child Details
+            {t('backToDetails')}
           </Button>
         </Link>
         <Button
@@ -173,7 +175,7 @@ export default function ChildHealthReportPage() {
           onClick={() => window.print()}
         >
           <Printer className="w-4 h-4" />
-          Print / Save as PDF
+          {t('printSaveAsPDF')}
         </Button>
       </motion.div>
 
@@ -221,7 +223,7 @@ export default function ChildHealthReportPage() {
 
             {/* Emergency Contact */}
             <div>
-              <h3 className="font-semibold mb-2 text-sm">Emergency Contact</h3>
+              <h3 className="font-semibold mb-2 text-sm">{t('emergencyContact')}</h3>
               <div className="text-sm space-y-0.5">
                 <p>
                   <span className="font-medium">{child.emergency_contact_name}</span>
@@ -236,7 +238,7 @@ export default function ChildHealthReportPage() {
           {/* Personal Information */}
           <div>
             <h2 className="text-2xl font-bold mb-4 border-b border-border pb-2">
-              Personal Information
+              {t('personalInformation')}
             </h2>
             <div className="grid grid-cols-2 gap-6 text-sm">
               <div>
@@ -269,7 +271,7 @@ export default function ChildHealthReportPage() {
           {/* Allergies */}
           <div>
             <h2 className="text-2xl font-bold mb-4 border-b border-border pb-2">
-              Known Allergies
+              {t('knownAllergies')}
             </h2>
             {child.allergies && child.allergies.length > 0 ? (
               <div className="space-y-3">
@@ -296,14 +298,14 @@ export default function ChildHealthReportPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-muted-foreground">No known allergies recorded.</p>
+              <p className="text-muted-foreground">{t('noAllergies')}</p>
             )}
           </div>
 
           {/* Medications */}
           <div>
             <h2 className="text-2xl font-bold mb-4 border-b border-border pb-2">
-              Medications
+              {t('medications')}
             </h2>
             {child.medications && child.medications.length > 0 ? (
               <div className="space-y-3">
@@ -323,7 +325,7 @@ export default function ChildHealthReportPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-muted-foreground">No medications recorded.</p>
+              <p className="text-muted-foreground">{t('noMedications')}</p>
             )}
           </div>
 
@@ -332,7 +334,7 @@ export default function ChildHealthReportPage() {
             <>
               <div>
                 <h2 className="text-2xl font-bold mb-4 border-b border-border pb-2">
-                  Visit Summary
+                  {t('visitSummary')}
                 </h2>
                 <div className="grid grid-cols-4 gap-4">
                   <div>
@@ -357,7 +359,7 @@ export default function ChildHealthReportPage() {
               {/* Visit Details */}
               <div className="page-break">
                 <h2 className="text-2xl font-bold mb-4 border-b border-border pb-2">
-                  Visit History
+                  {t('visitHistory')}
                 </h2>
                 <div className="space-y-4">
                   {child.visits.map((visit) => (

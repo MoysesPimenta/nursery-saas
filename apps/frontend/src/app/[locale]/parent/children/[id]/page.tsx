@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -97,6 +98,7 @@ function formatDate(dateString: string): string {
 }
 
 export default function ChildDetailPage() {
+  const t = useTranslations('children');
   const params = useParams();
   const childId = params.id as string;
   const locale = params.locale as string;
@@ -146,7 +148,7 @@ export default function ChildDetailPage() {
         <Link href={`/${locale}/parent`}>
           <Button variant="ghost" className="gap-2">
             <ArrowLeft className="w-4 h-4" />
-            Back to Children
+            {t('backToChildren')}
           </Button>
         </Link>
         <Card className="border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-900/10">
@@ -177,7 +179,7 @@ export default function ChildDetailPage() {
         <Link href={`/${locale}/parent`}>
           <Button variant="ghost" className="gap-2">
             <ArrowLeft className="w-4 h-4" />
-            Back to Children
+            {t('backToChildren')}
           </Button>
         </Link>
       </motion.div>
@@ -240,12 +242,12 @@ export default function ChildDetailPage() {
             {/* Emergency Contact */}
             <div className="border-t border-border pt-4">
               <h3 className="font-semibold text-foreground mb-3">
-                Emergency Contact
+                {t('emergencyContact')}
               </h3>
               <div className="text-sm space-y-1">
                 <p>
                   <span className="text-muted-foreground">
-                    Name:
+                    {t('name')}:
                   </span>
                   <span className="ml-2 font-medium">
                     {child.emergency_contact_name}
@@ -253,7 +255,7 @@ export default function ChildDetailPage() {
                 </p>
                 <p>
                   <span className="text-muted-foreground">
-                    Relation:
+                    {t('relation')}:
                   </span>
                   <span className="ml-2 font-medium">
                     {child.emergency_contact_relation}
@@ -261,7 +263,7 @@ export default function ChildDetailPage() {
                 </p>
                 <p>
                   <span className="text-muted-foreground">
-                    Phone:
+                    {t('phone')}:
                   </span>
                   <span className="ml-2 font-medium">
                     {child.emergency_contact_phone}
@@ -277,10 +279,10 @@ export default function ChildDetailPage() {
       <motion.div variants={itemVariants}>
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="visits">Visits</TabsTrigger>
-            <TabsTrigger value="medications">Medications</TabsTrigger>
-            <TabsTrigger value="allergies">Allergies</TabsTrigger>
+            <TabsTrigger value="overview">{t('overview')}</TabsTrigger>
+            <TabsTrigger value="visits">{t('visits')}</TabsTrigger>
+            <TabsTrigger value="medications">{t('medications')}</TabsTrigger>
+            <TabsTrigger value="allergies">{t('allergies')}</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -290,7 +292,7 @@ export default function ChildDetailPage() {
               <Card>
                 <CardContent className="pt-6">
                   <div className="text-sm text-muted-foreground mb-1">
-                    Total Visits
+                    {t('totalVisits')}
                   </div>
                   <div className="text-2xl font-bold text-foreground">
                     {child.visits?.length || 0}
@@ -301,12 +303,12 @@ export default function ChildDetailPage() {
               <Card>
                 <CardContent className="pt-6">
                   <div className="text-sm text-muted-foreground mb-1">
-                    Last Visit
+                    {t('lastVisit')}
                   </div>
                   <div className="font-semibold text-foreground">
                     {child.lastVisit
                       ? formatDate(child.lastVisit.started_at)
-                      : 'None'}
+                      : t('none')}
                   </div>
                 </CardContent>
               </Card>
@@ -314,7 +316,7 @@ export default function ChildDetailPage() {
               <Card>
                 <CardContent className="pt-6">
                   <div className="text-sm text-muted-foreground mb-1">
-                    Medications
+                    {t('medications')}
                   </div>
                   <div className="text-2xl font-bold text-foreground">
                     {child.medications?.length || 0}
@@ -325,7 +327,7 @@ export default function ChildDetailPage() {
               <Card>
                 <CardContent className="pt-6">
                   <div className="text-sm text-muted-foreground mb-1">
-                    Allergies
+                    {t('allergies')}
                   </div>
                   <div className="text-2xl font-bold text-foreground">
                     {child.allergies?.length || 0}
@@ -339,10 +341,10 @@ export default function ChildDetailPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">
-                    Recent Activity
+                    {t('recentActivity')}
                   </CardTitle>
                   <CardDescription>
-                    Last {recentVisits.length} visits
+                    {t('lastVisits', { count: recentVisits.length })}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -356,7 +358,7 @@ export default function ChildDetailPage() {
           <TabsContent value="visits" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Visit History</CardTitle>
+                <CardTitle>{t('visitHistory')}</CardTitle>
                 <CardDescription>
                   Complete timeline of all visits to the health office
                 </CardDescription>
@@ -377,7 +379,7 @@ export default function ChildDetailPage() {
           <TabsContent value="medications" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Medications</CardTitle>
+                <CardTitle>{t('medications')}</CardTitle>
                 <CardDescription>
                   Current and past medications
                 </CardDescription>
@@ -398,7 +400,7 @@ export default function ChildDetailPage() {
           <TabsContent value="allergies" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Known Allergies</CardTitle>
+                <CardTitle>{t('knownAllergies')}</CardTitle>
                 <CardDescription>
                   Allergen information and severity
                 </CardDescription>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { DataTable } from '@/components/ui/data-table';
@@ -41,6 +42,7 @@ const entityTypeColors: Record<string, string> = {
 };
 
 export default function AuditLogsPage() {
+  const t = useTranslations('admin');
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState('');
   const [entityType, setEntityType] = useState('');
@@ -144,7 +146,7 @@ export default function AuditLogsPage() {
       transition={{ duration: 0.3 }}
     >
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Audit Logs</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{t('auditLogs')}</h1>
         <p className="text-muted-foreground mt-1">
           View all system events and user actions
         </p>

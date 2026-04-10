@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { usePathname, useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Globe, Bell, HelpCircle, Check, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -17,6 +18,7 @@ const LOCALES = [
 ];
 
 export function Topbar() {
+  const t = useTranslations('common');
   const [localeOpen, setLocaleOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -46,13 +48,13 @@ export function Topbar() {
       <div className="flex-1" />
 
       <div className="flex items-center gap-1">
-        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" aria-label="Search">
+        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" aria-label={t('search')}>
           <Search className="w-4 h-4" />
         </Button>
-        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" aria-label="Help">
+        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" aria-label={t('help')}>
           <HelpCircle className="w-4 h-4" />
         </Button>
-        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground relative" aria-label="Notifications">
+        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground relative" aria-label={t('notifications')}>
           <Bell className="w-4 h-4" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
         </Button>
