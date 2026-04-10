@@ -130,3 +130,32 @@ DROP POLICY IF EXISTS teacher_create_authorizations ON public.authorizations;
 CREATE POLICY teacher_create_authorizations ON public.authorizations
   FOR INSERT
   WITH CHECK (user_has_role('teacher', tenant_id) AND requested_by = auth.uid() AND tenant_id = get_user_tenant_id());
+
+-- 18. Create SECURITY DEFINER function to get tenant_id from a child (bypasses RLS)
+-- Needed because child_parents, child_allergies, child_medications policies
+-- were doing subqueries on children, and children policies reference child_parents,
+-- creating an infinite recursion: children -> child_parents -> children -> ...
+CREATE OR REPLACE FUNCTION public.get_child_tenant_id(p_child_id uuid)
+RETURNS uuid
+LANGUAGE sql
+SECURITY DEFINER
+STABLE
+SET search_path = public
+AS $$
+  SELECT tenant_id FROM public.children WHERE id = p_child_id;
+$$;
+
+-- 19. Fix child_parents: admin_manage_relationships (was: subquery on children)
+DROP POLICY IF EXISTS admin_manage_relationships ON public.child_parents;
+CREATE POLICY admin_manage_relationships ON public.child_parents
+  FOR ALL USING (is_tenant_admin(get_child_tenant_id(child_id)));
+
+-- 20. Fix child_allergies: nurse_manage_child_allergies (was: subquery on children)
+DROP POLICY IF EXISTS nurse_manage_child_allergies ON public.child_allergies;
+CREATE POLICY nurse_manage_child_allergies ON public.child_allergies
+  FOR ALL USING (user_has_role('nurse', get_child_tenant_id(child_id)));
+
+-- 21. Fix child_medications: nurse_manage_child_medications (was: subquery on children)
+DROP POLICY IF EXISTS nurse_manage_child_medications ON public.child_medications;
+CREATE POLICY nurse_manage_child_medications ON public.child_medications
+  FOR ALL USING (user_has_role('nurse', get_child_tenant_id(child_id)));
