@@ -13,7 +13,7 @@ const updateEmployeeSchema = z.object({
   hire_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   photo_url: z.string().url().nullable().optional(),
   notes: z.string().optional(),
-  archived: z.boolean().optional(),
+  is_archived: z.boolean().optional(),
 });
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
@@ -125,7 +125,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     // Soft delete by setting archived = true
     const { data, error } = await supabase
       .from('employees')
-      .update({ archived: true })
+      .update({ is_archived: true })
       .eq('id', id)
       .select()
       .single();

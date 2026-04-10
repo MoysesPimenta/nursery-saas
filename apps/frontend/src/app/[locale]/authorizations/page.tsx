@@ -15,12 +15,11 @@ import { motion } from 'framer-motion';
 
 interface Authorization {
   id: string;
-  childId: string;
-  childName: string;
+  child_id: string;
   symptoms: string;
   priority: 'normal' | 'urgent';
-  teacherName: string;
-  createdAt: string;
+  requested_by: string;
+  created_at: string;
   status: 'pending' | 'accepted' | 'rejected';
 }
 
@@ -86,7 +85,7 @@ export default function AuthorizationsPage() {
     if (a.priority !== 'urgent' && b.priority === 'urgent') return 1;
     if (a.status === 'pending' && b.status !== 'pending') return -1;
     if (a.status !== 'pending' && b.status === 'pending') return 1;
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 
   const pendingCount = authorizations.filter((a) => a.status === 'pending').length;
@@ -202,11 +201,11 @@ export default function AuthorizationsPage() {
                   >
                     <AuthorizationCard
                       id={auth.id}
-                      childName={auth.childName}
+                      childName={auth.child_id}
                       symptoms={auth.symptoms}
                       priority={auth.priority}
-                      teacherName={auth.teacherName}
-                      timestamp={auth.createdAt}
+                      teacherName={auth.requested_by}
+                      timestamp={auth.created_at}
                       onAccept={handleAccept}
                       onReject={(id) => setRejectingId(id)}
                       loading={processingId === auth.id}

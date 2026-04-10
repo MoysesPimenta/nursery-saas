@@ -11,7 +11,7 @@ const updateChildSchema = z.object({
   class_id: z.string().uuid().nullable().optional(),
   notes: z.string().optional(),
   photo_url: z.string().url().nullable().optional(),
-  archived: z.boolean().optional(),
+  is_archived: z.boolean().optional(),
 });
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
@@ -123,7 +123,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     // Soft delete by setting archived = true
     const { data, error } = await supabase
       .from('children')
-      .update({ archived: true })
+      .update({ is_archived: true })
       .eq('id', id)
       .select()
       .single();

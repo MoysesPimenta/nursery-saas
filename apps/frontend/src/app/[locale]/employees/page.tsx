@@ -13,12 +13,12 @@ import { motion } from 'framer-motion';
 
 interface Employee {
   id: string;
-  firstName: string;
-  lastName: string;
-  position: string;
-  department: string;
-  hireDate: string;
-  status: 'active' | 'inactive';
+  first_name: string;
+  last_name: string;
+  position?: string;
+  department_id?: string;
+  hire_date?: string;
+  is_archived: boolean;
   email?: string;
 }
 
@@ -44,15 +44,15 @@ export default function EmployeesPage() {
 
   const columns = [
     {
-      key: 'firstName' as const,
+      key: 'first_name' as const,
       label: 'Name',
       render: (value: string, item: Employee) => (
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
-            {item.firstName[0]}{item.lastName[0]}
+            {item.first_name?.[0]}{item.last_name?.[0]}
           </div>
           <div>
-            <p className="font-medium">{item.firstName} {item.lastName}</p>
+            <p className="font-medium">{item.first_name} {item.last_name}</p>
             {item.email && <p className="text-xs text-muted-foreground">{item.email}</p>}
           </div>
         </div>
@@ -61,30 +61,21 @@ export default function EmployeesPage() {
     {
       key: 'position' as const,
       label: 'Position',
-      render: (value: string) => <span className="text-sm">{value || '—'}</span>,
+      render: (value: string) => <span className="text-sm capitalize">{value || '—'}</span>,
     },
     {
-      key: 'department' as const,
-      label: 'Department',
-      render: (value: string) => value ? (
-        <Badge variant="secondary">{value}</Badge>
-      ) : (
-        <span className="text-muted-foreground/50">—</span>
-      ),
-    },
-    {
-      key: 'hireDate' as const,
+      key: 'hire_date' as const,
       label: 'Hire Date',
       render: (value: string) => (
         <span className="text-muted-foreground">{value ? new Date(value).toLocaleDateString() : '—'}</span>
       ),
     },
     {
-      key: 'status' as const,
+      key: 'is_archived' as const,
       label: 'Status',
-      render: (value: string) => (
-        <Badge variant={value === 'active' ? 'success' : 'secondary'}>
-          {value.charAt(0).toUpperCase() + value.slice(1)}
+      render: (value: boolean) => (
+        <Badge variant={!value ? 'success' : 'secondary'}>
+          {value ? 'Archived' : 'Active'}
         </Badge>
       ),
     },

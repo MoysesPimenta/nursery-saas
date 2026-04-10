@@ -52,10 +52,21 @@ export default function NewVisitPage() {
 
   const handleSubmitVisit = async (data: VisitFormData) => {
     try {
-      const result = await createVisit({
-        ...data,
-        authorizationId: authorizationId || undefined,
-      });
+      // Transform camelCase to snake_case for API
+      const payload = {
+        child_id: data.childId,
+        employee_id: data.employeeId,
+        authorization_id: authorizationId || undefined,
+        visit_type: data.visitType,
+        chief_complaint: data.chiefComplaint,
+        vitals: data.vitals,
+        assessment: data.assessment,
+        treatment: data.treatment,
+        medications_administered: data.medications,
+        disposition: data.disposition,
+        parent_notified: data.notifyParent,
+      };
+      const result = await createVisit(payload);
       setCreatedVisitId(result.data.id);
     } catch (error) {
       console.error('Failed to create visit:', error);

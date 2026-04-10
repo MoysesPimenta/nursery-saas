@@ -13,12 +13,12 @@ import { motion } from 'framer-motion';
 
 interface Child {
   id: string;
-  firstName: string;
-  lastName: string;
-  dateOfBirth: string;
-  className?: string;
-  allergies?: string[];
-  status: 'active' | 'inactive';
+  first_name: string;
+  last_name: string;
+  date_of_birth: string;
+  class_id?: string;
+  allergies?: Array<{ name: string }> | string[];
+  is_archived: boolean;
 }
 
 interface ChildrenResponse {
@@ -50,47 +50,35 @@ export default function ChildrenPage() {
 
   const columns = [
     {
-      key: 'firstName' as const,
+      key: 'first_name' as const,
       label: 'Name',
       render: (value: string, item: Child) => (
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
-            {item.firstName[0]}{item.lastName[0]}
+            {item.first_name?.[0]}{item.last_name?.[0]}
           </div>
-          <span className="font-medium">{item.firstName} {item.lastName}</span>
+          <span className="font-medium">{item.first_name} {item.last_name}</span>
         </div>
       ),
     },
     {
-      key: 'dateOfBirth' as const,
+      key: 'date_of_birth' as const,
       label: 'Date of Birth',
       render: (value: string) => (
-        <span className="text-muted-foreground">{new Date(value).toLocaleDateString()}</span>
+        <span className="text-muted-foreground">{value ? new Date(value).toLocaleDateString() : '—'}</span>
       ),
     },
     {
-      key: 'className' as const,
+      key: 'class_id' as const,
       label: 'Class',
-      render: (value: string) => value || <span className="text-muted-foreground/50">—</span>,
+      render: (value: string) => value ? 'Assigned' : <span className="text-muted-foreground/50">—</span>,
     },
     {
-      key: 'allergies' as const,
-      label: 'Allergies',
-      render: (value: string[] | undefined) => {
-        const count = value?.length || 0;
-        return count > 0 ? (
-          <Badge variant="warning">{count} alert{count > 1 ? 's' : ''}</Badge>
-        ) : (
-          <span className="text-muted-foreground/50">None</span>
-        );
-      },
-    },
-    {
-      key: 'status' as const,
+      key: 'is_archived' as const,
       label: 'Status',
-      render: (value: string) => (
-        <Badge variant={value === 'active' ? 'success' : 'secondary'}>
-          {value.charAt(0).toUpperCase() + value.slice(1)}
+      render: (value: boolean) => (
+        <Badge variant={!value ? 'success' : 'secondary'}>
+          {value ? 'Archived' : 'Active'}
         </Badge>
       ),
     },

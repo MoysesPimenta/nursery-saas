@@ -12,20 +12,20 @@ import { motion } from 'framer-motion';
 
 interface Visit {
   id: string;
-  childName: string;
-  employeeName?: string;
-  visitType: 'authorization' | 'walk_in' | 'scheduled' | 'emergency';
-  chiefComplaint: string;
+  child_id: string;
+  employee_id?: string;
+  visit_type: 'authorization' | 'walk_in' | 'scheduled' | 'emergency';
+  chief_complaint: string;
   vitals: any;
   assessment: string;
   treatment: string;
-  medications: any[];
+  medications_administered: any[];
   disposition: 'returned_to_class' | 'sent_home' | 'referred' | 'hospitalized';
-  notifyParent: boolean;
-  startTime: string;
-  endTime?: string;
-  createdAt: string;
-  createdBy: string;
+  parent_notified: boolean;
+  started_at: string;
+  ended_at?: string;
+  created_at: string;
+  nurse_id: string;
 }
 
 const visitTypeConfig = {
@@ -73,7 +73,7 @@ export default function VisitDetailPage() {
   const handleEndVisit = async () => {
     try {
       setIsEndingVisit(true);
-      await endVisit({ endedAt: new Date().toISOString() });
+      await endVisit({ ended_at: new Date().toISOString() });
       await refetch();
       setIsEndingVisit(false);
     } catch (error) {
@@ -145,15 +145,15 @@ export default function VisitDetailPage() {
         <VisitForm
           onSubmit={handleUpdateVisit}
           initialValues={visit as any}
-          childName={visit.childName}
+          childName={visit.child_id}
           loading={isUpdating}
         />
       </motion.div>
     );
   }
 
-  const duration = visit.endTime
-    ? Math.round((new Date(visit.endTime).getTime() - new Date(visit.startTime).getTime()) / 60000)
+  const duration = visit.ended_at
+    ? Math.round((new Date(visit.ended_at).getTime() - new Date(visit.started_at).getTime()) / 60000)
     : null;
 
   return (
@@ -175,11 +175,11 @@ export default function VisitDetailPage() {
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
-            <h1 className="text-2xl font-bold tracking-tight">{visit.childName}</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{visit.child_id}</h1>
           </div>
           <div className="flex gap-2 ml-10 flex-wrap">
-            <Badge variant={visitTypeConfig[visit.visitType]?.color || 'default'}>
-              {visitTypeConfig[visit.visitType]?.label}
+            <Badge variant={visitTypeConfig[visit.visit_type]?.color || 'default'}>
+              {visitTypeConfig[visit.visit_type]?.label}
             </Badge>
             <Badge variant={dispositionConfig[visit.disposition]?.color || 'default'}>
               {dispositionConfig[visit.disposition]?.label}
@@ -204,7 +204,7 @@ export default function VisitDetailPage() {
             <Edit2 className="w-4 h-4" />
             Edit
           </Button>
-          {!visit.endTime && (
+          {!visit.ended_at && (
             <Button
               onClick={handleEndVisit}
               disabled={isEnding || isEndingVisit}
@@ -228,22 +228,22 @@ export default function VisitDetailPage() {
             <div>
               <p className="text-xs text-muted-foreground">Date</p>
               <p className="text-sm font-medium">
-                {new Date(visit.startTime).toLocaleDateString()}
+                {new Date(visit.started_at).toLocaleDateString()}
               </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Start Time</p>
               <p className="text-sm font-medium">
-                {new Date(visit.startTime).toLocaleTimeString()}
+                {new Date(visit.started_at).toLocaleTimeString()}
               </p>
             </div>
-            {visit.endTime && (
+            {visit.ended_at && (
               <div>
                 <p className="text-xs text-muted-foreground">Duration</p>
                 <p className="text-sm font-medium">{duration} minutes</p>
               </div>
             )}
-            {!visit.endTime && (
+            {!visit.ended_at && (
               <div>
                 <p className="text-xs text-muted-foreground">Status</p>
                 <Badge variant="warning">Ongoing</Badge>
@@ -259,7 +259,7 @@ export default function VisitDetailPage() {
           <CardTitle>Chief Complaint</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-foreground">{visit.chiefComplaint}</p>
+          <p className="text-foreground">{visit.chief_complaint}</p>
         </CardContent>
       </Card>
 
@@ -332,14 +332,14 @@ export default function VisitDetailPage() {
       </div>
 
       {/* Medications */}
-      {visit.medications && visit.medications.length > 0 && (
+      {visit.medications_administered && visit.medications_administered.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Medications Administered</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {visit.medications.map((med, idx) => (
+              {visit.medications_administered.map((med, idx) => (
                 <div
                   key={idx}
                   className="border border-border rounded-lg p-3"
@@ -374,7 +374,7 @@ export default function VisitDetailPage() {
               {dispositionConfig[visit.disposition]?.label}
             </Badge>
           </div>
-          {visit.notifyParent && (
+          {visit.parent_notified && (
             <div className="p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl">
               <p className="text-sm text-blue-900 dark:text-blue-100">
                 Parent notification has been sent about this visit.

@@ -34,7 +34,7 @@ const item = {
 export default function DashboardPage() {
   const params = useParams();
   const locale = params.locale as string;
-  const { data: stats, loading, error } = useApiQuery<DashboardStats>('/api/v1/dashboard/stats');
+  const { data: stats, loading, error } = useApiQuery<DashboardStats>('/api/v1/dashboard');
 
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -95,8 +95,8 @@ export default function DashboardPage() {
               title="Total Children"
               value={stats?.childrenCount || 0}
               icon={<Baby className="w-5 h-5" />}
-              trend="+2.5% from last month"
-              trendUp={true}
+              trend={stats?.childrenCount ? `${stats.childrenCount} enrolled` : 'No children yet'}
+              trendUp={!!stats?.childrenCount}
             />
           </motion.div>
           <motion.div variants={item}>
@@ -104,8 +104,8 @@ export default function DashboardPage() {
               title="Staff Members"
               value={stats?.staffCount || 0}
               icon={<Users className="w-5 h-5" />}
-              trend="Fully staffed"
-              trendUp={true}
+              trend={stats?.staffCount ? `${stats.staffCount} active` : 'No staff yet'}
+              trendUp={!!stats?.staffCount}
             />
           </motion.div>
           <motion.div variants={item}>
@@ -113,8 +113,8 @@ export default function DashboardPage() {
               title="Today's Visits"
               value={stats?.visitsToday || 0}
               icon={<Activity className="w-5 h-5" />}
-              trend="Updated just now"
-              trendUp={true}
+              trend={stats?.visitsToday ? 'Updated just now' : 'No visits today'}
+              trendUp={!!stats?.visitsToday}
             />
           </motion.div>
           <motion.div variants={item}>

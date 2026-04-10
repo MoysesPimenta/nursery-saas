@@ -14,14 +14,14 @@ import { motion } from 'framer-motion';
 
 interface Visit {
   id: string;
-  childName: string;
-  employeeName?: string;
-  visitType: 'authorization' | 'walk_in' | 'scheduled' | 'emergency';
-  chiefComplaint: string;
+  child_id: string;
+  employee_id?: string;
+  visit_type: 'authorization' | 'walk_in' | 'scheduled' | 'emergency';
+  chief_complaint: string;
   disposition: 'returned_to_class' | 'sent_home' | 'referred' | 'hospitalized';
-  startTime: string;
-  endTime?: string;
-  createdAt: string;
+  started_at: string;
+  ended_at?: string;
+  created_at: string;
 }
 
 interface VisitsResponse {
@@ -93,7 +93,7 @@ export default function VisitsPage() {
 
   const columns = [
     {
-      key: 'startTime' as const,
+      key: 'started_at' as const,
       label: 'Date/Time',
       render: (value: string) => {
         const date = new Date(value);
@@ -106,12 +106,12 @@ export default function VisitsPage() {
       },
     },
     {
-      key: 'childName' as const,
+      key: 'child_id' as const,
       label: 'Child',
       render: (value: string) => <span className="font-medium">{value}</span>,
     },
     {
-      key: 'visitType' as const,
+      key: 'visit_type' as const,
       label: 'Type',
       render: (value: string) => (
         <Badge variant={visitTypeConfig[value]?.color || 'default'}>
@@ -120,7 +120,7 @@ export default function VisitsPage() {
       ),
     },
     {
-      key: 'chiefComplaint' as const,
+      key: 'chief_complaint' as const,
       label: 'Complaint',
       render: (value: string) => <div className="text-sm truncate max-w-[200px]">{value}</div>,
     },
@@ -137,9 +137,9 @@ export default function VisitsPage() {
       key: 'id' as const,
       label: 'Duration',
       render: (_: string, item: Visit) => {
-        if (!item.endTime) return <Badge variant="info">Ongoing</Badge>;
+        if (!item.ended_at) return <Badge variant="info">Ongoing</Badge>;
         const duration = Math.round(
-          (new Date(item.endTime).getTime() - new Date(item.startTime).getTime()) / 60000
+          (new Date(item.ended_at).getTime() - new Date(item.started_at).getTime()) / 60000
         );
         return <span className="text-sm text-muted-foreground">{duration} min</span>;
       },

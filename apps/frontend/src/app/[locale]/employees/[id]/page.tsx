@@ -16,45 +16,45 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/modal';
+import { Badge } from '@/components/ui/badge';
 
 // API returns snake_case from Supabase
-interface ChildDetail {
+interface EmployeeDetail {
   id: string;
   first_name: string;
   last_name: string;
-  date_of_birth: string;
-  gender: string;
-  class_id?: string;
-  blood_type?: string;
-  allergies: Array<{ name: string }> | string[];
-  emergency_contact_name: string;
-  emergency_contact_phone: string;
-  emergency_contact_relation?: string;
+  email?: string;
+  phone?: string;
+  position?: string;
+  department_id?: string;
+  hire_date?: string;
   notes?: string;
   is_archived: boolean;
   created_at: string;
   updated_at: string;
 }
 
-export default function ChildDetailPage() {
+export default function EmployeeDetailPage() {
   const params = useParams();
   const router = useRouter();
   const locale = params.locale as string;
-  const childId = params.id as string;
+  const employeeId = params.id as string;
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const { data: child, loading } = useApiQuery<ChildDetail>(`/api/v1/children/${childId}`);
-  const { execute: deleteChild, loading: deleting } = useApiMutation(
-    `/api/v1/children/${childId}`,
+  const { data: employee, loading } = useApiQuery<EmployeeDetail>(
+    `/api/v1/employees/${employeeId}`
+  );
+  const { execute: deleteEmployee, loading: deleting } = useApiMutation(
+    `/api/v1/employees/${employeeId}`,
     'DELETE'
   );
 
   const handleDelete = async () => {
     try {
-      await deleteChild();
-      router.push(`/${locale}/children`);
+      await deleteEmployee();
+      router.push(`/${locale}/employees`);
     } catch (error) {
-      console.error('Failed to delete child:', error);
+      console.error('Failed to delete employee:', error);
     }
   };
 
@@ -62,22 +62,20 @@ export default function ChildDetailPage() {
     return <PageLoading />;
   }
 
-  if (!child) {
+  if (!employee) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <p className="text-muted-foreground">Child not found</p>
+        <p className="text-muted-foreground">Employee not found</p>
         <Button
           variant="outline"
-          onClick={() => router.push(`/${locale}/children`)}
+          onClick={() => router.push(`/${locale}/employees`)}
           className="mt-4"
         >
-          Back to Children
+          Back to Employees
         </Button>
       </div>
     );
   }
-
-  const age = new Date().getFullYear() - new Date(child.date_of_birth).getFullYear();
 
   return (
     <motion.div
@@ -91,23 +89,23 @@ export default function ChildDetailPage() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.push(`/${locale}/children`)}
+            onClick={() => router.push(`/${locale}/employees`)}
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">
-              {child.first_name} {child.last_name}
+              {employee.first_name} {employee.last_name}
             </h1>
             <p className="text-muted-foreground mt-1">
-              Age: {age} years • {child.class_id ? 'Class assigned' : 'No class assigned'}
+              {employee.position || 'No position'} • {employee.department_id ? 'Department assigned' : 'No department assigned'}
             </p>
           </div>
         </div>
         <div className="flex gap-2">
           <Button
             variant="outline"
-            onClick={() => router.push(`/${locale}/children/${childId}/edit`)}
+            onClick={() => router.push(`/${locale}/employees/${employeeId}/edit`)}
           >
             <Edit className="w-4 h-4 mr-2" />
             Edit
@@ -132,85 +130,59 @@ export default function ChildDetailPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Full Name</p>
                   <p className="text-lg font-semibold">
-                    {child.first_name} {child.last_name}
+                    {employee.first_name} {employee.last_name}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Date of Birth</p>
-                  <p className="text-lg font-semibold">
-                    {new Date(child.date_of_birth).toLocaleDateString()}
-                  </p>
+                  <p className="text-sm text-muted-foreground">Position</p>
+                  <p className="text-lg font-semibold capitalize">{employee.position || 'Not set'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Gender</p>
-                  <p className="text-lg font-semibold capitalize">{child.gender}</p>
+                  <p className="text-sm text-muted-foreground">Email</p>
+                  <p className="text-lg font-semibold">{employee.email || 'Not provided'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Blood Type</p>
-                  <p className="text-lg font-semibold">{child.blood_type || 'Not specified'}</p>
+                  <p className="text-sm text-muted-foreground">Phone</p>
+                  <p className="text-lg font-semibold">{employee.phone || 'Not provided'}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Medical Information */}
+          {/* Employment Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Medical Information</CardTitle>
+              <CardTitle>Employment Information</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-2">Allergies</p>
-                  {child.allergies && child.allergies.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {child.allergies.map((allergy, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 rounded text-sm"
-                        >
-                          {allergy}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground">No allergies recorded</p>
-                  )}
+                  <p className="text-sm text-muted-foreground">Department</p>
+                  <p className="text-lg font-semibold">{employee.department_id ? 'Assigned' : 'Not assigned'}</p>
                 </div>
-                {child.notes && (
+                {employee.hire_date && (
                   <div>
-                    <p className="text-sm text-muted-foreground mb-2">Additional Notes</p>
-                    <p className="text-foreground">{child.notes}</p>
+                    <p className="text-sm text-muted-foreground">Hire Date</p>
+                    <p className="text-lg font-semibold">
+                      {new Date(employee.hire_date).toLocaleDateString()}
+                    </p>
                   </div>
                 )}
               </div>
             </CardContent>
           </Card>
 
-          {/* Emergency Contact */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Emergency Contact</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <p className="text-sm text-muted-foreground">Name</p>
-                  <p className="text-lg font-semibold">{child.emergency_contact_name}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Relationship</p>
-                  <p className="text-lg font-semibold">
-                    {child.emergency_contact_relation || 'Not specified'}
-                  </p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-sm text-muted-foreground">Phone</p>
-                  <p className="text-lg font-semibold">{child.emergency_contact_phone}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Notes */}
+          {employee.notes && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Notes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-foreground whitespace-pre-wrap">{employee.notes}</p>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Sidebar */}
@@ -221,25 +193,9 @@ export default function ChildDetailPage() {
               <CardTitle>Status</CardTitle>
             </CardHeader>
             <CardContent>
-              <span
-                className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${
-                  !child.is_archived
-                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-200'
-                    : 'bg-muted text-foreground'
-                }`}
-              >
-                {child.is_archived ? 'Archived' : 'Active'}
-              </span>
-            </CardContent>
-          </Card>
-
-          {/* Class Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Class</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg font-semibold">{child.class_id ? 'Assigned' : 'Not assigned'}</p>
+              <Badge variant={!employee.is_archived ? 'success' : 'secondary'}>
+                {employee.is_archived ? 'Archived' : 'Active'}
+              </Badge>
             </CardContent>
           </Card>
 
@@ -251,11 +207,11 @@ export default function ChildDetailPage() {
             <CardContent className="space-y-3 text-sm">
               <div>
                 <p className="text-muted-foreground">Created</p>
-                <p>{new Date(child.created_at).toLocaleDateString()}</p>
+                <p>{new Date(employee.created_at).toLocaleDateString()}</p>
               </div>
               <div>
                 <p className="text-muted-foreground">Last Updated</p>
-                <p>{new Date(child.updated_at).toLocaleDateString()}</p>
+                <p>{new Date(employee.updated_at).toLocaleDateString()}</p>
               </div>
             </CardContent>
           </Card>
@@ -266,9 +222,9 @@ export default function ChildDetailPage() {
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Child</DialogTitle>
+            <DialogTitle>Delete Employee</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete {child.first_name} {child.last_name}? This action cannot
+              Are you sure you want to delete {employee.first_name} {employee.last_name}? This action cannot
               be undone.
             </DialogDescription>
           </DialogHeader>

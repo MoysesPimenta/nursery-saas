@@ -90,7 +90,20 @@ export default function NewChildPage() {
     if (!validateStep()) return;
 
     try {
-      const result = await createChild(formData);
+      // Convert camelCase form fields to snake_case for the API
+      const payload = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        date_of_birth: formData.dateOfBirth,
+        gender: formData.gender,
+        class_id: formData.classId || undefined,
+        blood_type: formData.bloodType || undefined,
+        emergency_contact_name: formData.emergencyContactName,
+        emergency_contact_phone: formData.emergencyContactPhone,
+        emergency_contact_relation: formData.emergencyContactRelation || undefined,
+        notes: formData.notes || undefined,
+      };
+      const result = await createChild(payload);
       router.push(`/${locale}/children/${result.id}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to create child';

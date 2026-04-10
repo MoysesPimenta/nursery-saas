@@ -39,9 +39,9 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
 
     // Apply archived filter
     if (filters.archived) {
-      query = query.eq('archived', filters.archived === 'true');
+      query = query.eq('is_archived', filters.archived === 'true');
     } else {
-      query = query.eq('archived', false);
+      query = query.eq('is_archived', false);
     }
 
     // Apply pagination

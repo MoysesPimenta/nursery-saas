@@ -1,16 +1,32 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { FormField } from '@/components/ui/form-field';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/modal';
 import { useApiQuery, useApiMutation } from '@/lib/hooks/use-api';
-import { Check, AlertCircle } from 'lucide-react';
+import { Check, AlertCircle, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { z } from 'zod';
+
+const authorizationSchema = z.object({
+  childId: z.string().min(1, 'Child is required'),
+  type: z.enum(['pickup', 'medical', 'field_trip', 'medication_administration']),
+  authorizedPersonName: z.string().min(1, 'Authorized person name is required'),
+  authorizedPersonPhone: z.string().min(1, 'Phone number is required'),
+  relationship: z.enum(['parent', 'guardian', 'relative', 'emergency_contact', 'other']),
+  notes: z.string().optional(),
+  expiresAt: z.string().optional(),
+  priority: z.enum(['normal', 'urgent']),
+});
+
+type AuthorizationFormData = z.infer<typeof authorizationSchema>;
 
 interface Child {
   id: string;
@@ -19,26 +35,18 @@ interface Child {
   className?: string;
 }
 
-interface CreateAuthorizationPayload {
-  childId: string;
-  symptoms: string;
-  priority: 'normal' | 'urgent';
-  notes?: string;
-}
-
 export default function NewAuthorizationPage() {
   const router = useRouter();
   const params = useParams();
   const locale = params.locale as string;
 
-  const [childId, setChildId] = useState('');
-  const [symptoms, setSymptoms] = useState('');
-  const [priority, setPriority] = useState<'normal' | 'urgent'>('normal');
-  const [notes, setNotes] = useState('');
+  const [formData, setFormData] = useState<Partial<AuthorizationFormData>>({
+    priority: 'normal',
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successId, setSuccessId] = useState<string | null>(null);
 
-  // Fetch children (filtered to teacher's class)
+  // Fetch children
   const { data: childrenData, loading: childrenLoading } = useApiQuery<{
     data: Child[];
   }>('/api/v1/children?status=active&limit=100');
@@ -49,18 +57,26 @@ export default function NewAuthorizationPage() {
   const { execute: createAuth, loading: isCreating, error: createError } =
     useApiMutation<{ data: { id: string } }>('/api/v1/authorizations', 'POST');
 
-  const validateForm = (): boolean => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!childId) {
-      newErrors.childId = 'Please select a child';
-    }
-    if (!symptoms.trim()) {
-      newErrors.symptoms = 'Please describe the symptoms';
-    }
-    if (symptoms.trim().length < 10) {
-      newErrors.symptoms = 'Please provide more detail about the symptoms';
-    }
+    if (!formData.childId) newErrors.childId = 'Child is required';
+    if (!formData.type) newErrors.type = 'Authorization type is required';
+    if (!formData.authorizedPersonName)
+      newErrors.authorizedPersonName = 'Authorized person name is required';
+    if (!formData.authorizedPersonPhone)
+      newErrors.authorizedPersonPhone = 'Phone number is required';
+    if (!formData.relationship) newErrors.relationship = 'Relationship is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -69,40 +85,46 @@ export default function NewAuthorizationPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
+    if (!validate()) return;
 
     try {
-      const result = await createAuth({
-        childId,
-        symptoms,
-        priority,
-        notes: notes || undefined,
-      } as CreateAuthorizationPayload);
+      // Transform camelCase to snake_case for API
+      const payload = {
+        child_id: formData.childId!,
+        title: formData.type!,
+        description: formData.notes,
+        priority: formData.priority!,
+      };
 
+      const result = await createAuth(payload);
       setSuccessId(result.data.id);
-      // Reset form
-      setChildId('');
-      setSymptoms('');
-      setPriority('normal');
-      setNotes('');
-      setErrors({});
     } catch (error) {
-      console.error('Failed to create authorization:', error);
+      const message = error instanceof Error ? error.message : 'Failed to create authorization';
+      setErrors({ submit: message });
     }
   };
 
   return (
     <motion.div
-      className="space-y-6"
+      className="space-y-6 max-w-2xl"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Request Authorization</h1>
-        <p className="text-muted-foreground mt-1">
-          Request parent pickup authorization for a child
-        </p>
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => router.push(`/${locale}/authorizations`)}
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Create Authorization</h1>
+          <p className="text-muted-foreground mt-1">
+            Grant authorization for a person to perform an action for a child
+          </p>
+        </div>
       </div>
 
       {/* Error Alert */}
@@ -110,182 +132,181 @@ export default function NewAuthorizationPage() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            {createError.message || 'Failed to create authorization request'}
+            {createError.message || 'Failed to create authorization'}
           </AlertDescription>
+        </Alert>
+      )}
+
+      {errors.submit && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{errors.submit}</AlertDescription>
         </Alert>
       )}
 
       <Card>
         <CardHeader>
-          <CardTitle>Child Information</CardTitle>
-          <CardDescription>Select the child and describe their condition</CardDescription>
+          <CardTitle>Child & Authorization Type</CardTitle>
+          <CardDescription>
+            Select the child and the type of authorization
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Child Selection */}
-            <div>
-              <label htmlFor="childId" className="text-sm font-medium text-foreground">
-                Select Child *
-              </label>
-              <select
-                id="childId"
-                value={childId}
-                onChange={(e) => {
-                  setChildId(e.target.value);
-                  if (errors.childId) {
-                    setErrors((prev) => {
-                      const newErrors = { ...prev };
-                      delete newErrors.childId;
-                      return newErrors;
-                    });
-                  }
-                }}
-                disabled={childrenLoading}
-                className={`w-full mt-1 px-3 py-2 border rounded-md text-sm bg-white dark:bg-slate-950 dark:border-border ${
-                  errors.childId ? 'border-red-500' : 'border-border'
-                }`}
-              >
-                <option value="">
-                  {childrenLoading ? 'Loading children...' : 'Choose a child...'}
-                </option>
-                {children.map((child) => (
-                  <option key={child.id} value={child.id}>
-                    {child.firstName} {child.lastName}
-                    {child.className && ` (${child.className})`}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField label="Child" error={errors.childId} required>
+                <Select
+                  name="childId"
+                  value={formData.childId || ''}
+                  onChange={handleChange}
+                  disabled={childrenLoading}
+                >
+                  <option value="">
+                    {childrenLoading ? 'Loading...' : 'Select a child'}
                   </option>
-                ))}
-              </select>
-              {errors.childId && (
-                <p className="text-xs text-red-600 mt-1">{errors.childId}</p>
-              )}
-            </div>
+                  {children.map((child) => (
+                    <option key={child.id} value={child.id}>
+                      {child.firstName} {child.lastName}
+                      {child.className && ` (${child.className})`}
+                    </option>
+                  ))}
+                </Select>
+              </FormField>
 
-            {/* Symptoms */}
-            <div>
-              <label htmlFor="symptoms" className="text-sm font-medium text-foreground">
-                Symptoms/Reason *
-              </label>
-              <Textarea
-                id="symptoms"
-                placeholder="Describe the child's symptoms or condition..."
-                value={symptoms}
-                onChange={(e) => {
-                  setSymptoms(e.target.value);
-                  if (errors.symptoms) {
-                    setErrors((prev) => {
-                      const newErrors = { ...prev };
-                      delete newErrors.symptoms;
-                      return newErrors;
-                    });
-                  }
-                }}
-                rows={4}
-                className={`mt-1 ${errors.symptoms ? 'border-red-500' : ''}`}
-              />
-              <div className="flex justify-between items-start mt-1">
-                {errors.symptoms && (
-                  <p className="text-xs text-red-600">{errors.symptoms}</p>
-                )}
-                <p className="text-xs text-muted-foreground ml-auto">
-                  {symptoms.length} characters
-                </p>
-              </div>
-            </div>
-
-            {/* Priority */}
-            <div>
-              <label className="text-sm font-medium text-foreground">
-                Priority
-              </label>
-              <div className="mt-2 flex gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="priority"
-                    value="normal"
-                    checked={priority === 'normal'}
-                    onChange={() => setPriority('normal')}
-                    className="rounded-full"
-                  />
-                  <span className="text-sm">Normal</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="priority"
-                    value="urgent"
-                    checked={priority === 'urgent'}
-                    onChange={() => setPriority('urgent')}
-                    className="rounded-full"
-                  />
-                  <span className="text-sm text-red-600 dark:text-red-400 font-medium">
-                    Urgent (Medical Attention Needed)
-                  </span>
-                </label>
-              </div>
-            </div>
-
-            {/* Notes */}
-            <div>
-              <label htmlFor="notes" className="text-sm font-medium text-foreground">
-                Additional Notes (optional)
-              </label>
-              <Textarea
-                id="notes"
-                placeholder="Any additional information about the child's condition..."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={3}
-                className="mt-1"
-              />
-            </div>
-
-            {/* Submit Button */}
-            <div className="flex gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.back()}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={isCreating}
-              >
-                {isCreating ? 'Creating Request...' : 'Create Request'}
-              </Button>
+              <FormField label="Authorization Type" error={errors.type} required>
+                <Select name="type" value={formData.type || ''} onChange={handleChange}>
+                  <option value="">Select type</option>
+                  <option value="pickup">Pickup</option>
+                  <option value="medical">Medical</option>
+                  <option value="field_trip">Field Trip</option>
+                  <option value="medication_administration">Medication Administration</option>
+                </Select>
+              </FormField>
             </div>
           </form>
         </CardContent>
       </Card>
 
-      {/* Success Modal */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Authorized Person Details</CardTitle>
+          <CardDescription>
+            Information about the person being authorized
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <FormField label="Authorized Person Name" error={errors.authorizedPersonName} required>
+              <Input
+                name="authorizedPersonName"
+                placeholder="Full name"
+                value={formData.authorizedPersonName || ''}
+                onChange={handleChange}
+              />
+            </FormField>
+
+            <FormField label="Phone Number" error={errors.authorizedPersonPhone} required>
+              <Input
+                name="authorizedPersonPhone"
+                type="tel"
+                placeholder="+1 (555) 123-4567"
+                value={formData.authorizedPersonPhone || ''}
+                onChange={handleChange}
+              />
+            </FormField>
+
+            <FormField label="Relationship" error={errors.relationship} required>
+              <Select name="relationship" value={formData.relationship || ''} onChange={handleChange}>
+                <option value="">Select relationship</option>
+                <option value="parent">Parent</option>
+                <option value="guardian">Guardian</option>
+                <option value="relative">Relative</option>
+                <option value="emergency_contact">Emergency Contact</option>
+                <option value="other">Other</option>
+              </Select>
+            </FormField>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Additional Information</CardTitle>
+          <CardDescription>
+            Notes and expiration details
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <FormField label="Notes">
+              <Textarea
+                name="notes"
+                placeholder="Any additional information or special instructions..."
+                value={formData.notes || ''}
+                onChange={handleChange}
+                className="min-h-[100px]"
+              />
+            </FormField>
+
+            <FormField label="Expiration Date">
+              <Input
+                name="expiresAt"
+                type="date"
+                value={formData.expiresAt || ''}
+                onChange={handleChange}
+              />
+            </FormField>
+
+            <FormField label="Priority">
+              <Select name="priority" value={formData.priority || 'normal'} onChange={handleChange}>
+                <option value="normal">Normal</option>
+                <option value="urgent">Urgent</option>
+              </Select>
+            </FormField>
+          </form>
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-between">
+        <Button
+          variant="outline"
+          onClick={() => router.push(`/${locale}/authorizations`)}
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Cancel
+        </Button>
+        <Button onClick={handleSubmit} disabled={isCreating}>
+          {isCreating ? 'Creating...' : 'Create Authorization'}
+        </Button>
+      </div>
+
+      {/* Success Dialog */}
       <Dialog open={!!successId} onOpenChange={(open) => !open && router.push(`/${locale}/authorizations`)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-primary flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
               <Check className="w-5 h-5" />
-              Authorization Request Sent
+              Authorization Created
             </DialogTitle>
+            <DialogDescription>
+              The authorization has been successfully created.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-muted-foreground">
-              Your authorization request has been created successfully.
+              The authorized person has been added to the system.
             </p>
             <div className="p-3 bg-muted rounded-lg">
-              <p className="text-xs text-muted-foreground">Request ID:</p>
+              <p className="text-xs text-muted-foreground">Authorization ID:</p>
               <p className="font-mono text-sm font-medium text-foreground">
                 {successId}
               </p>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Parents will be notified to approve or reject this request.
-            </p>
             <Button
               onClick={() => router.push(`/${locale}/authorizations`)}
+              className="w-full"
             >
-              View All Requests
+              View All Authorizations
             </Button>
           </div>
         </DialogContent>
