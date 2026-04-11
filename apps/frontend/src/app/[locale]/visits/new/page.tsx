@@ -44,12 +44,12 @@ export default function NewVisitPage() {
 
   const availableChildren = childrenResponse?.data || [];
 
-  // Fetch available medications
-  const { data: medicationsData } = useApiQuery<
-    Array<{ id: string; name: string }>
-  >('/api/v1/medications/catalog');
+  // Fetch available medications (returns { data: [...] })
+  const { data: medicationsResponse } = useApiQuery<{
+    data: Array<{ id: string; name: string }>;
+  }>('/api/v1/medications/catalog');
 
-  const availableMedications = medicationsData || [];
+  const availableMedications = medicationsResponse?.data || [];
 
   // Create visit mutation
   const { execute: createVisit, loading: isCreating, error: createError } =

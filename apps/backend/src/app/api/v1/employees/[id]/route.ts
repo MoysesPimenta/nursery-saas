@@ -43,21 +43,22 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return errorResponse(employeeError.message, employeeError.code === 'PGRST116' ? 404 : 400);
     }
 
-    // Get allergies
+    // Get allergies with full details
     const { data: allergies, error: allergyError } = await supabase
       .from('employee_allergies')
-      .select('allergies(*)')
+      .select('id, reaction_description, diagnosed_date, notes, allergies(*)')
       .eq('employee_id', id);
 
     if (allergyError) {
       return errorResponse(allergyError.message, 400);
     }
 
-    // Get medications
+    // Get medications with full details
     const { data: medications, error: medError } = await supabase
       .from('employee_medications')
-      .select('medications(*)')
-      .eq('employee_id', id);
+      .select('id, dosage, frequency, start_date, end_date, prescribed_by, notes, due_date, prescription_document_url, medications(*)')
+      .eq('employee_id', id)
+      .order('start_date', { ascending: false });
 
     if (medError) {
       return errorResponse(medError.message, 400);
@@ -65,8 +66,25 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     const employeeWithDetails = {
       ...employee,
-      allergies: allergies?.map((a) => a.allergies) || [],
-      medications: medications?.map((m) => m.medications) || [],
+      allergies: allergies?.map((a) => ({
+        id: (a.allergies as any)?.id,
+        name: (a.allergies as any)?.name,
+        severity_level: (a.allergies as any)?.severity_level,
+        description: (a.allergies as any)?.description,
+        reaction_description: a.reaction_description,
+      })) || [],
+      medications: medications?.map((m) => ({
+        id: (m.medications as any)?.id,
+        name: (m.medications as any)?.name,
+        dosage_form: (m.medications as any)?.dosage_form,
+        dosage: m.dosage,
+        frequency: m.frequency,
+        start_date: m.start_date,
+        end_date: m.end_date,
+        prescribed_by: m.prescribed_by,
+        notes: m.notes,
+        due_date: m.due_date,
+      })) || [],
     };
 
     return successResponse(employeeWithDetails);

@@ -95,6 +95,8 @@ export default function ChildDetailPage() {
     due_date: '',
     prescription_document_url: '',
   });
+  const [allergyError, setAllergyError] = useState<string | null>(null);
+  const [medicationError, setMedicationError] = useState<string | null>(null);
 
   const { data: child, loading, refetch } = useApiQuery<ChildDetail>(`/api/v1/children/${childId}`);
   const { data: allergiesResponse } = useApiQuery<{ data: AvailableAllergy[] }>(`/api/v1/allergies`);
@@ -138,19 +140,21 @@ export default function ChildDetailPage() {
 
   const handleAddAllergy = async () => {
     if (!selectedAllergyId) return;
+    setAllergyError(null);
     try {
       await addAllergy({ allergy_id: selectedAllergyId });
       setShowAddAllergyDialog(false);
       setSelectedAllergyId('');
       refetch();
     } catch (error) {
-      console.error('Failed to add allergy:', error);
+      const msg = error instanceof Error ? error.message : 'Failed to add allergy';
+      setAllergyError(msg);
     }
   };
 
   const handleRemoveAllergy = async (allergyId: string) => {
     try {
-      await removeAllergy({ allergy_id: allergyId });
+      await removeAllergy(undefined, `/api/v1/children/${childId}/allergies?allergy_id=${allergyId}`);
       refetch();
     } catch (error) {
       console.error('Failed to remove allergy:', error);
@@ -159,6 +163,7 @@ export default function ChildDetailPage() {
 
   const handleAddMedication = async () => {
     if (!selectedMedicationId || !medicationForm.dosage) return;
+    setMedicationError(null);
     try {
       await addMedication({
         medication_id: selectedMedicationId,
@@ -185,13 +190,14 @@ export default function ChildDetailPage() {
       });
       refetch();
     } catch (error) {
-      console.error('Failed to add medication:', error);
+      const msg = error instanceof Error ? error.message : 'Failed to add medication';
+      setMedicationError(msg);
     }
   };
 
   const handleRemoveMedication = async (medicationId: string) => {
     try {
-      await removeMedication({ medication_id: medicationId });
+      await removeMedication(undefined, `/api/v1/children/${childId}/medications?medication_id=${medicationId}`);
       refetch();
     } catch (error) {
       console.error('Failed to remove medication:', error);
@@ -587,17 +593,25 @@ export default function ChildDetailPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <Select
-              value={selectedAllergyId}
-              onChange={(e) => setSelectedAllergyId(e.target.value)}
-            >
-              <option value="">Select an allergy...</option>
-              {availableAllergies?.map((allergy) => (
-                <option key={allergy.id} value={allergy.id}>
-                  {allergy.name} ({allergy.severity_level || 'Unknown'})
-                </option>
-              ))}
-            </Select>
+            {allergyError && (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-200 px-3 py-2 rounded text-sm">
+                {allergyError}
+              </div>
+            )}
+            <div>
+              <label className="text-sm font-medium block mb-1">Allergy</label>
+              <Select
+                value={selectedAllergyId}
+                onChange={(e) => setSelectedAllergyId(e.target.value)}
+              >
+                <option value="">Select an allergy...</option>
+                {availableAllergies?.map((allergy) => (
+                  <option key={allergy.id} value={allergy.id}>
+                    {allergy.name} ({allergy.severity_level || 'Unknown'})
+                  </option>
+                ))}
+              </Select>
+            </div>
           </div>
           <DialogFooter>
             <Button
@@ -626,60 +640,91 @@ export default function ChildDetailPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <Select
-              value={selectedMedicationId}
-              onChange={(e) => setSelectedMedicationId(e.target.value)}
-            >
-              <option value="">Select a medication...</option>
-              {availableMedications?.map((med) => (
-                <option key={med.id} value={med.id}>
-                  {med.name} {med.dosage_form ? `(${med.dosage_form})` : ''}
-                </option>
-              ))}
-            </Select>
-            <Input
-              placeholder="Dosage (e.g., 10mg, 2 puffs)"
-              value={medicationForm.dosage}
-              onChange={(e) => setMedicationForm({ ...medicationForm, dosage: e.target.value })}
-            />
-            <Input
-              placeholder="Frequency (e.g., 3 times daily)"
-              value={medicationForm.frequency}
-              onChange={(e) => setMedicationForm({ ...medicationForm, frequency: e.target.value })}
-            />
-            <Input
-              type="date"
-              placeholder="Start Date"
-              value={medicationForm.start_date}
-              onChange={(e) => setMedicationForm({ ...medicationForm, start_date: e.target.value })}
-            />
-            <Input
-              type="date"
-              placeholder="End Date (optional)"
-              value={medicationForm.end_date}
-              onChange={(e) => setMedicationForm({ ...medicationForm, end_date: e.target.value })}
-            />
-            <Input
-              placeholder="Prescribed By"
-              value={medicationForm.prescribed_by}
-              onChange={(e) => setMedicationForm({ ...medicationForm, prescribed_by: e.target.value })}
-            />
-            <Input
-              placeholder="Notes (optional)"
-              value={medicationForm.notes}
-              onChange={(e) => setMedicationForm({ ...medicationForm, notes: e.target.value })}
-            />
-            <Input
-              type="date"
-              placeholder="Prescription Due Date (optional)"
-              value={medicationForm.due_date}
-              onChange={(e) => setMedicationForm({ ...medicationForm, due_date: e.target.value })}
-            />
-            <Input
-              placeholder="Prescription Document URL (optional)"
-              value={medicationForm.prescription_document_url}
-              onChange={(e) => setMedicationForm({ ...medicationForm, prescription_document_url: e.target.value })}
-            />
+            {medicationError && (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-200 px-3 py-2 rounded text-sm">
+                {medicationError}
+              </div>
+            )}
+            <div>
+              <label className="text-sm font-medium block mb-1">Medication *</label>
+              <Select
+                value={selectedMedicationId}
+                onChange={(e) => setSelectedMedicationId(e.target.value)}
+              >
+                <option value="">Select a medication...</option>
+                {availableMedications?.map((med) => (
+                  <option key={med.id} value={med.id}>
+                    {med.name} {med.dosage_form ? `(${med.dosage_form})` : ''}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-medium block mb-1">Dosage *</label>
+              <Input
+                placeholder="e.g., 10mg, 2 puffs"
+                value={medicationForm.dosage}
+                onChange={(e) => setMedicationForm({ ...medicationForm, dosage: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium block mb-1">Frequency</label>
+              <Input
+                placeholder="e.g., 3 times daily"
+                value={medicationForm.frequency}
+                onChange={(e) => setMedicationForm({ ...medicationForm, frequency: e.target.value })}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-medium block mb-1">Start Date</label>
+                <Input
+                  type="date"
+                  value={medicationForm.start_date}
+                  onChange={(e) => setMedicationForm({ ...medicationForm, start_date: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium block mb-1">End Date</label>
+                <Input
+                  type="date"
+                  value={medicationForm.end_date}
+                  onChange={(e) => setMedicationForm({ ...medicationForm, end_date: e.target.value })}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium block mb-1">Prescribed By</label>
+              <Input
+                placeholder="Doctor name"
+                value={medicationForm.prescribed_by}
+                onChange={(e) => setMedicationForm({ ...medicationForm, prescribed_by: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium block mb-1">Notes</label>
+              <Input
+                placeholder="Any additional notes"
+                value={medicationForm.notes}
+                onChange={(e) => setMedicationForm({ ...medicationForm, notes: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium block mb-1">Prescription Expiry Date</label>
+              <Input
+                type="date"
+                value={medicationForm.due_date}
+                onChange={(e) => setMedicationForm({ ...medicationForm, due_date: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium block mb-1">Prescription Document URL</label>
+              <Input
+                placeholder="https://..."
+                value={medicationForm.prescription_document_url}
+                onChange={(e) => setMedicationForm({ ...medicationForm, prescription_document_url: e.target.value })}
+              />
+            </div>
           </div>
           <DialogFooter>
             <Button
