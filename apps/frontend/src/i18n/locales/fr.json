@@ -251,10 +251,17 @@
     "title": "Départements",
     "subtitle": "Gérez les départements organisationnels",
     "addDepartment": "Ajouter un département",
+    "editDepartment": "Modifier le département",
     "departmentName": "Nom du département",
+    "departmentNameRequired": "Le nom du département est obligatoire",
     "noDepartments": "Aucun département créé pour le moment.",
     "searchPlaceholder": "Rechercher des départements...",
-    "departmentAdded": "Département ajouté avec succès"
+    "departmentAdded": "Département ajouté avec succès",
+    "addDepartmentDescription": "Créer un nouveau département dans votre organisation",
+    "editDepartmentDescription": "Mettre à jour les informations du département",
+    "creating": "Création...",
+    "updating": "Mise à jour...",
+    "update": "Mettre à jour"
   },
   "admin": {
     "title": "Administration",

@@ -371,10 +371,17 @@
     "title": "Departments",
     "subtitle": "Manage organizational departments",
     "addDepartment": "Add Department",
+    "editDepartment": "Edit Department",
     "departmentName": "Department Name",
+    "departmentNameRequired": "Department name is required",
     "noDepartments": "No departments created yet.",
     "searchPlaceholder": "Search departments...",
-    "departmentAdded": "Department added successfully"
+    "departmentAdded": "Department added successfully",
+    "addDepartmentDescription": "Create a new department in your organization",
+    "editDepartmentDescription": "Update the department information",
+    "creating": "Creating...",
+    "updating": "Updating...",
+    "update": "Update"
   },
   "admin": {
     "title": "Administration",

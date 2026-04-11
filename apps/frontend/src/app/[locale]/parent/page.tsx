@@ -11,6 +11,63 @@ import { Child, Allergy } from '@nursery-saas/shared';
 import { apiGet } from '@/lib/api';
 import { useParams } from 'next/navigation';
 
+// API response types (snake_case from Supabase)
+interface ApiChild {
+  id: string;
+  first_name: string;
+  last_name: string;
+  date_of_birth: string;
+  gender?: string;
+  class_id?: string;
+  blood_type?: string;
+  emergency_contact_name: string;
+  emergency_contact_phone: string;
+  emergency_contact_relation?: string;
+  notes?: string;
+  is_archived: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface ApiAllergy {
+  id: string;
+  name: string;
+  severity_level: string;
+  description?: string;
+}
+
+// Convert snake_case API response to camelCase for shared types
+function mapChild(c: ApiChild): Child {
+  return {
+    id: c.id,
+    tenantId: '',
+    firstName: c.first_name,
+    lastName: c.last_name,
+    dateOfBirth: c.date_of_birth,
+    gender: c.gender,
+    classId: c.class_id,
+    bloodType: c.blood_type,
+    emergencyContactName: c.emergency_contact_name,
+    emergencyContactPhone: c.emergency_contact_phone,
+    emergencyContactRelation: c.emergency_contact_relation || '',
+    notes: c.notes,
+    isArchived: c.is_archived,
+    createdAt: c.created_at,
+    updatedAt: c.updated_at,
+  };
+}
+
+function mapAllergy(a: ApiAllergy): Allergy {
+  return {
+    id: a.id,
+    tenantId: '',
+    name: a.name,
+    severityLevel: a.severity_level as Allergy['severityLevel'],
+    description: a.description,
+    createdAt: '',
+  };
+}
+
 interface ChildWithAllergies extends Child {
   allergies: Allergy[];
   lastVisitDate?: string;
@@ -44,21 +101,22 @@ export default function ParentPortalPage() {
         setLoading(true);
         setError(null);
 
-        const response = await apiGet<{ data: Child[] }>('/api/v1/children');
-        const childrenData = response.data;
+        const response = await apiGet<{ data: ApiChild[] }>('/api/v1/children');
+        const childrenData = response.data || [];
 
         // Enrich children with allergies and last visit info
         const enrichedChildren = await Promise.all(
-          childrenData.map(async (child) => {
-            let allergies: any[] = [];
+          childrenData.map(async (apiChild) => {
+            const child = mapChild(apiChild);
+            let allergies: Allergy[] = [];
             let lastVisitDate: string | undefined;
 
             // Get child details which should include allergies
             try {
-              const childDetails = await apiGet<any>(
+              const childDetails = await apiGet<{ allergies?: ApiAllergy[] }>(
                 `/api/v1/children/${child.id}`
               );
-              allergies = childDetails.allergies || [];
+              allergies = (childDetails.allergies || []).map(mapAllergy);
             } catch (err) {
               console.error(`Failed to load details for child ${child.id}:`, err);
               allergies = [];
@@ -69,7 +127,7 @@ export default function ParentPortalPage() {
               const visitsResponse = await apiGet<{ data: any[] }>(
                 `/api/v1/visits?child_id=${child.id}&limit=1`
               );
-              lastVisitDate = visitsResponse.data?.[0]?.startedAt;
+              lastVisitDate = visitsResponse.data?.[0]?.started_at;
             } catch (err) {
               console.error(`Failed to load visits for child ${child.id}:`, err);
               lastVisitDate = undefined;

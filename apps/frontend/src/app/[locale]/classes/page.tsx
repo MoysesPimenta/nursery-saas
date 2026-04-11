@@ -184,20 +184,34 @@ export default function ClassesPage() {
         <span className="text-sm">{value || '—'}</span>
       ),
     },
+    {
+      key: 'actions' as const,
+      label: tc('actions'),
+      render: (_, item: Class) => (
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleEdit(item)}
+            className="h-8 w-8 p-0"
+            title={tc('edit')}
+          >
+            <Edit2 className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleDelete(item)}
+            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900"
+            title={tc('delete')}
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
+      ),
+    },
   ];
 
-  const rowActions = (item: Class) => [
-    {
-      label: tc('edit'),
-      icon: Edit2,
-      onClick: () => handleEdit(item),
-    },
-    {
-      label: tc('delete'),
-      icon: Trash2,
-      onClick: () => handleDelete(item),
-    },
-  ];
 
   return (
     <motion.div

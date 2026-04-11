@@ -36,11 +36,27 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
       return errorResponse(error.message, 400);
     }
 
+    // Resolve requester names from employees table
+    const requesterIds = [...new Set((data || []).map((a: any) => a.requested_by).filter(Boolean))];
+    let requesterMap: Record<string, string> = {};
+    if (requesterIds.length > 0) {
+      const { data: employees } = await supabase
+        .from('employees')
+        .select('user_id, first_name, last_name')
+        .in('user_id', requesterIds);
+      if (employees) {
+        requesterMap = Object.fromEntries(
+          employees.map((e: any) => [e.user_id, `${e.first_name} ${e.last_name}`])
+        );
+      }
+    }
+
     const enriched = (data || []).map((auth: Record<string, unknown>) => ({
       ...auth,
       child_name: auth.children
         ? `${(auth.children as any).first_name} ${(auth.children as any).last_name}`
         : null,
+      requester_name: requesterMap[auth.requested_by as string] || null,
       children: undefined,
     }));
 

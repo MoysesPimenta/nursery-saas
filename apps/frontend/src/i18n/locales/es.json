@@ -251,10 +251,17 @@
     "title": "Departamentos",
     "subtitle": "Administre departamentos organizacionales",
     "addDepartment": "Agregar departamento",
+    "editDepartment": "Editar departamento",
     "departmentName": "Nombre del departamento",
+    "departmentNameRequired": "El nombre del departamento es obligatorio",
     "noDepartments": "Ningún departamento creado aún.",
     "searchPlaceholder": "Buscar departamentos...",
-    "departmentAdded": "Departamento agregado exitosamente"
+    "departmentAdded": "Departamento agregado exitosamente",
+    "addDepartmentDescription": "Crear un nuevo departamento en su organización",
+    "editDepartmentDescription": "Actualizar la información del departamento",
+    "creating": "Creando...",
+    "updating": "Actualizando...",
+    "update": "Actualizar"
   },
   "admin": {
     "title": "Administración",

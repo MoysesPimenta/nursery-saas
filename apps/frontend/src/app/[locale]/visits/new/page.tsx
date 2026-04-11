@@ -11,10 +11,8 @@ import { Check, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface VisitCreationResponse {
-  data: {
-    id: string;
-    visitNumber: string;
-  };
+  id: string;
+  visit_number: string;
 }
 
 export default function NewVisitPage() {
@@ -28,30 +26,30 @@ export default function NewVisitPage() {
   const [childName, setChildName] = useState<string>();
 
   // Fetch authorization details if provided
-  const { data: authData } = useApiQuery<{ data: { childName: string; childId: string } }>(
+  const { data: authData } = useApiQuery<{ childName: string; childId: string }>(
     authorizationId ? `/api/v1/authorizations/${authorizationId}` : '',
     [authorizationId]
   );
 
   useEffect(() => {
-    if (authData?.data?.childName) {
-      setChildName(authData.data.childName);
+    if (authData?.childName) {
+      setChildName(authData.childName);
     }
   }, [authData]);
 
-  // Fetch available children for dropdown
-  const { data: childrenData } = useApiQuery<{
+  // Fetch available children for dropdown (paginated endpoint returns { data: [...] })
+  const { data: childrenResponse } = useApiQuery<{
     data: Array<{ id: string; first_name: string; last_name: string; date_of_birth?: string }>;
   }>('/api/v1/children?limit=500');
 
-  const availableChildren = childrenData?.data || [];
+  const availableChildren = childrenResponse?.data || [];
 
   // Fetch available medications
-  const { data: medicationsData } = useApiQuery<{
-    data: Array<{ id: string; name: string }>;
-  }>('/api/v1/medications/catalog');
+  const { data: medicationsData } = useApiQuery<
+    Array<{ id: string; name: string }>
+  >('/api/v1/medications/catalog');
 
-  const availableMedications = medicationsData?.data || [];
+  const availableMedications = medicationsData || [];
 
   // Create visit mutation
   const { execute: createVisit, loading: isCreating, error: createError } =
@@ -75,7 +73,7 @@ export default function NewVisitPage() {
         started_at: new Date().toISOString(),
       };
       const result = await createVisit(payload);
-      setCreatedVisitId(result.data.id);
+      setCreatedVisitId(result.id);
     } catch (error) {
       console.error('Failed to create visit:', error);
       throw error;

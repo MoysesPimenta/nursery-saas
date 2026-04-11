@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Textarea } from '@/components/ui/textarea';
 import { useApiQuery } from '@/lib/hooks/use-api';
 import { api } from '@/lib/api';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { AlertCircle, RefreshCw, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Authorization {
@@ -22,10 +22,8 @@ interface Authorization {
   requested_by: string;
   created_at: string;
   status: 'pending' | 'accepted' | 'rejected';
-  children?: {
-    first_name: string;
-    last_name: string;
-  };
+  child_name?: string;
+  requester_name?: string;
 }
 
 export default function AuthorizationsPage() {
@@ -123,6 +121,13 @@ export default function AuthorizationsPage() {
             <RefreshCw className="w-4 h-4" />
             {t('refresh', { defaultValue: 'Refresh' })}
           </Button>
+          <Button
+            onClick={() => router.push(`/${locale}/authorizations/new`)}
+            className="gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            {t('newAuthorization', { defaultValue: 'New Authorization' })}
+          </Button>
         </div>
       </div>
 
@@ -204,9 +209,7 @@ export default function AuthorizationsPage() {
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <h3 className="font-semibold text-lg">
-                                {auth.children
-                                  ? `${auth.children.first_name} ${auth.children.last_name}`
-                                  : auth.child_id}
+                                {auth.child_name || auth.child_id}
                               </h3>
                               <p className="text-sm text-muted-foreground mt-1">
                                 <span className="font-medium">{t('symptoms', { defaultValue: 'Symptoms' })}:</span> {auth.symptoms}
@@ -229,7 +232,9 @@ export default function AuthorizationsPage() {
                           </div>
 
                           <p className="text-xs text-muted-foreground">
-                            {t('requestedBy', { defaultValue: 'Requested by' })}: {auth.requested_by}
+                            {t('requestedBy', { defaultValue: 'Requested by' })}: {auth.requester_name || auth.requested_by}
+                            {' • '}
+                            {new Date(auth.created_at).toLocaleString()}
                           </p>
 
                           {auth.status === 'pending' && (

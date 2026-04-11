@@ -251,10 +251,17 @@
     "title": "Departamentos",
     "subtitle": "Gerencie departamentos organizacionais",
     "addDepartment": "Adicionar Departamento",
+    "editDepartment": "Editar Departamento",
     "departmentName": "Nome do Departamento",
+    "departmentNameRequired": "O nome do departamento é obrigatório",
     "noDepartments": "Nenhum departamento criado ainda.",
     "searchPlaceholder": "Buscar departamentos...",
-    "departmentAdded": "Departamento adicionado com sucesso"
+    "departmentAdded": "Departamento adicionado com sucesso",
+    "addDepartmentDescription": "Criar um novo departamento em sua organização",
+    "editDepartmentDescription": "Atualizar as informações do departamento",
+    "creating": "Criando...",
+    "updating": "Atualizando...",
+    "update": "Atualizar"
   },
   "admin": {
     "title": "Administração",

@@ -251,10 +251,17 @@
     "title": "מחלקות",
     "subtitle": "נהל מחלקות ארגוניות",
     "addDepartment": "הוסף מחלקה",
+    "editDepartment": "ערוך מחלקה",
     "departmentName": "שם המחלקה",
+    "departmentNameRequired": "שם המחלקה הוא שדה חובה",
     "noDepartments": "אל תוקדם מחלקות שנוצרו.",
     "searchPlaceholder": "חפש מחלקות...",
-    "departmentAdded": "מחלקה נוספה בהצלחה"
+    "departmentAdded": "מחלקה נוספה בהצלחה",
+    "addDepartmentDescription": "צור מחלקה חדשה בארגון שלך",
+    "editDepartmentDescription": "עדכן את מידע המחלקה",
+    "creating": "מטפל בעריכה...",
+    "updating": "מטפל בעדכון...",
+    "update": "עדכן"
   },
   "admin": {
     "title": "ניהול",

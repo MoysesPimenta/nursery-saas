@@ -37,13 +37,13 @@ const navItems: NavItem[] = [
   { href: '', labelKey: 'dashboard', icon: LayoutDashboard },
   { href: '/children', labelKey: 'children', icon: Baby },
   { href: '/classes', labelKey: 'classes', icon: GraduationCap },
-  { href: '/employees', labelKey: 'employees', icon: Users, roles: ['admin', 'manager', 'nurse', 'school_admin'] },
-  { href: '/departments', labelKey: 'departments', icon: Building2, roles: ['admin', 'manager'] },
+  { href: '/employees', labelKey: 'employees', icon: Users, roles: ['super_admin', 'school_admin', 'nurse'] },
+  { href: '/departments', labelKey: 'departments', icon: Building2, roles: ['super_admin', 'school_admin'] },
   { href: '/visits', labelKey: 'visits', icon: CalendarCheck },
   { href: '/authorizations', labelKey: 'authorizations', icon: Shield },
   { href: '/medications', labelKey: 'medications', icon: Pill },
   { href: '/allergies', labelKey: 'allergies', icon: AlertTriangle },
-  { href: '/admin', labelKey: 'admin', icon: Shield, roles: ['admin'] },
+  { href: '/admin', labelKey: 'admin', icon: Shield, roles: ['super_admin'] },
   { href: '/parent', labelKey: 'parentPortal', icon: Users },
 ];
 

@@ -6,13 +6,7 @@ import { useApiQuery, useApiMutation } from '@/lib/hooks/use-api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select } from '@/components/ui/select';
 import { PageLoading } from '@/components/ui/loading';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Edit, Trash2, Plus, X } from 'lucide-react';
@@ -591,17 +585,16 @@ export default function ChildDetailPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <Select value={selectedAllergyId} onValueChange={setSelectedAllergyId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select an allergy..." />
-              </SelectTrigger>
-              <SelectContent>
-                {availableAllergies?.map((allergy) => (
-                  <SelectItem key={allergy.id} value={allergy.id}>
-                    {allergy.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
+            <Select
+              value={selectedAllergyId}
+              onChange={(e) => setSelectedAllergyId(e.target.value)}
+            >
+              <option value="">Select an allergy...</option>
+              {availableAllergies?.map((allergy) => (
+                <option key={allergy.id} value={allergy.id}>
+                  {allergy.name} ({allergy.severity_level || 'Unknown'})
+                </option>
+              ))}
             </Select>
           </div>
           <DialogFooter>
@@ -631,17 +624,16 @@ export default function ChildDetailPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <Select value={selectedMedicationId} onValueChange={setSelectedMedicationId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a medication..." />
-              </SelectTrigger>
-              <SelectContent>
-                {availableMedications?.map((med) => (
-                  <SelectItem key={med.id} value={med.id}>
-                    {med.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
+            <Select
+              value={selectedMedicationId}
+              onChange={(e) => setSelectedMedicationId(e.target.value)}
+            >
+              <option value="">Select a medication...</option>
+              {availableMedications?.map((med) => (
+                <option key={med.id} value={med.id}>
+                  {med.name} {med.dosage_form ? `(${med.dosage_form})` : ''}
+                </option>
+              ))}
             </Select>
             <Input
               placeholder="Dosage (e.g., 10mg, 2 puffs)"

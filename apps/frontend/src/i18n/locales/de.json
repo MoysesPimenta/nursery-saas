@@ -251,10 +251,17 @@
     "title": "Abteilungen",
     "subtitle": "Verwalten Sie Organisationsabteilungen",
     "addDepartment": "Abteilung hinzufügen",
+    "editDepartment": "Abteilung bearbeiten",
     "departmentName": "Abteilungsname",
+    "departmentNameRequired": "Abteilungsname ist erforderlich",
     "noDepartments": "Noch keine Abteilungen erstellt.",
     "searchPlaceholder": "Abteilungen suchen...",
-    "departmentAdded": "Abteilung erfolgreich hinzugefügt"
+    "departmentAdded": "Abteilung erfolgreich hinzugefügt",
+    "addDepartmentDescription": "Erstellen Sie eine neue Abteilung in Ihrer Organisation",
+    "editDepartmentDescription": "Aktualisieren Sie die Abteilungsinformationen",
+    "creating": "Wird erstellt...",
+    "updating": "Wird aktualisiert...",
+    "update": "Aktualisieren"
   },
   "admin": {
     "title": "Verwaltung",

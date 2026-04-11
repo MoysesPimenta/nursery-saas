@@ -251,10 +251,17 @@
     "title": "Dipartimenti",
     "subtitle": "Gestisci i dipartimenti organizzativi",
     "addDepartment": "Aggiungi dipartimento",
+    "editDepartment": "Modifica dipartimento",
     "departmentName": "Nome del dipartimento",
+    "departmentNameRequired": "Il nome del dipartimento è obbligatorio",
     "noDepartments": "Nessun dipartimento creato ancora.",
     "searchPlaceholder": "Cerca dipartimenti...",
-    "departmentAdded": "Dipartimento aggiunto con successo"
+    "departmentAdded": "Dipartimento aggiunto con successo",
+    "addDepartmentDescription": "Crea un nuovo dipartimento nella tua organizzazione",
+    "editDepartmentDescription": "Aggiorna le informazioni del dipartimento",
+    "creating": "Creazione in corso...",
+    "updating": "Aggiornamento in corso...",
+    "update": "Aggiorna"
   },
   "admin": {
     "title": "Amministrazione",
