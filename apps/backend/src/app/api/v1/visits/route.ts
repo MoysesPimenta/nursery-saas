@@ -37,11 +37,11 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
     }
 
     if (filters.date_from) {
-      query = query.gte('created_at', filters.date_from);
+      query = query.gte('started_at', `${filters.date_from}T00:00:00`);
     }
 
     if (filters.date_to) {
-      query = query.lte('created_at', filters.date_to);
+      query = query.lte('started_at', `${filters.date_to}T23:59:59`);
     }
 
     query = query.order('created_at', { ascending: false });

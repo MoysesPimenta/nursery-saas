@@ -76,12 +76,29 @@ export default function CalendarPage() {
     `/api/v1/visits/calendar?start=${startStr}&end=${endStr}`
   );
 
-  // Create a map of events by date for quick lookup
+  // Create a map of events by LOCAL date for quick lookup
+  // The backend groups by UTC date, but we need to re-group by the user's local date
+  // to avoid visits appearing on the wrong day due to timezone offset
   const eventsByDate = useMemo(() => {
     const map: Record<string, CalendarEvent> = {};
     if (calendarData?.events) {
       calendarData.events.forEach((event) => {
-        map[event.date] = event;
+        // Re-group visits by local date
+        event.visits.forEach((visit) => {
+          const localDate = new Date(visit.timestamp);
+          const localDateStr = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
+          if (!map[localDateStr]) {
+            map[localDateStr] = { date: localDateStr, visits: [], medications: [] };
+          }
+          map[localDateStr].visits.push(visit);
+        });
+        // Medications don't have precise timestamps, keep them on their original date
+        if (event.medications.length > 0) {
+          if (!map[event.date]) {
+            map[event.date] = { date: event.date, visits: [], medications: [] };
+          }
+          map[event.date].medications.push(...event.medications);
+        }
       });
     }
     return map;
@@ -101,7 +118,8 @@ export default function CalendarPage() {
   }, [rangeStart, rangeEnd]);
 
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const today = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
   const handlePrevMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
@@ -183,7 +201,7 @@ export default function CalendarPage() {
                   {/* Calendar grid */}
                   <div className="grid grid-cols-7 gap-2">
                     {calendarDays.map((day) => {
-                      const dateStr = day.toISOString().split('T')[0];
+                      const dateStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
                       const isCurrentMonth =
                         day.getMonth() === currentDate.getMonth() &&
                         day.getFullYear() === currentDate.getFullYear();
@@ -269,11 +287,14 @@ export default function CalendarPage() {
             <CardHeader>
               <CardTitle className="text-lg">
                 {selectedDate
-                  ? new Date(selectedDate).toLocaleDateString(locale, {
-                      weekday: 'long',
-                      month: 'short',
-                      day: 'numeric',
-                    })
+                  ? (() => {
+                      const [y, m, d] = selectedDate.split('-').map(Number);
+                      return new Date(y, m - 1, d).toLocaleDateString(locale, {
+                        weekday: 'long',
+                        month: 'short',
+                        day: 'numeric',
+                      });
+                    })()
                   : t('noEvents')}
               </CardTitle>
               {selectedDayEvents && (

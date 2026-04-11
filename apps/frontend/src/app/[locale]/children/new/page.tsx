@@ -86,11 +86,11 @@ export default function NewChildPage() {
   );
   const allergies = allergiesData?.data || [];
 
-  // Fetch medications catalog (non-paginated, returns array directly)
-  const { data: medicationsData } = useApiQuery<MedicationItem[]>(
+  // Fetch medications catalog (returns { data: [...] })
+  const { data: medicationsResponse } = useApiQuery<{ data: MedicationItem[] }>(
     '/api/v1/medications/catalog'
   );
-  const medications = medicationsData || [];
+  const medications = medicationsResponse?.data || [];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;

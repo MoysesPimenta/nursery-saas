@@ -99,7 +99,8 @@ export default function ChildDetailPage() {
   const { data: child, loading, refetch } = useApiQuery<ChildDetail>(`/api/v1/children/${childId}`);
   const { data: allergiesResponse } = useApiQuery<{ data: AvailableAllergy[] }>(`/api/v1/allergies`);
   const availableAllergies = allergiesResponse?.data || [];
-  const { data: availableMedications } = useApiQuery<AvailableMedication[]>(`/api/v1/medications/catalog`);
+  const { data: medicationsResponse } = useApiQuery<{ data: AvailableMedication[] }>(`/api/v1/medications/catalog`);
+  const availableMedications = medicationsResponse?.data || [];
 
   const { execute: deleteChild, loading: deleting } = useApiMutation(
     `/api/v1/children/${childId}`,
