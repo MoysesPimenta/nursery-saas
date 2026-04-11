@@ -43,6 +43,9 @@ interface MedicationDetail {
   end_date?: string;
   prescribed_by?: string;
   notes?: string;
+  due_date?: string;
+  reminder_sent?: boolean;
+  prescription_document_url?: string;
 }
 
 interface ChildDetail {
@@ -95,6 +98,8 @@ export default function ChildDetailPage() {
     end_date: '',
     prescribed_by: '',
     notes: '',
+    due_date: '',
+    prescription_document_url: '',
   });
 
   const { data: child, loading, refetch } = useApiQuery<ChildDetail>(`/api/v1/children/${childId}`);
@@ -167,6 +172,8 @@ export default function ChildDetailPage() {
         ...(medicationForm.end_date && { end_date: medicationForm.end_date }),
         ...(medicationForm.prescribed_by && { prescribed_by: medicationForm.prescribed_by }),
         ...(medicationForm.notes && { notes: medicationForm.notes }),
+        ...(medicationForm.due_date && { due_date: medicationForm.due_date }),
+        ...(medicationForm.prescription_document_url && { prescription_document_url: medicationForm.prescription_document_url }),
       });
       setShowAddMedicationDialog(false);
       setSelectedMedicationId('');
@@ -177,6 +184,8 @@ export default function ChildDetailPage() {
         end_date: '',
         prescribed_by: '',
         notes: '',
+        due_date: '',
+        prescription_document_url: '',
       });
       refetch();
     } catch (error) {
@@ -206,6 +215,20 @@ export default function ChildDetailPage() {
       default:
         return 'bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-200';
     }
+  };
+
+  const getPrescriptionStatus = (dueDate?: string) => {
+    if (!dueDate) return null;
+    const today = new Date();
+    const due = new Date(dueDate);
+    const daysUntilDue = Math.floor((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (daysUntilDue < 0) {
+      return { status: 'expired', label: t('expired'), color: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200' };
+    } else if (daysUntilDue <= 30) {
+      return { status: 'expiring', label: t('expiringSoon'), color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200' };
+    }
+    return null;
   };
 
   if (loading) {
@@ -391,6 +414,7 @@ export default function ChildDetailPage() {
                 <div className="space-y-3">
                   {child.medications.map((med) => {
                     const isContinuous = !med.end_date;
+                    const prescriptionStatus = getPrescriptionStatus(med.due_date);
                     return (
                       <motion.div
                         key={med.id}
@@ -400,7 +424,7 @@ export default function ChildDetailPage() {
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 mb-2">
                               <h4 className="font-semibold">{med.name}</h4>
                               <span className={`px-2 py-1 rounded text-xs font-medium ${
                                 isContinuous
@@ -409,6 +433,11 @@ export default function ChildDetailPage() {
                               }`}>
                                 {isContinuous ? 'Continuous' : 'Temporary'}
                               </span>
+                              {prescriptionStatus && (
+                                <span className={`px-2 py-1 rounded text-xs font-medium ${prescriptionStatus.color}`}>
+                                  {prescriptionStatus.label}
+                                </span>
+                              )}
                             </div>
                             <div className="grid grid-cols-2 gap-2 mt-2 text-sm">
                               <div>
@@ -422,7 +451,7 @@ export default function ChildDetailPage() {
                                 </div>
                               )}
                             </div>
-                            {(med.start_date || med.end_date) && (
+                            {(med.start_date || med.end_date || med.due_date) && (
                               <div className="grid grid-cols-2 gap-2 mt-2 text-sm">
                                 {med.start_date && (
                                   <div>
@@ -434,6 +463,12 @@ export default function ChildDetailPage() {
                                   <div>
                                     <p className="text-muted-foreground">End Date</p>
                                     <p className="font-medium">{new Date(med.end_date).toLocaleDateString()}</p>
+                                  </div>
+                                )}
+                                {med.due_date && (
+                                  <div>
+                                    <p className="text-muted-foreground">{t('expiringOn')}</p>
+                                    <p className="font-medium">{new Date(med.due_date).toLocaleDateString()}</p>
                                   </div>
                                 )}
                               </div>
@@ -640,6 +675,17 @@ export default function ChildDetailPage() {
               value={medicationForm.notes}
               onChange={(e) => setMedicationForm({ ...medicationForm, notes: e.target.value })}
             />
+            <Input
+              type="date"
+              placeholder="Prescription Due Date (optional)"
+              value={medicationForm.due_date}
+              onChange={(e) => setMedicationForm({ ...medicationForm, due_date: e.target.value })}
+            />
+            <Input
+              placeholder="Prescription Document URL (optional)"
+              value={medicationForm.prescription_document_url}
+              onChange={(e) => setMedicationForm({ ...medicationForm, prescription_document_url: e.target.value })}
+            />
           </div>
           <DialogFooter>
             <Button
@@ -654,6 +700,8 @@ export default function ChildDetailPage() {
                   end_date: '',
                   prescribed_by: '',
                   notes: '',
+                  due_date: '',
+                  prescription_document_url: '',
                 });
               }}
             >

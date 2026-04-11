@@ -13,6 +13,17 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
       const supabase = getUserClient(req);
 
+      // Get child to fetch date_of_birth
+      const { data: child, error: childError } = await supabase
+        .from('children')
+        .select('date_of_birth')
+        .eq('id', id)
+        .single();
+
+      if (childError) {
+        return errorResponse(childError.message, childError.code === 'PGRST116' ? 404 : 400);
+      }
+
       // Get allergies
       const { data: allergiesData, error: allergyError } = await supabase
         .from('child_allergies')
@@ -53,6 +64,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       const summary = {
         allergies,
         medications,
+        date_of_birth: child?.date_of_birth,
       };
 
       return successResponse(summary);

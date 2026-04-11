@@ -11,8 +11,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/modal';
 import { useApiQuery } from '@/lib/hooks/use-api';
 import { api } from '@/lib/api';
-import { AlertCircle, CheckCircle, XCircle, Loader } from 'lucide-react';
+import { AlertCircle, CheckCircle, XCircle, Loader, Upload } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Input } from '@/components/ui/input';
 
 interface Prescription {
   child_medication_id: string;
@@ -30,6 +31,8 @@ interface Prescription {
   notes?: string;
   consent_status: 'pending' | 'approved' | 'rejected';
   consent_date?: string;
+  due_date?: string;
+  prescription_document_url?: string;
 }
 
 const containerVariants = {
@@ -54,6 +57,9 @@ export default function ParentPrescriptionsPage() {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [confirmAction, setConfirmAction] = useState<'approve' | 'reject' | null>(null);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const [uploadDocUrl, setUploadDocUrl] = useState('');
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
 
   // Fetch prescriptions
   const { data: prescriptionsData, loading, refetch, error } = useApiQuery<{
@@ -111,6 +117,46 @@ export default function ParentPrescriptionsPage() {
       console.error('Failed to update consent:', error);
       setProcessingId(null);
     }
+  };
+
+  const handleUploadPrescription = async (prescriptionId: string) => {
+    setUploadingId(prescriptionId);
+    setUploadDocUrl('');
+    setShowUploadDialog(true);
+  };
+
+  const submitPrescriptionUpload = async () => {
+    if (!uploadingId || !uploadDocUrl.trim()) return;
+
+    try {
+      await api('/api/v1/parent/prescriptions', {
+        method: 'PATCH',
+        body: JSON.stringify({
+          child_medication_id: uploadingId,
+          prescription_document_url: uploadDocUrl,
+        }),
+      });
+      await refetch();
+      setShowUploadDialog(false);
+      setUploadingId(null);
+      setUploadDocUrl('');
+    } catch (error) {
+      console.error('Failed to upload prescription:', error);
+    }
+  };
+
+  const getPrescriptionStatus = (dueDate?: string) => {
+    if (!dueDate) return null;
+    const today = new Date();
+    const due = new Date(dueDate);
+    const daysUntilDue = Math.floor((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (daysUntilDue < 0) {
+      return { status: 'expired', label: 'Expired', color: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200' };
+    } else if (daysUntilDue <= 30) {
+      return { status: 'expiring', label: 'Expiring Soon', color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200' };
+    }
+    return null;
   };
 
   return (
@@ -241,6 +287,8 @@ export default function ParentPrescriptionsPage() {
                           rejected: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100',
                         }[prescription.consent_status];
 
+                        const prescriptionStatus = getPrescriptionStatus(prescription.due_date);
+
                         return (
                           <motion.div
                             key={prescription.child_medication_id}
@@ -251,6 +299,18 @@ export default function ParentPrescriptionsPage() {
                             <Card className="hover:shadow-md transition-shadow">
                               <CardContent className="pt-6">
                                 <div className="space-y-4">
+                                  {/* Prescription Status Alert */}
+                                  {prescriptionStatus && (
+                                    <Alert className={prescriptionStatus.color.replace('text-', 'border-').replace('dark:text-', 'dark:border-')}>
+                                      <AlertCircle className="h-4 w-4" />
+                                      <AlertDescription>
+                                        {prescriptionStatus.status === 'expired'
+                                          ? `Prescription for ${prescription.medication_name} has expired. Please upload an updated prescription.`
+                                          : `Prescription for ${prescription.medication_name} expires on ${new Date(prescription.due_date!).toLocaleDateString()}. Please prepare to upload an updated prescription.`}
+                                      </AlertDescription>
+                                    </Alert>
+                                  )}
+
                                   {/* Header */}
                                   <div className="flex items-start justify-between">
                                     <div className="flex-1">
@@ -266,6 +326,11 @@ export default function ParentPrescriptionsPage() {
                                             ? t('consentGiven')
                                             : t('consentRejected')}
                                         </Badge>
+                                        {prescriptionStatus && (
+                                          <Badge className={prescriptionStatus.color}>
+                                            {prescriptionStatus.label}
+                                          </Badge>
+                                        )}
                                       </div>
                                       <p className="text-sm text-muted-foreground">
                                         {t('dosageInfo')}: {prescription.dosage}
@@ -298,6 +363,14 @@ export default function ParentPrescriptionsPage() {
                                         </p>
                                       </div>
                                     )}
+                                    {prescription.due_date && (
+                                      <div>
+                                        <p className="text-muted-foreground">Prescription Due</p>
+                                        <p className="font-medium">
+                                          {new Date(prescription.due_date).toLocaleDateString()}
+                                        </p>
+                                      </div>
+                                    )}
                                   </div>
 
                                   {prescription.instructions && (
@@ -314,29 +387,44 @@ export default function ParentPrescriptionsPage() {
                                   )}
 
                                   {/* Actions */}
-                                  {prescription.consent_status === 'pending' && (
-                                    <div className="flex gap-2 justify-end pt-4 border-t">
+                                  <div className="flex gap-2 justify-end pt-4 border-t">
+                                    {prescription.consent_status === 'pending' && (
+                                      <>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => handleReject(prescription.child_medication_id)}
+                                          disabled={processingId === prescription.child_medication_id}
+                                        >
+                                          {processingId === prescription.child_medication_id
+                                            ? 'Rejecting...'
+                                            : t('reject')}
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          onClick={() => handleApprove(prescription.child_medication_id)}
+                                          disabled={processingId === prescription.child_medication_id}
+                                        >
+                                          {processingId === prescription.child_medication_id
+                                            ? 'Approving...'
+                                            : t('approve')}
+                                        </Button>
+                                      </>
+                                    )}
+                                    {(prescription.consent_status === 'approved' || prescriptionStatus) && (
                                       <Button
                                         size="sm"
                                         variant="outline"
-                                        onClick={() => handleReject(prescription.child_medication_id)}
-                                        disabled={processingId === prescription.child_medication_id}
+                                        onClick={() => handleUploadPrescription(prescription.child_medication_id)}
+                                        disabled={uploadingId === prescription.child_medication_id}
                                       >
-                                        {processingId === prescription.child_medication_id
-                                          ? 'Rejecting...'
-                                          : t('reject')}
+                                        <Upload className="w-4 h-4 mr-2" />
+                                        {uploadingId === prescription.child_medication_id
+                                          ? 'Uploading...'
+                                          : 'Upload Updated Prescription'}
                                       </Button>
-                                      <Button
-                                        size="sm"
-                                        onClick={() => handleApprove(prescription.child_medication_id)}
-                                        disabled={processingId === prescription.child_medication_id}
-                                      >
-                                        {processingId === prescription.child_medication_id
-                                          ? 'Approving...'
-                                          : t('approve')}
-                                      </Button>
-                                    </div>
-                                  )}
+                                    )}
+                                  </div>
                                 </div>
                               </CardContent>
                             </Card>
@@ -389,6 +477,43 @@ export default function ParentPrescriptionsPage() {
                 : confirmAction === 'approve'
                 ? 'Approve'
                 : 'Reject'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Upload Prescription Dialog */}
+      <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Upload Updated Prescription</DialogTitle>
+            <DialogDescription>
+              Enter the document reference number or URL for the updated prescription document.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              placeholder="Document reference number or URL"
+              value={uploadDocUrl}
+              onChange={(e) => setUploadDocUrl(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-2 justify-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowUploadDialog(false);
+                setUploadingId(null);
+                setUploadDocUrl('');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={submitPrescriptionUpload}
+              disabled={uploadingId === null || !uploadDocUrl.trim()}
+            >
+              {uploadingId ? 'Uploading...' : 'Upload'}
             </Button>
           </div>
         </DialogContent>

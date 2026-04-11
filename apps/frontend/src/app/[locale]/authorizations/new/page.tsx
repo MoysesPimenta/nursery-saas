@@ -18,12 +18,13 @@ import { z } from 'zod';
 
 const authorizationSchema = z.object({
   childId: z.string().min(1, 'Child is required'),
-  authorizationType: z.enum(['medication_administration', 'treatment', 'emergency_care', 'field_trip_medical']),
-  medicationName: z.string().optional(),
-  dosageInfo: z.string().optional(),
-  specialInstructions: z.string().optional(),
-  priority: z.enum(['normal', 'urgent']),
+  type: z.enum(['pickup', 'medical', 'field_trip', 'medication_administration']),
+  authorizedPersonName: z.string().min(1, 'Authorized person name is required'),
+  authorizedPersonPhone: z.string().min(1, 'Phone number is required'),
+  relationship: z.enum(['parent', 'guardian', 'relative', 'emergency_contact', 'other']),
+  notes: z.string().optional(),
   expiresAt: z.string().optional(),
+  priority: z.enum(['normal', 'urgent']),
 });
 
 type AuthorizationFormData = z.infer<typeof authorizationSchema>;
@@ -72,7 +73,12 @@ export default function NewAuthorizationPage() {
     const newErrors: Record<string, string> = {};
 
     if (!formData.childId) newErrors.childId = 'Child is required';
-    if (!formData.authorizationType) newErrors.authorizationType = 'Authorization type is required';
+    if (!formData.type) newErrors.type = 'Authorization type is required';
+    if (!formData.authorizedPersonName)
+      newErrors.authorizedPersonName = 'Authorized person name is required';
+    if (!formData.authorizedPersonPhone)
+      newErrors.authorizedPersonPhone = 'Phone number is required';
+    if (!formData.relationship) newErrors.relationship = 'Relationship is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -84,18 +90,16 @@ export default function NewAuthorizationPage() {
     if (!validate()) return;
 
     try {
-      // Build notes from treatment details
-      const treatmentDetails = [];
-      if (formData.medicationName) treatmentDetails.push(`Medication: ${formData.medicationName}`);
-      if (formData.dosageInfo) treatmentDetails.push(`Dosage: ${formData.dosageInfo}`);
-      if (formData.specialInstructions) treatmentDetails.push(`Instructions: ${formData.specialInstructions}`);
-
+      // Transform camelCase to snake_case for API
       const payload = {
         child_id: formData.childId!,
-        symptoms: formData.authorizationType!,
-        notes: treatmentDetails.join('\n'),
-        priority: formData.priority!,
+        type: formData.type!,
+        authorized_person_name: formData.authorizedPersonName!,
+        authorized_person_phone: formData.authorizedPersonPhone!,
+        relationship: formData.relationship!,
+        notes: formData.notes,
         expires_at: formData.expiresAt || null,
+        priority: formData.priority!,
       };
 
       const result = await createAuth(payload);
@@ -174,13 +178,13 @@ export default function NewAuthorizationPage() {
               </Select>
             </FormField>
 
-            <FormField label={t('authorizationType')} error={errors.authorizationType} required>
-              <Select name="authorizationType" value={formData.authorizationType || ''} onChange={handleChange}>
+            <FormField label={t('authorizationType')} error={errors.type} required>
+              <Select name="type" value={formData.type || ''} onChange={handleChange}>
                 <option value="">{t('selectType', { defaultValue: 'Select type' })}</option>
-                <option value="medication_administration">{t('medicationAdministration', { defaultValue: 'Medication Administration' })}</option>
-                <option value="treatment">{t('treatment', { defaultValue: 'Treatment' })}</option>
-                <option value="emergency_care">{t('emergencyCare', { defaultValue: 'Emergency Care' })}</option>
-                <option value="field_trip_medical">{t('fieldTripMedical', { defaultValue: 'Field Trip Medical' })}</option>
+                <option value="pickup">Pickup</option>
+                <option value="medical">Medical</option>
+                <option value="field_trip">Field Trip</option>
+                <option value="medication_administration">Medication Administration</option>
               </Select>
             </FormField>
           </form>
@@ -189,39 +193,41 @@ export default function NewAuthorizationPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{t('treatmentDetails')}</CardTitle>
+          <CardTitle>{t('authorizedPersonDetails')}</CardTitle>
           <CardDescription>
-            {t('treatmentDetailsDesc')}
+            {t('infoAboutPerson')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <FormField label={t('medicationName', { defaultValue: 'Medication/Treatment Name' })}>
+            <FormField label={t('authorizedPersonName')} error={errors.authorizedPersonName} required>
               <Input
-                name="medicationName"
-                placeholder={t('enterMedicationName', { defaultValue: 'e.g., Ibuprofen, Physical Therapy' })}
-                value={formData.medicationName || ''}
+                name="authorizedPersonName"
+                placeholder={t('fullNamePlaceholder', { defaultValue: 'Full name' })}
+                value={formData.authorizedPersonName || ''}
                 onChange={handleChange}
               />
             </FormField>
 
-            <FormField label={t('dosageInfo', { defaultValue: 'Dosage/Administration Info' })}>
+            <FormField label={t('phoneNumber')} error={errors.authorizedPersonPhone} required>
               <Input
-                name="dosageInfo"
-                placeholder={t('enterDosageInfo', { defaultValue: 'e.g., 200mg twice daily' })}
-                value={formData.dosageInfo || ''}
+                name="authorizedPersonPhone"
+                type="tel"
+                placeholder="+1 (555) 123-4567"
+                value={formData.authorizedPersonPhone || ''}
                 onChange={handleChange}
               />
             </FormField>
 
-            <FormField label={t('specialInstructions', { defaultValue: 'Special Instructions' })}>
-              <Textarea
-                name="specialInstructions"
-                placeholder={t('enterInstructions', { defaultValue: 'Any special instructions or notes...' })}
-                value={formData.specialInstructions || ''}
-                onChange={handleChange}
-                className="min-h-[80px]"
-              />
+            <FormField label={t('relationship')} error={errors.relationship} required>
+              <Select name="relationship" value={formData.relationship || ''} onChange={handleChange}>
+                <option value="">{t('selectRelationship', { defaultValue: 'Select relationship' })}</option>
+                <option value="parent">Parent</option>
+                <option value="guardian">Guardian</option>
+                <option value="relative">Relative</option>
+                <option value="emergency_contact">Emergency Contact</option>
+                <option value="other">Other</option>
+              </Select>
             </FormField>
           </form>
         </CardContent>
@@ -231,16 +237,19 @@ export default function NewAuthorizationPage() {
         <CardHeader>
           <CardTitle>{t('additionalInfo')}</CardTitle>
           <CardDescription>
-            {t('priorityAndExpiration')}
+            {t('notesAndExpiration')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <FormField label={t('priority')}>
-              <Select name="priority" value={formData.priority || 'normal'} onChange={handleChange}>
-                <option value="normal">{t('normal')}</option>
-                <option value="urgent">{t('urgent')}</option>
-              </Select>
+            <FormField label={t('notes')}>
+              <Textarea
+                name="notes"
+                placeholder="Any additional information or special instructions..."
+                value={formData.notes || ''}
+                onChange={handleChange}
+                className="min-h-[100px]"
+              />
             </FormField>
 
             <FormField label={t('expirationDate')}>
@@ -250,6 +259,13 @@ export default function NewAuthorizationPage() {
                 value={formData.expiresAt || ''}
                 onChange={handleChange}
               />
+            </FormField>
+
+            <FormField label={t('priority')}>
+              <Select name="priority" value={formData.priority || 'normal'} onChange={handleChange}>
+                <option value="normal">{t('normal')}</option>
+                <option value="urgent">{t('urgent')}</option>
+              </Select>
             </FormField>
           </form>
         </CardContent>

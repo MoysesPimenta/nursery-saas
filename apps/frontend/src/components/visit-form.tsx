@@ -112,19 +112,19 @@ export function VisitForm({
     const fetchChildSummary = async () => {
       setLoadingChildSummary(true);
       try {
-        const summary = await apiGet<{ data: ChildAllergyMedication & { date_of_birth?: string } }>(
+        const summary = await apiGet<ChildAllergyMedication & { date_of_birth?: string }>(
           `/api/v1/children/${formData.childId}/summary`
         );
 
-        if (summary.data) {
+        if (summary) {
           setChildSummary({
-            allergies: summary.data.allergies || [],
-            medications: summary.data.medications || [],
+            allergies: summary.allergies || [],
+            medications: summary.medications || [],
           });
 
           // Calculate age in months if date_of_birth is available
-          if (summary.data.date_of_birth) {
-            const ageInMonths = calculateAgeInMonths(summary.data.date_of_birth);
+          if (summary.date_of_birth) {
+            const ageInMonths = calculateAgeInMonths(summary.date_of_birth);
             setChildAgeInMonths(ageInMonths);
           }
         }

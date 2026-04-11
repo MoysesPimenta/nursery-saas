@@ -11,6 +11,8 @@ const linkMedicationSchema = z.object({
   end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format').nullable().optional(),
   prescribed_by: z.string().optional(),
   notes: z.string().optional(),
+  due_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format').optional(),
+  prescription_document_url: z.string().url('Invalid URL format').optional(),
 });
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
@@ -27,7 +29,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       // Get all medications for the child with full medication details
       const { data, error } = await supabase
         .from('child_medications')
-        .select('id, dosage, frequency, start_date, end_date, prescribed_by, authorization_document_url, notes, medications(id, name, generic_name, dosage_form, default_dosage, instructions)')
+        .select('id, dosage, frequency, start_date, end_date, prescribed_by, authorization_document_url, notes, due_date, reminder_sent, prescription_document_url, medications(id, name, generic_name, dosage_form, default_dosage, instructions)')
         .eq('child_id', id)
         .order('start_date', { ascending: false });
 
@@ -51,6 +53,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         prescribed_by: item.prescribed_by,
         authorization_document_url: item.authorization_document_url,
         notes: item.notes,
+        due_date: item.due_date,
+        reminder_sent: item.reminder_sent,
+        prescription_document_url: item.prescription_document_url,
       })) || [];
 
       return successResponse(medications);
@@ -87,8 +92,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
           end_date: validatedData.end_date || null,
           prescribed_by: validatedData.prescribed_by || null,
           notes: validatedData.notes || null,
+          due_date: validatedData.due_date || null,
+          prescription_document_url: validatedData.prescription_document_url || null,
         })
-        .select('id, dosage, frequency, start_date, end_date, prescribed_by, authorization_document_url, notes, medications(id, name, generic_name, dosage_form, default_dosage, instructions)')
+        .select('id, dosage, frequency, start_date, end_date, prescribed_by, authorization_document_url, notes, due_date, reminder_sent, prescription_document_url, medications(id, name, generic_name, dosage_form, default_dosage, instructions)')
         .single();
 
       if (error) {
@@ -114,6 +121,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         prescribed_by: data.prescribed_by,
         authorization_document_url: data.authorization_document_url,
         notes: data.notes,
+        due_date: data.due_date,
+        reminder_sent: data.reminder_sent,
+        prescription_document_url: data.prescription_document_url,
       };
 
       return successResponse(result, 201);

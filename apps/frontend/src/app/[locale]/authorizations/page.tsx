@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Textarea } from '@/components/ui/textarea';
 import { useApiQuery } from '@/lib/hooks/use-api';
 import { api } from '@/lib/api';
-import { Plus, AlertCircle, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Authorization {
@@ -56,6 +56,8 @@ export default function AuthorizationsPage() {
         body: JSON.stringify({ status: 'accepted' }),
       });
       await refetch();
+      // Redirect to create visit with authorization
+      router.push(`/${locale}/visits/new?authorizationId=${id}`);
     } catch (error) {
       console.error('Failed to accept authorization:', error);
       setProcessingId(null);
@@ -119,14 +121,7 @@ export default function AuthorizationsPage() {
             className="gap-2"
           >
             <RefreshCw className="w-4 h-4" />
-            Refresh
-          </Button>
-          <Button
-            onClick={() => router.push(`/${locale}/authorizations/new`)}
-            className="gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            {t('newAuth')}
+            {t('refresh', { defaultValue: 'Refresh' })}
           </Button>
         </div>
       </div>
@@ -163,10 +158,10 @@ export default function AuthorizationsPage() {
       {/* Tab Navigation */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="pending">Pending</TabsTrigger>
-          <TabsTrigger value="accepted">Accepted</TabsTrigger>
-          <TabsTrigger value="rejected">Rejected</TabsTrigger>
-          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="pending">{t('pending')}</TabsTrigger>
+          <TabsTrigger value="accepted">{t('accepted')}</TabsTrigger>
+          <TabsTrigger value="rejected">{t('rejected')}</TabsTrigger>
+          <TabsTrigger value="all">{t('all', { defaultValue: 'All' })}</TabsTrigger>
         </TabsList>
 
         {/* Content */}
@@ -176,7 +171,7 @@ export default function AuthorizationsPage() {
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-center py-8">
-                    <div className="text-muted-foreground">{t('loading', { defaultValue: 'Loading...' })}</div>
+                    <div className="text-muted-foreground">{t('loading')}</div>
                   </div>
                 </CardContent>
               </Card>
@@ -189,75 +184,78 @@ export default function AuthorizationsPage() {
                       {t('noAuthorizations')}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      {tab === 'pending' ? t('checkBackSoon') : t('nothingToShow')}
+                      {tab === 'pending' ? t('checkBackSoon', { defaultValue: 'Check back soon for new requests' }) : t('nothingToShow', { defaultValue: 'Nothing to show here' })}
                     </p>
                   </div>
                 </CardContent>
               </Card>
             ) : (
               <div className="space-y-3">
-                {sortedAuthorizations.map((auth, idx) => {
-                  const childName = auth.children
-                    ? `${auth.children.first_name} ${auth.children.last_name}`
-                    : auth.child_id;
-                  const authTypeLabel = auth.symptoms || 'Treatment';
-                  const statusColor = auth.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                      auth.status === 'accepted' ? 'bg-green-100 text-green-800' :
-                                      'bg-red-100 text-red-800';
-
-                  return (
-                    <motion.div
-                      key={auth.id}
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: idx * 0.05 }}
-                    >
-                      <Card className="hover:shadow-md transition-shadow">
-                        <CardContent className="pt-6">
-                          <div className="flex items-start justify-between mb-4">
+                {sortedAuthorizations.map((auth, idx) => (
+                  <motion.div
+                    key={auth.id}
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: idx * 0.05 }}
+                  >
+                    <Card className="hover:shadow-md transition-shadow">
+                      <CardContent className="pt-6">
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between">
                             <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-2">
-                                <h3 className="font-semibold text-lg">{childName}</h3>
-                                {auth.priority === 'urgent' && (
-                                  <Badge variant="destructive">{t('urgent')}</Badge>
-                                )}
-                                <Badge className={statusColor}>
-                                  {t(auth.status)}
-                                </Badge>
-                              </div>
-                              <p className="text-sm text-muted-foreground mb-2">
-                                {t('authType', { defaultValue: 'Treatment Type' })}: {authTypeLabel}
+                              <h3 className="font-semibold text-lg">
+                                {auth.children
+                                  ? `${auth.children.first_name} ${auth.children.last_name}`
+                                  : auth.child_id}
+                              </h3>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                <span className="font-medium">{t('symptoms', { defaultValue: 'Symptoms' })}:</span> {auth.symptoms}
                               </p>
-                              <p className="text-xs text-muted-foreground">
-                                {t('requestedBy', { defaultValue: 'Requested by' })}: {auth.requested_by}
-                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              {auth.priority === 'urgent' && (
+                                <span className="px-2 py-1 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100 rounded text-xs font-medium">
+                                  {t('urgent')}
+                                </span>
+                              )}
+                              <span className="px-2 py-1 rounded text-xs font-medium"
+                                style={{
+                                  backgroundColor: auth.status === 'pending' ? '#fef08a' : auth.status === 'accepted' ? '#dcfce7' : '#fee2e2',
+                                  color: auth.status === 'pending' ? '#713f12' : auth.status === 'accepted' ? '#166534' : '#991b1b'
+                                }}>
+                                {t(auth.status)}
+                              </span>
                             </div>
                           </div>
 
+                          <p className="text-xs text-muted-foreground">
+                            {t('requestedBy', { defaultValue: 'Requested by' })}: {auth.requested_by}
+                          </p>
+
                           {auth.status === 'pending' && (
-                            <div className="flex gap-2 justify-end pt-4 border-t">
+                            <div className="flex gap-2 justify-end pt-2 border-t">
                               <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => setRejectingId(auth.id)}
                                 disabled={processingId === auth.id}
                               >
-                                {processingId === auth.id ? t('rejecting', { defaultValue: 'Rejecting...' }) : t('reject', { defaultValue: 'Reject' })}
+                                {processingId === auth.id ? t('rejecting', { defaultValue: 'Rejecting...' }) : t('reject')}
                               </Button>
                               <Button
                                 size="sm"
                                 onClick={() => handleAccept(auth.id)}
                                 disabled={processingId === auth.id}
                               >
-                                {processingId === auth.id ? t('accepting', { defaultValue: 'Accepting...' }) : t('accept', { defaultValue: 'Accept' })}
+                                {processingId === auth.id ? t('accepting', { defaultValue: 'Accepting...' }) : t('accept')}
                               </Button>
                             </div>
                           )}
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  );
-                })}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
               </div>
             )}
           </TabsContent>

@@ -157,3 +157,37 @@
   background: hsl(var(--primary) / 0.2);
   color: hsl(var(--primary));
 }
+
+/* react-phone-number-input overrides */
+.PhoneInput {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.PhoneInputInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 0.875rem;
+}
+
+.PhoneInputCountry {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.PhoneInputCountrySelect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  border: none;
+  opacity: 0;
+  cursor: pointer;
+}
