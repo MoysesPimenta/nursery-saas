@@ -16,6 +16,7 @@ import { motion } from 'framer-motion';
 interface Visit {
   id: string;
   child_id: string;
+  child_name?: string;
   employee_id?: string;
   visit_type: 'authorization' | 'walk_in' | 'scheduled' | 'emergency';
   chief_complaint: string;
@@ -27,9 +28,11 @@ interface Visit {
 
 interface VisitsResponse {
   data: Visit[];
-  stats: {
+  pagination: {
+    page: number;
+    limit: number;
     total: number;
-    byType: Record<string, number>;
+    pages: number;
   };
 }
 
@@ -77,12 +80,12 @@ export default function VisitsPage() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Build query params
+  // Build query params — must match backend getFilterParams keys
   const queryParams = new URLSearchParams();
   if (debouncedSearch) queryParams.append('search', debouncedSearch);
-  if (visitType !== 'all') queryParams.append('visitType', visitType);
-  queryParams.append('startDate', startDate);
-  queryParams.append('endDate', endDate);
+  if (visitType !== 'all') queryParams.append('visit_type', visitType);
+  queryParams.append('date_from', startDate);
+  queryParams.append('date_to', endDate);
   queryParams.append('page', page.toString());
   queryParams.append('limit', '20');
 
@@ -91,7 +94,16 @@ export default function VisitsPage() {
   );
 
   const visits = visitsData?.data || [];
-  const stats = visitsData?.stats || { total: 0, byType: {} };
+  const totalItems = visitsData?.pagination?.total || 0;
+
+  // Compute stats from current page data
+  const stats = {
+    total: totalItems,
+    byType: visits.reduce((acc: Record<string, number>, v) => {
+      acc[v.visit_type] = (acc[v.visit_type] || 0) + 1;
+      return acc;
+    }, {}),
+  };
 
   const columns = [
     {
@@ -110,7 +122,9 @@ export default function VisitsPage() {
     {
       key: 'child_id' as const,
       label: t('child') || 'Child',
-      render: (value: string) => <span className="font-medium">{value}</span>,
+      render: (value: string, row: Visit) => (
+        <span className="font-medium">{row.child_name || value}</span>
+      ),
     },
     {
       key: 'visit_type' as const,

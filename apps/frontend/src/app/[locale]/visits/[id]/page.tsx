@@ -53,12 +53,10 @@ export default function VisitDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isEndingVisit, setIsEndingVisit] = useState(false);
 
-  // Fetch visit details
-  const { data: visitData, loading, refetch } = useApiQuery<{ data: Visit }>(
+  // Fetch visit details — successResponse returns data directly, not wrapped
+  const { data: visit, loading, refetch } = useApiQuery<Visit & { child?: any }>(
     `/api/v1/visits/${visitId}`
   );
-
-  const visit = visitData?.data;
 
   // End visit mutation
   const { execute: endVisit, loading: isEnding } = useApiMutation<any>(
@@ -177,7 +175,11 @@ export default function VisitDetailPage() {
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
-            <h1 className="text-2xl font-bold tracking-tight">{visit.child_id}</h1>
+            <h1 className="text-2xl font-bold tracking-tight">
+              {(visit as any).child
+                ? `${(visit as any).child.first_name} ${(visit as any).child.last_name}`
+                : visit.child_id}
+            </h1>
           </div>
           <div className="flex gap-2 ml-10 flex-wrap">
             <Badge variant={visitTypeConfig[visit.visit_type]?.color || 'default'}>
