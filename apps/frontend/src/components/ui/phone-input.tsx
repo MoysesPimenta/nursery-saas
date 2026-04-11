@@ -2,7 +2,6 @@
 
 import React from 'react';
 import PhoneInputLib from 'react-phone-number-input';
-import 'react-phone-number-input/style.css';
 import { cn } from '@/lib/utils';
 
 export interface PhoneInputProps {

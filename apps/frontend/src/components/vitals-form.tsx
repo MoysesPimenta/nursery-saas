@@ -148,13 +148,11 @@ export function VitalsForm({
           {childAgeInMonths !== undefined && getEvaluationForField('Temperature') && (
             <div className="flex gap-2 items-center flex-wrap">
               {(() => {
-                const eval = getEvaluationForField('Temperature');
-                return eval ? (
-                  <>
-                    <Badge variant={getStatusBadgeVariant(eval.status)}>
-                      {eval.status === 'normal' ? '✓' : eval.status === 'warning' ? '⚠' : '⚠'} {eval.message}
-                    </Badge>
-                  </>
+                const result = getEvaluationForField('Temperature');
+                return result ? (
+                  <Badge variant={getStatusBadgeVariant(result.status)}>
+                    {result.status === 'normal' ? '✓' : '⚠'} {result.message}
+                  </Badge>
                 ) : null;
               })()}
             </div>
@@ -193,13 +191,11 @@ export function VitalsForm({
           {childAgeInMonths !== undefined && getEvaluationForField('Blood Pressure') && (
             <div className="flex gap-2 items-center flex-wrap">
               {(() => {
-                const eval = getEvaluationForField('Blood Pressure');
-                return eval ? (
-                  <>
-                    <Badge variant={getStatusBadgeVariant(eval.status)}>
-                      {eval.status === 'normal' ? '✓' : eval.status === 'warning' ? '⚠' : '⚠'} {eval.message}
-                    </Badge>
-                  </>
+                const result = getEvaluationForField('Blood Pressure');
+                return result ? (
+                  <Badge variant={getStatusBadgeVariant(result.status)}>
+                    {result.status === 'normal' ? '✓' : '⚠'} {result.message}
+                  </Badge>
                 ) : null;
               })()}
             </div>
@@ -227,13 +223,11 @@ export function VitalsForm({
           {childAgeInMonths !== undefined && getEvaluationForField('Heart Rate') && (
             <div className="flex gap-2 items-center flex-wrap">
               {(() => {
-                const eval = getEvaluationForField('Heart Rate');
-                return eval ? (
-                  <>
-                    <Badge variant={getStatusBadgeVariant(eval.status)}>
-                      {eval.status === 'normal' ? '✓' : eval.status === 'warning' ? '⚠' : '⚠'} {eval.message}
-                    </Badge>
-                  </>
+                const result = getEvaluationForField('Heart Rate');
+                return result ? (
+                  <Badge variant={getStatusBadgeVariant(result.status)}>
+                    {result.status === 'normal' ? '✓' : '⚠'} {result.message}
+                  </Badge>
                 ) : null;
               })()}
             </div>
