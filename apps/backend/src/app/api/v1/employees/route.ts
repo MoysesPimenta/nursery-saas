@@ -6,6 +6,8 @@ import { getUserClient, parsePagination, errorResponse, paginatedResponse, getSe
 const createEmployeeSchema = z.object({
   first_name: z.string().min(1, 'First name required'),
   last_name: z.string().min(1, 'Last name required'),
+  email: z.string().email('Valid email required').optional().nullable(),
+  phone: z.string().optional().nullable(),
   user_id: z.string().uuid().optional().nullable(),
   date_of_birth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format').optional(),
   department_id: z.string().uuid().optional().nullable(),

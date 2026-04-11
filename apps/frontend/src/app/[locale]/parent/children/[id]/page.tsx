@@ -9,8 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { VisitTimeline } from '@/components/visit-timeline';
-import { MedicationList } from '@/components/medication-list';
 import { AllergyBadge } from '@/components/allergy-badge';
 import { motion } from 'framer-motion';
 import { ArrowLeft, AlertCircle, Loader } from 'lucide-react';
@@ -113,14 +111,15 @@ export default function ChildDetailPage() {
         setError(null);
 
         const childData = await apiGet<DetailedChild>(`/api/v1/children/${childId}`);
-        const visitsData = await apiGet<any[]>(
+        const visitsResponse = await apiGet<{ data: any[] }>(
           `/api/v1/visits?child_id=${childId}&limit=10`
         );
+        const visitsData = visitsResponse?.data || [];
 
         setChild({
           ...childData,
-          visits: visitsData || [],
-          lastVisit: visitsData?.[0],
+          visits: visitsData,
+          lastVisit: visitsData[0],
         });
       } catch (err) {
         setError(
@@ -344,11 +343,30 @@ export default function ChildDetailPage() {
                     {t('recentActivity')}
                   </CardTitle>
                   <CardDescription>
-                    {t('lastVisits', { count: recentVisits.length })}
+                    Last {recentVisits.length} visits
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <VisitTimeline visits={recentVisits} />
+                  <div className="space-y-3">
+                    {recentVisits.map((visit: any) => (
+                      <div key={visit.id} className="flex items-start gap-3 p-3 border rounded-lg">
+                        <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-medium">
+                              {visit.started_at ? formatDate(visit.started_at) : 'Unknown date'}
+                            </span>
+                            <span className="px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200">
+                              {(visit.visit_type || 'unknown').replace('_', ' ')}
+                            </span>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {visit.chief_complaint || 'No complaint recorded'}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -365,7 +383,40 @@ export default function ChildDetailPage() {
               </CardHeader>
               <CardContent>
                 {child.visits && child.visits.length > 0 ? (
-                  <VisitTimeline visits={child.visits} />
+                  <div className="space-y-3">
+                    {child.visits.map((visit: any) => (
+                      <div key={visit.id} className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">
+                              {visit.started_at ? formatDate(visit.started_at) : 'Unknown date'}
+                            </span>
+                            <span className="px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200">
+                              {(visit.visit_type || 'unknown').replace('_', ' ')}
+                            </span>
+                          </div>
+                          {visit.disposition && (
+                            <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200">
+                              {visit.disposition.replace('_', ' ')}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-foreground mb-2">
+                          {visit.chief_complaint || 'No complaint recorded'}
+                        </p>
+                        {visit.assessment && (
+                          <p className="text-xs text-muted-foreground">
+                            <span className="font-medium">Assessment:</span> {visit.assessment}
+                          </p>
+                        )}
+                        {visit.treatment && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            <span className="font-medium">Treatment:</span> {visit.treatment}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 ) : (
                   <p className="text-center text-muted-foreground py-8">
                     No visits recorded yet.
@@ -386,7 +437,28 @@ export default function ChildDetailPage() {
               </CardHeader>
               <CardContent>
                 {child.medications && child.medications.length > 0 ? (
-                  <MedicationList medications={child.medications} />
+                  <div className="space-y-3">
+                    {child.medications.map((med: any) => (
+                      <div key={med.id} className="border rounded-lg p-4">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h4 className="font-medium text-foreground">{med.name}</h4>
+                            {med.dosage_form && (
+                              <p className="text-sm text-muted-foreground mt-1">
+                                Form: {med.dosage_form}
+                              </p>
+                            )}
+                            {med.default_dosage && (
+                              <p className="text-sm text-muted-foreground">
+                                Default dosage: {med.default_dosage}
+                              </p>
+                            )}
+                          </div>
+                          <Badge variant="secondary">Active</Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 ) : (
                   <p className="text-center text-muted-foreground py-8">
                     No medications recorded.
@@ -422,11 +494,11 @@ export default function ChildDetailPage() {
                             )}
                             <p className="text-xs text-muted-foreground">
                               Diagnosed:{' '}
-                              {formatDate(allergy.createdAt)}
+                              {formatDate(allergy.created_at)}
                             </p>
                           </div>
                           <AllergyBadge
-                            severity={allergy.severityLevel}
+                            severity={allergy.severity_level}
                           />
                         </div>
                       </Card>

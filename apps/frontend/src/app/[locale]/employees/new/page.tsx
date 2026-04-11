@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { FormField } from '@/components/ui/form-field';
 import { useApiMutation, useApiQuery } from '@/lib/hooks/use-api';
 import { motion } from 'framer-motion';
@@ -181,12 +182,16 @@ export default function NewEmployeePage() {
             </FormField>
 
             <FormField label="Phone Number">
-              <Input
+              <PhoneInput
                 name="phone"
-                type="tel"
-                placeholder="+1 (555) 123-4567"
+                placeholder="11 99999-9999"
                 value={formData.phone || ''}
-                onChange={handleChange}
+                onChange={(value) => {
+                  setFormData((prev) => ({ ...prev, phone: value }));
+                  if (errors.phone) {
+                    setErrors((prev) => ({ ...prev, phone: '' }));
+                  }
+                }}
               />
             </FormField>
 

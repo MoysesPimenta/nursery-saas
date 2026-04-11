@@ -6,6 +6,8 @@ import { getUserClient, errorResponse, successResponse, validateUUID } from '@/l
 const updateEmployeeSchema = z.object({
   first_name: z.string().min(1).optional(),
   last_name: z.string().min(1).optional(),
+  email: z.string().email().nullable().optional(),
+  phone: z.string().nullable().optional(),
   user_id: z.string().uuid().nullable().optional(),
   date_of_birth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   department_id: z.string().uuid().nullable().optional(),
