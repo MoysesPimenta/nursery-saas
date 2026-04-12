@@ -6,7 +6,7 @@ import { AuthProvider } from '@/lib/auth-context';
 import { PageLoading } from '@/components/ui/loading';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 const PUBLIC_ROUTES = ['/auth/login', '/auth/signup', '/auth/reset-password', '/auth/mfa'];
 

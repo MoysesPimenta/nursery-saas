@@ -1,3 +1,4 @@
+import React from 'react';
 import type { Metadata } from 'next';
 import 'react-phone-number-input/style.css';
 import './globals.css';
