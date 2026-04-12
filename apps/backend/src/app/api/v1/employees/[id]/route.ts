@@ -3,6 +3,35 @@ import { z } from 'zod';
 import { requireAuth, requirePermission } from '@/lib/auth/rbac';
 import { getUserClient, errorResponse, successResponse, validateUUID } from '@/lib/api/helpers';
 
+interface AllergyInfo {
+  id: string;
+  name: string;
+  severity_level: string;
+  description?: string;
+}
+
+interface EmployeeAllergyRecord {
+  allergies?: AllergyInfo;
+  reaction_description: string;
+}
+
+interface MedicationInfo {
+  id: string;
+  name: string;
+  dosage_form?: string;
+}
+
+interface EmployeeMedicationRecord {
+  medications?: MedicationInfo;
+  dosage: string;
+  frequency: string;
+  start_date: string;
+  end_date?: string;
+  prescribed_by?: string;
+  notes?: string;
+  due_date?: string;
+}
+
 const updateEmployeeSchema = z.object({
   first_name: z.string().min(1).optional(),
   last_name: z.string().min(1).optional(),
@@ -66,17 +95,17 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     const employeeWithDetails = {
       ...employee,
-      allergies: allergies?.map((a) => ({
-        id: (a.allergies as any)?.id,
-        name: (a.allergies as any)?.name,
-        severity_level: (a.allergies as any)?.severity_level,
-        description: (a.allergies as any)?.description,
+      allergies: allergies?.map((a: EmployeeAllergyRecord) => ({
+        id: a.allergies?.id,
+        name: a.allergies?.name,
+        severity_level: a.allergies?.severity_level,
+        description: a.allergies?.description,
         reaction_description: a.reaction_description,
       })) || [],
-      medications: medications?.map((m) => ({
-        id: (m.medications as any)?.id,
-        name: (m.medications as any)?.name,
-        dosage_form: (m.medications as any)?.dosage_form,
+      medications: medications?.map((m: EmployeeMedicationRecord) => ({
+        id: m.medications?.id,
+        name: m.medications?.name,
+        dosage_form: m.medications?.dosage_form,
         dosage: m.dosage,
         frequency: m.frequency,
         start_date: m.start_date,

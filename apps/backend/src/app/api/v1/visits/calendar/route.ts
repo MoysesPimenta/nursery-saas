@@ -2,10 +2,53 @@ import { NextRequest } from 'next/server';
 import { requireAuth } from '@/lib/auth/rbac';
 import { getUserClient, getFilterParams, errorResponse, successResponse } from '@/lib/api/helpers';
 
+interface VisitRecord {
+  id: string;
+  started_at: string;
+  visit_type: string;
+  chief_complaint: string;
+  children: {
+    first_name: string;
+    last_name: string;
+  };
+}
+
+interface MedicationRecord {
+  id: string;
+  child_id: string;
+  start_date: string;
+  end_date: string | null;
+  dosage: string;
+  frequency: string;
+  medications: {
+    name: string;
+  };
+  children: {
+    first_name: string;
+    last_name: string;
+  };
+}
+
+interface CalendarVisitEvent {
+  id: string;
+  type: string;
+  complaint: string;
+  childName: string;
+  timestamp: string;
+}
+
+interface CalendarMedicationEvent {
+  id: string;
+  medicationName: string;
+  childName: string;
+  dosage: string;
+  frequency: string;
+}
+
 interface CalendarEvent {
   date: string;
-  visits: any[];
-  medications: any[];
+  visits: CalendarVisitEvent[];
+  medications: CalendarMedicationEvent[];
 }
 
 export const GET = requireAuth(async (req: NextRequest, user) => {
@@ -54,7 +97,7 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
     const eventsByDate: Record<string, CalendarEvent> = {};
 
     // Add visits
-    (visits || []).forEach((visit: any) => {
+    (visits || []).forEach((visit: VisitRecord) => {
       const visitDate = visit.started_at.split('T')[0];
       if (!eventsByDate[visitDate]) {
         eventsByDate[visitDate] = { date: visitDate, visits: [], medications: [] };
@@ -71,7 +114,7 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
     });
 
     // Add medications (grouped by medication date range)
-    (medications || []).forEach((med: any) => {
+    (medications || []).forEach((med: MedicationRecord) => {
       const startDateObj = new Date(med.start_date);
       const endDateObj = med.end_date ? new Date(med.end_date) : new Date(endDate);
       const currentDate = new Date(startDate);

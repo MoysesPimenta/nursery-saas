@@ -33,6 +33,16 @@ interface ChildAllergyRow {
   };
 }
 
+interface VisitRecord {
+  id: string;
+  visit_type: string;
+  chief_complaint: string;
+  disposition: string;
+  started_at: string;
+  ended_at?: string;
+  created_at: string;
+}
+
 interface DetailedChild {
   id: string;
   tenant_id: string;
@@ -52,8 +62,8 @@ interface DetailedChild {
   updated_at: string;
   allergies: ChildAllergyRow['allergies'][];
   medications: ChildMedicationRow['medications'][];
-  visits: any[];
-  lastVisit?: any;
+  visits: VisitRecord[];
+  lastVisit?: VisitRecord;
 }
 
 const containerVariants = {
@@ -111,7 +121,7 @@ export default function ChildDetailPage() {
         setError(null);
 
         const childData = await apiGet<DetailedChild>(`/api/v1/children/${childId}`);
-        const visitsResponse = await apiGet<{ data: any[] }>(
+        const visitsResponse = await apiGet<{ data: VisitRecord[] }>(
           `/api/v1/visits?child_id=${childId}&limit=10`
         );
         const visitsData = visitsResponse?.data || [];
@@ -348,7 +358,7 @@ export default function ChildDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {recentVisits.map((visit: any) => (
+                    {recentVisits.map((visit: VisitRecord) => (
                       <div key={visit.id} className="flex items-start gap-3 p-3 border rounded-lg">
                         <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
                         <div className="flex-1">
@@ -384,7 +394,7 @@ export default function ChildDetailPage() {
               <CardContent>
                 {child.visits && child.visits.length > 0 ? (
                   <div className="space-y-3">
-                    {child.visits.map((visit: any) => (
+                    {child.visits.map((visit: VisitRecord) => (
                       <div key={visit.id} className="border rounded-lg p-4">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
@@ -438,7 +448,7 @@ export default function ChildDetailPage() {
               <CardContent>
                 {child.medications && child.medications.length > 0 ? (
                   <div className="space-y-3">
-                    {child.medications.map((med: any) => (
+                    {child.medications.map((med: ChildMedicationRow['medications']) => (
                       <div key={med.id} className="border rounded-lg p-4">
                         <div className="flex items-start justify-between">
                           <div>

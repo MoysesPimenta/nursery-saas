@@ -11,16 +11,37 @@ import { useApiQuery, useApiMutation } from '@/lib/hooks/use-api';
 import { ArrowLeft, Edit2, Clock, Printer } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+interface ChildInfo {
+  first_name: string;
+  last_name: string;
+}
+
+interface MedicationInfo {
+  id: string;
+  name: string;
+  dosage?: string;
+}
+
+interface VitalsData {
+  temperature?: number | null;
+  temperatureUnit?: string;
+  systolicBP?: number | null;
+  diastolicBP?: number | null;
+  heartRate?: number | null;
+  weight?: number | null;
+  weightUnit?: string;
+}
+
 interface Visit {
   id: string;
   child_id: string;
   employee_id?: string;
   visit_type: 'authorization' | 'walk_in' | 'scheduled' | 'emergency';
   chief_complaint: string;
-  vitals: any;
+  vitals: VitalsData;
   assessment: string;
   treatment: string;
-  medications_administered: any[];
+  medications_administered: MedicationInfo[];
   disposition: 'returned_to_class' | 'sent_home' | 'referred' | 'hospitalized';
   parent_notified: boolean;
   started_at: string;
@@ -54,7 +75,7 @@ export default function VisitDetailPage() {
   const [isEndingVisit, setIsEndingVisit] = useState(false);
 
   // Fetch visit details — successResponse returns data directly, not wrapped
-  const { data: visit, loading, refetch } = useApiQuery<Visit & { child?: any }>(
+  const { data: visit, loading, refetch } = useApiQuery<Visit & { child?: ChildInfo }>(
     `/api/v1/visits/${visitId}`
   );
 
@@ -144,7 +165,18 @@ export default function VisitDetailPage() {
         </Button>
         <VisitForm
           onSubmit={handleUpdateVisit}
-          initialValues={visit as any}
+          initialValues={{
+            childId: visit.child_id,
+            employeeId: visit.employee_id,
+            visitType: visit.visit_type,
+            chiefComplaint: visit.chief_complaint,
+            vitals: visit.vitals as any,
+            assessment: visit.assessment,
+            treatment: visit.treatment,
+            medications: visit.medications_administered,
+            disposition: visit.disposition,
+            notifyParent: visit.parent_notified,
+          }}
           childName={visit.child_id}
           loading={isUpdating}
         />
@@ -176,8 +208,8 @@ export default function VisitDetailPage() {
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <h1 className="text-2xl font-bold tracking-tight">
-              {(visit as any).child
-                ? `${(visit as any).child.first_name} ${(visit as any).child.last_name}`
+              {visit.child
+                ? `${visit.child.first_name} ${visit.child.last_name}`
                 : visit.child_id}
             </h1>
           </div>

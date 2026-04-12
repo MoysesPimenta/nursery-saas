@@ -25,6 +25,19 @@ interface JWTPayload {
   email_verified?: boolean;
 }
 
+interface RoleRecord {
+  role_id: string;
+  roles?: {
+    name: string;
+  };
+}
+
+interface PermissionRecord {
+  permissions?: {
+    name: string;
+  };
+}
+
 /**
  * Extract and decode JWT payload without verification (used to get user ID)
  * Note: This doesn't verify the token signature, only extracts the payload
@@ -101,11 +114,11 @@ export async function verifyToken(token: string): Promise<AuthUser | null> {
     }
 
     const roles = roleData
-      ?.map((r: any) => r.roles?.name)
+      ?.map((r: RoleRecord) => r.roles?.name)
       .filter(Boolean) || [];
 
     // Fetch permissions for all user roles
-    const roleIds = roleData?.map((r: any) => r.role_id).filter(Boolean) || [];
+    const roleIds = roleData?.map((r: RoleRecord) => r.role_id).filter(Boolean) || [];
     let permissions: string[] = [];
 
     if (roleIds.length > 0) {
@@ -119,7 +132,7 @@ export async function verifyToken(token: string): Promise<AuthUser | null> {
       } else {
         // Deduplicate permissions
         permissions = [...new Set(
-          permData?.map((p: any) => p.permissions?.name).filter(Boolean) || []
+          permData?.map((p: PermissionRecord) => p.permissions?.name).filter(Boolean) || []
         )] as string[];
       }
     }

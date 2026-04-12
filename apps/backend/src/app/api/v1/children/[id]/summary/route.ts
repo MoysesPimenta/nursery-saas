@@ -2,6 +2,24 @@ import { NextRequest } from 'next/server';
 import { requireAuth } from '@/lib/auth/rbac';
 import { getUserClient, errorResponse, successResponse, validateUUID } from '@/lib/api/helpers';
 
+interface AllergyItem {
+  allergies?: {
+    name: string;
+    severity_level: string;
+  };
+  reaction_description?: string;
+}
+
+interface MedicationItem {
+  medications?: {
+    name: string;
+  };
+  dosage: string;
+  frequency?: string;
+  start_date?: string;
+  end_date?: string | null;
+}
+
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   return requireAuth(async (req: NextRequest, user) => {
     try {
@@ -46,14 +64,14 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       }
 
       // Transform allergies to compact format
-      const allergies = allergiesData?.map((item: any) => ({
+      const allergies = allergiesData?.map((item: AllergyItem) => ({
         name: item.allergies?.name,
         severity_level: item.allergies?.severity_level,
         reaction_description: item.reaction_description,
       })) || [];
 
       // Transform medications to compact format
-      const medications = medicationsData?.map((item: any) => ({
+      const medications = medicationsData?.map((item: MedicationItem) => ({
         name: item.medications?.name,
         dosage: item.dosage,
         frequency: item.frequency,

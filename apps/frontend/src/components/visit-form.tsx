@@ -179,7 +179,10 @@ export function VisitForm({
     }
   };
 
-  const handleFieldChange = (field: keyof VisitFormData, value: any) => {
+  const handleFieldChange = (
+    field: keyof VisitFormData,
+    value: string | number | boolean | Vitals | MedicationAdministration[]
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,

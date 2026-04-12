@@ -67,7 +67,10 @@ export function VitalsForm({
     }
   };
 
-  const handleChange = (field: keyof Vitals, value: any) => {
+  const handleChange = (
+    field: keyof Vitals,
+    value: string | number | null
+  ) => {
     const updated = {
       ...vitals,
       [field]: value === '' ? null : value,

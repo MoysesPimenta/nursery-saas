@@ -36,6 +36,14 @@ interface ApiAllergy {
   description?: string;
 }
 
+interface VisitRecord {
+  id: string;
+  started_at: string;
+  visit_type: string;
+  chief_complaint: string;
+  disposition: string;
+}
+
 // Convert snake_case API response to camelCase for shared types
 function mapChild(c: ApiChild): Child {
   return {
@@ -124,7 +132,7 @@ export default function ParentPortalPage() {
 
             // Get latest visit
             try {
-              const visitsResponse = await apiGet<{ data: any[] }>(
+              const visitsResponse = await apiGet<{ data: VisitRecord[] }>(
                 `/api/v1/visits?child_id=${child.id}&limit=1`
               );
               lastVisitDate = visitsResponse.data?.[0]?.started_at;

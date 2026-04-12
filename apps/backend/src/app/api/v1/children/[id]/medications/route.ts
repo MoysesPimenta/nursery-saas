@@ -3,6 +3,30 @@ import { z } from 'zod';
 import { requireAuth, requirePermission } from '@/lib/auth/rbac';
 import { getUserClient, errorResponse, successResponse, validateUUID } from '@/lib/api/helpers';
 
+interface MedicationInfo {
+  id: string;
+  name: string;
+  generic_name?: string;
+  dosage_form?: string;
+  default_dosage?: string;
+  instructions?: string;
+}
+
+interface ChildMedicationRecord {
+  id: string;
+  dosage: string;
+  frequency?: string;
+  start_date?: string;
+  end_date?: string | null;
+  prescribed_by?: string;
+  authorization_document_url?: string;
+  notes?: string;
+  due_date?: string;
+  reminder_sent?: boolean;
+  prescription_document_url?: string;
+  medications?: MedicationInfo;
+}
+
 const linkMedicationSchema = z.object({
   medication_id: z.string().uuid('Invalid medication ID format'),
   dosage: z.string().min(1, 'Dosage is required'),
@@ -38,7 +62,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       }
 
       // Transform the response to include full medication data at top level
-      const medications = data?.map((item: any) => ({
+      const medications = data?.map((item: ChildMedicationRecord) => ({
         child_medication_id: item.id,
         medication_id: item.medications?.id,
         name: item.medications?.name,

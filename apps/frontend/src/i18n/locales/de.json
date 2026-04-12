@@ -315,6 +315,8 @@
   "errors": {
     "generic": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
     "notFound": "Seite nicht gefunden",
+    "pageNotFound": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
+    "goToDashboard": "Zum Dashboard",
     "unauthorized": "Sie sind nicht berechtigt, diese Seite anzuzeigen.",
     "forbidden": "Sie haben keine Berechtigung, diese Aktion auszuführen.",
     "networkError": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",

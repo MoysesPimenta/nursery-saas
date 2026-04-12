@@ -62,6 +62,12 @@ const SCHEMA_MAP = {
   authorizations: authorizationRecordSchema,
 };
 
+type ValidRecord =
+  | z.infer<typeof childRecordSchema>
+  | z.infer<typeof employeeRecordSchema>
+  | z.infer<typeof visitRecordSchema>
+  | z.infer<typeof authorizationRecordSchema>;
+
 export const POST = requirePermission('view_reports', async (req: NextRequest, user) => {
   try {
     const body = await req.json();
@@ -86,7 +92,7 @@ export const POST = requirePermission('view_reports', async (req: NextRequest, u
     const supabase = getUserClient(req);
 
     // Validate and process each record
-    const validRecords: any[] = [];
+    const validRecords: ValidRecord[] = [];
     const errors: Array<{ index: number; errors: string[] }> = [];
 
     for (let i = 0; i < data.length; i++) {

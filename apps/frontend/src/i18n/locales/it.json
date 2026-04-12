@@ -315,6 +315,8 @@
   "errors": {
     "generic": "Qualcosa è andato storto. Per favore riprova.",
     "notFound": "Pagina non trovata",
+    "pageNotFound": "La pagina che stai cercando non esiste o è stata spostata.",
+    "goToDashboard": "Vai al Pannello",
     "unauthorized": "Non sei autorizzato a visualizzare questa pagina.",
     "forbidden": "Non hai il permesso di eseguire questa azione.",
     "networkError": "Errore di rete. Per favore controlla la tua connessione.",

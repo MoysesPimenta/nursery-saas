@@ -3,6 +3,21 @@ import { z } from 'zod';
 import { requireAuth, requirePermission } from '@/lib/auth/rbac';
 import { getUserClient, errorResponse, successResponse, validateUUID } from '@/lib/api/helpers';
 
+interface AllergyInfo {
+  id: string;
+  name: string;
+  severity_level: string;
+  description?: string;
+}
+
+interface EmployeeAllergyRecord {
+  id: string;
+  reaction_description?: string;
+  diagnosed_date?: string;
+  notes?: string;
+  allergies?: AllergyInfo;
+}
+
 const linkAllergySchema = z.object({
   allergy_id: z.string().uuid('Invalid allergy ID format'),
   reaction_description: z.string().optional(),
@@ -24,7 +39,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
       if (error) return errorResponse(error.message, 400);
 
-      const allergies = data?.map((item: any) => ({
+      const allergies = data?.map((item: EmployeeAllergyRecord) => ({
         child_allergy_id: item.id,
         allergy_id: item.allergies?.id,
         name: item.allergies?.name,

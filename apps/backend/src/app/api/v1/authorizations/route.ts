@@ -3,6 +3,22 @@ import { z } from 'zod';
 import { requireAuth } from '@/lib/auth/rbac';
 import { getUserClient, parsePagination, errorResponse, paginatedResponse, getFilterParams } from '@/lib/api/helpers';
 
+interface ChildInfo {
+  first_name: string;
+  last_name: string;
+}
+
+interface AuthorizationWithChild extends Record<string, unknown> {
+  children?: ChildInfo;
+  requested_by?: string;
+}
+
+interface Employee {
+  user_id: string;
+  first_name: string;
+  last_name: string;
+}
+
 const createAuthorizationSchema = z.object({
   child_id: z.string().uuid('Invalid child ID'),
   symptoms: z.string().optional(),
@@ -37,7 +53,7 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
     }
 
     // Resolve requester names from employees table
-    const requesterIds = [...new Set((data || []).map((a: any) => a.requested_by).filter(Boolean))];
+    const requesterIds = [...new Set((data || []).map((a: AuthorizationWithChild) => a.requested_by).filter(Boolean))];
     let requesterMap: Record<string, string> = {};
     if (requesterIds.length > 0) {
       const { data: employees } = await supabase
@@ -46,17 +62,17 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
         .in('user_id', requesterIds);
       if (employees) {
         requesterMap = Object.fromEntries(
-          employees.map((e: any) => [e.user_id, `${e.first_name} ${e.last_name}`])
+          employees.map((e: Employee) => [e.user_id, `${e.first_name} ${e.last_name}`])
         );
       }
     }
 
-    const enriched = (data || []).map((auth: Record<string, unknown>) => ({
+    const enriched = (data || []).map((auth: AuthorizationWithChild) => ({
       ...auth,
       child_name: auth.children
-        ? `${(auth.children as any).first_name} ${(auth.children as any).last_name}`
+        ? `${auth.children.first_name} ${auth.children.last_name}`
         : null,
-      requester_name: requesterMap[auth.requested_by as string] || null,
+      requester_name: requesterMap[auth.requested_by || ''] || null,
       children: undefined,
     }));
 

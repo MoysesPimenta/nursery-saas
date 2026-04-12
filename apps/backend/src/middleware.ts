@@ -220,25 +220,6 @@ function isRateLimited(key: string, limit: number): boolean {
   return entry.count > limit;
 }
 
-/**
- * Clean up old rate limit entries periodically (every 5 minutes)
- */
-function cleanupRateLimiter() {
-  const now = Date.now();
-  let cleaned = 0;
-
-  for (const [key, entry] of rateLimitStore.entries()) {
-    if (entry.resetTime < now) {
-      rateLimitStore.delete(key);
-      cleaned++;
-    }
-  }
-
-  if (cleaned > 0) {
-    console.log(`Cleaned up ${cleaned} rate limit entries`);
-  }
-}
-
 // Note: In-memory rate limiting resets on each serverless cold start.
 // For production, migrate to Redis or Vercel KV.
 

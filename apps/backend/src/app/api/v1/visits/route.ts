@@ -3,6 +3,15 @@ import { z } from 'zod';
 import { requireAuth, requirePermission } from '@/lib/auth/rbac';
 import { getUserClient, parsePagination, errorResponse, paginatedResponse, getFilterParams } from '@/lib/api/helpers';
 
+interface ChildInfo {
+  first_name: string;
+  last_name: string;
+}
+
+interface VisitWithChild extends Record<string, unknown> {
+  children?: ChildInfo;
+}
+
 const createVisitSchema = z.object({
   child_id: z.string().uuid('Invalid child ID').optional().nullable(),
   employee_id: z.string().uuid('Invalid employee ID').optional().nullable(),
@@ -52,10 +61,10 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
       return errorResponse(error.message, 400);
     }
 
-    const enriched = (data || []).map((visit: Record<string, unknown>) => ({
+    const enriched = (data || []).map((visit: VisitWithChild) => ({
       ...visit,
       child_name: visit.children
-        ? `${(visit.children as any).first_name} ${(visit.children as any).last_name}`
+        ? `${visit.children.first_name} ${visit.children.last_name}`
         : null,
       children: undefined,
     }));

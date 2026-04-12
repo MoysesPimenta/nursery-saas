@@ -2,10 +2,12 @@
 const nextConfig = {
   transpilePackages: ['@nursery-saas/shared'],
   eslint: {
-    ignoreDuringBuilds: true,
+    // Enabled: ESLint errors will now fail the build
+    // Previously ignored: ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: true,
+    // Enabled: TypeScript errors will now fail the build
+    // Previously ignored: ignoreBuildErrors: true,
   },
 };
 

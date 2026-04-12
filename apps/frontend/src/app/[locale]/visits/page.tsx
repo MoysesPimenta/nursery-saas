@@ -36,14 +36,16 @@ interface VisitsResponse {
   };
 }
 
-const visitTypeConfig: Record<string, { label: string; color: any }> = {
+type ColorVariant = string;
+
+const visitTypeConfig: Record<string, { label: string; color: ColorVariant }> = {
   authorization: { label: 'Authorization', color: 'authorization' },
   walk_in: { label: 'Walk-in', color: 'walk_in' },
   scheduled: { label: 'Scheduled', color: 'scheduled' },
   emergency: { label: 'Emergency', color: 'emergency' },
 };
 
-const dispositionConfig: Record<string, { label: string; color: any }> = {
+const dispositionConfig: Record<string, { label: string; color: ColorVariant }> = {
   returned_to_class: { label: 'Returned to Class', color: 'returned_to_class' },
   sent_home: { label: 'Sent Home', color: 'sent_home' },
   referred: { label: 'Referred', color: 'referred' },

@@ -3,6 +3,40 @@ import { z } from 'zod';
 import { requireAuth } from '@/lib/auth/rbac';
 import { getUserClient, errorResponse, successResponse } from '@/lib/api/helpers';
 
+interface ParentChild {
+  child_id: string;
+}
+
+interface ChildInfo {
+  first_name: string;
+  last_name: string;
+}
+
+interface MedicationInfo {
+  id: string;
+  name: string;
+  generic_name?: string;
+  dosage_form?: string;
+  default_dosage?: string;
+  instructions?: string;
+}
+
+interface ChildMedicationForParent {
+  id: string;
+  child_id: string;
+  dosage: string;
+  frequency?: string;
+  start_date?: string;
+  end_date?: string | null;
+  prescribed_by?: string;
+  notes?: string;
+  consent_status?: string;
+  consent_date?: string;
+  consented_by?: string;
+  children?: ChildInfo;
+  medications?: MedicationInfo;
+}
+
 const updateConsentSchema = z.object({
   child_medication_id: z.string().uuid('Invalid medication ID'),
   consent_status: z.enum(['approved', 'rejected']),
@@ -26,7 +60,7 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
       return successResponse({ data: [] });
     }
 
-    const childIds = parentChildren.map((cp: any) => cp.child_id);
+    const childIds = parentChildren.map((cp: ParentChild) => cp.child_id);
 
     // Get all medications for these children with consent status
     const { data: medications, error: medError } = await supabase
@@ -46,7 +80,7 @@ export const GET = requireAuth(async (req: NextRequest, user) => {
     }
 
     // Transform response
-    const transformed = (medications || []).map((med: any) => ({
+    const transformed = (medications || []).map((med: ChildMedicationForParent) => ({
       child_medication_id: med.id,
       child_id: med.child_id,
       child_name: med.children ? `${med.children.first_name} ${med.children.last_name}` : 'Unknown',

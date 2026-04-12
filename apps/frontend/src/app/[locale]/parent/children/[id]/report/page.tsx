@@ -43,7 +43,15 @@ interface DetailedChild {
     dosage_form?: string;
     default_dosage?: string;
   }>;
-  visits: any[];
+  visits: Array<{
+    id: string;
+    visit_type: string;
+    chief_complaint: string;
+    disposition: string;
+    started_at: string;
+    ended_at?: string;
+    created_at: string;
+  }>;
 }
 
 function getInitials(firstName: string, lastName: string): string {

@@ -84,7 +84,7 @@ function getRoleVariant(roleName: string): 'success' | 'info' | 'warning' | 'pur
   return config?.variant || 'default';
 }
 
-function getRoleLabel(roleName: string, t: any): string {
+function getRoleLabel(roleName: string, t: (key: string) => string): string {
   const config = ROLE_CONFIG.find((r) => r.name === roleName);
   return config?.labelKey ? t(config.labelKey) : roleName;
 }
