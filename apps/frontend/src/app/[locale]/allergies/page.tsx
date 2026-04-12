@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,9 +10,8 @@ import { DataTable } from '@/components/ui/data-table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/modal';
 import { FormField } from '@/components/ui/form-field';
 import { Select } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { useApiQuery, useApiMutation } from '@/lib/hooks/use-api';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { Plus, Search, AlertCircle, Edit2, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -31,13 +30,6 @@ interface AllergiesResponse {
     total: number;
   };
 }
-
-const SEVERITY_BADGE_VARIANTS: Record<string, 'success' | 'warning' | 'destructive' | 'secondary'> = {
-  mild: 'success',
-  moderate: 'warning',
-  severe: 'destructive',
-  life_threatening: 'destructive',
-};
 
 const SEVERITY_COLORS: Record<string, string> = {
   mild: 'bg-green-100 dark:bg-green-950 text-green-800 dark:text-green-200',
@@ -60,9 +52,7 @@ export default function AllergiesPage() {
     severity_level: 'mild' as const,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const router = useRouter();
   const params = useParams();
-  const locale = params.locale as string;
 
   // Debounce search input
   useEffect(() => {
@@ -172,7 +162,7 @@ export default function AllergiesPage() {
     {
       key: 'name' as const,
       label: tc('name'),
-      render: (value: string, item: Allergy) => (
+      render: (value: string, _item: Allergy) => (
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white text-xs font-bold">
             <AlertCircle className="w-4 h-4" />
@@ -202,7 +192,7 @@ export default function AllergiesPage() {
     },
   ];
 
-  const rowActions = (item: Allergy) => [
+  const _rowActions = (item: Allergy) => [
     {
       label: tc('edit'),
       icon: Edit2,

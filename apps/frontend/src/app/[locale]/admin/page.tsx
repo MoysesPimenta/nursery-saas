@@ -1,7 +1,6 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { StatCard } from '@/components/ui/stat-card';
 import { motion } from 'framer-motion';
 import { BarChart3, Users, Building2, FileText, Settings, ArrowRight, Shield, Activity, CheckCircle2 } from 'lucide-react';

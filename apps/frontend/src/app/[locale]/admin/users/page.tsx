@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,13 +18,12 @@ import { motion } from 'framer-motion';
 import {
   Plus,
   Search,
-  MoreHorizontal,
   Edit2,
   X,
   AlertCircle,
   Loader,
 } from 'lucide-react';
-import { apiGet, apiPost, apiPatch } from '@/lib/api';
+import { apiGet, apiPost } from '@/lib/api';
 
 // Local interface matching backend snake_case response
 interface BackendUser {
@@ -84,7 +83,7 @@ function getRoleVariant(roleName: string): 'success' | 'info' | 'warning' | 'pur
   return config?.variant || 'default';
 }
 
-function getRoleLabel(roleName: string, t: (key: string) => string): string {
+function getRoleLabel(roleName: string, t: (_key: string) => string): string {
   const config = ROLE_CONFIG.find((r) => r.name === roleName);
   return config?.labelKey ? t(config.labelKey) : roleName;
 }

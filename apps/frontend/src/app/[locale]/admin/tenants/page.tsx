@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,12 +19,11 @@ import {
   Search,
   MoreHorizontal,
   Edit2,
-  Pause,
   AlertCircle,
   Loader,
 } from 'lucide-react';
 import { Tenant } from '@nursery-saas/shared';
-import { apiGet, apiPost, apiPatch } from '@/lib/api';
+import { apiGet, apiPost } from '@/lib/api';
 
 const containerVariants = {
   hidden: { opacity: 0 },
